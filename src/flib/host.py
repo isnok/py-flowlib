@@ -1,17 +1,20 @@
 import sh
 from collections import namedtuple
+from flib.args import args
 
 ShellResult = namedtuple("ShellResult", ['cmdline', 'stdout', 'stderr', 'exit_code'])
 
-def _reprif(thing):
+def repr_if(thing):
     string = str(thing)
     if " " in string:
         return repr(string)
     return string
 
-def _sh2res(result):
-    cmd = " ".join([_reprif(x) for x in result.cmd])
-    return ShellResult(cmd, result.stdout, result.stderr, result.exit_code)
+def lst2str(lst):
+    return " ".join([repr_if(x) for x in lst])
+
+def sh2res(r):
+    return ShellResult(lst2str(r.cmd), r.stdout, r.stderr, r.exit_code)
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
@@ -24,10 +27,67 @@ class Localhost(Host):
 
     def sh(self, command, *args):
         result = getattr(sh, command)(*args)
-        return _sh2res(result)
+        return sh2res(result)
 
     def run(self, command):
         '''emulate fabric.api.run'''
+        result = self.sh(command.split())
+        return sh2res(result)
+
+    def sudo(self, command):
+        '''emulate fabric.api.sudo'''
+        result = self._sudo(command.split())
+        return sh2res(result)
+
+    def put(self, source, dest):
+        result = self._cp(source, dest)
+        return sh2res(result)
+
+    def get(self, source, dest):
+        result = self._cp(source, dest)
+        return sh2res(result)
+
+
+from fabric import api as fabapi
+
+
+from functools import wraps
+
+def invisible(func):
+    if args.debug:
+        hide = fabapi.hide('nothing')
+    else:
+        fabapi.hide('everything')
+    @wraps(func)
+    def wrapped(*args, **kwd):
+        with fabapi.settings(hide, warn_only=True):
+            return func(*args, **kwd)
+    return wrapped
+
+def fab2res(r):
+    return ShellResult(r.real_command, r.stdout, r.stderr, r.return_code)
+
+
+class RemoteHost(Host):
+
+    def __init__(self, name, user=None, cwd='.'):
+        if user is None and not "@" in name:
+            name = "%s@%s" % (user, name)
+        elif user is not None:
+            name = "%s@%s" % (user, name)
+        self.user = name.split("@")[0]
+        self.login = name
+        self.cwd = cwd
+        self.connstr = "%s:%s" % (name, cwd)
+
+    @invisible
+    def sh(self, *args):
+        '''emulate sh.command(*args)'''
+        with fabapi.settings(host=self.login):
+            result = fabapi.run(lst2str(args))
+        return fab2res(result)
+
+    def run(self, command):
         result = self.sh(command.split())
         return result
 
@@ -43,17 +103,5 @@ class Localhost(Host):
     def get(self, source, dest):
         result = self._cp(source, dest)
         return result
-
-
-class RemoteHost(Host):
-
-    def __init__(self, name, user=None, cwd=None):
-        if user is None and not "@" in name:
-            name = "%s@%s" % (user, name)
-        elif user is not None:
-            name = "%s@%s" % (user, name)
-        if cwd is not None:
-            name = "%s:%s" % (name, cwd)
-        self.connstr = name
 
 # next up: implement remote hosts via fabric
