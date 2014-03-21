@@ -16,3 +16,6 @@ def expose(name):
 
 class Flow(object):
     '''Base class for flows'''
+
+    def __init__(self, repository):
+        self.repository = repository

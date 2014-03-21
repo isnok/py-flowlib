@@ -6,9 +6,12 @@ class Host(object):
 class Localhost(Host):
 
     def __init__(self):
-        self.sh = sh
         self._sudo = sh.sudo.bake()
         self._cp = sh.cp.bake("-n")
+
+    def sh(self, command, *args):
+        result = getattr(sh, command)(*args)
+        return result
 
     def run(self, command):
         '''emulate fabric.api.run'''
