@@ -22,13 +22,20 @@ args = docopt(__doc__)
 if args['--debug']:
     print args
 
-##
-#  import custom flows here
-##
+
 from configobj import ConfigObj
 config = ConfigObj(args['--config'])
 if args['--debug']:
     print config
+
+
+from importlib import import_module
+
+if 'flow' in config:
+    flowcfg = config['flow']
+    if 'class' in flowcfg:
+        import_module(flowcfg['class'])
+
 
 from flowlib.flow import cmd_reg
 
