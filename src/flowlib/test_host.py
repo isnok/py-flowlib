@@ -20,14 +20,20 @@ def localhost():
 def test_local_ls(localhost):
     ls = localhost.sh("ls")
     assert ls.exit_code == 0
-    assert "flowlib" in ls
+    assert "flowlib" in ls.stdout
 
 def test_local_echo(localhost):
     echo = localhost.sh("echo", "hello world")
-    assert echo.exit_code == 0
-    assert echo == "hello world\n"
     echoecho = localhost.sh("echo", "hello", "world")
-    assert echo == echoecho
+    assert echo != echoecho
+    assert echo.exit_code == 0
+    assert echo.stdout == "hello world\n"
+    assert echo.stderr == ""
+    assert echoecho.exit_code == 0
+    assert echoecho.stdout == "hello world\n"
+    assert echoecho.stderr == ""
+    assert echo.cmdline == "/bin/echo 'hello world'"
+    assert echoecho.cmdline == "/bin/echo hello world"
 
 #def test_ls(host):
     #assert host.sh("ls")
