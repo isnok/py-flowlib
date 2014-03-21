@@ -1,4 +1,5 @@
+Fabric==1.8.2
+configobj==5.0.2
 docopt==0.6.1
+pytest==2.5.2
 sh==1.09
-#py==1.4.20
-#pytest==2.5.2
