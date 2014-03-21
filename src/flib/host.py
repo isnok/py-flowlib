@@ -1,6 +1,5 @@
 import sh
 from collections import namedtuple
-from flib.args import args
 
 ShellResult = namedtuple("ShellResult", ['cmdline', 'stdout', 'stderr', 'exit_code'])
 
@@ -49,24 +48,22 @@ class Localhost(Host):
 
 
 from fabric import api as fabapi
-
-
 from functools import wraps
+try:
+    from flib.args import args
+except:
+    args = namedtuple("Defaults", ['debug'])(False)
 
 def invisible(func):
-    if args.debug:
-        hide = fabapi.hide('nothing')
-    else:
-        fabapi.hide('everything')
+    context = fabapi.warn_only if args.debug else fabapi.quiet
     @wraps(func)
     def wrapped(*args, **kwd):
-        with fabapi.settings(hide, warn_only=True):
+        with context():
             return func(*args, **kwd)
     return wrapped
 
 def fab2res(r):
     return ShellResult(r.real_command, r.stdout, r.stderr, r.return_code)
-
 
 class RemoteHost(Host):
 
@@ -83,13 +80,13 @@ class RemoteHost(Host):
     @invisible
     def sh(self, *args):
         '''emulate sh.command(*args)'''
-        with fabapi.settings(host=self.login):
+        with fabapi.hosts(self.login):
             result = fabapi.run(lst2str(args))
         return fab2res(result)
 
     def run(self, command):
         result = self.sh(command.split())
-        return result
+        return fab2res(result)
 
     def sudo(self, command):
         '''emulate fabric.api.sudo'''
