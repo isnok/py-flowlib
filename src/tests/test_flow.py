@@ -1,4 +1,4 @@
-from flowlib.flow import expose
+from flib.flow import expose
 
 @expose("alias")
 def aliased():

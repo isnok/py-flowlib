@@ -1,11 +1,11 @@
 import pytest
 
-import flowlib.host
+import flib.host
 
 fixtures = {
-    'hostclass': [flowlib.host.Localhost, flowlib.host.RemoteHost],
+    'hostclass': [flib.host.Localhost, flib.host.RemoteHost],
     'hostname': ['localhost', 'tuxcode.org'],
-    'host': [flowlib.host.Localhost(), flowlib.host.RemoteHost('localhost')],
+    'host': [flib.host.Localhost(), flib.host.RemoteHost('localhost')],
 }
 
 def pytest_generate_tests(metafunc):
@@ -15,12 +15,12 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def localhost():
-    return flowlib.host.Localhost()
+    return flib.host.Localhost()
 
 def test_local_ls(localhost):
     ls = localhost.sh("ls")
     assert ls.exit_code == 0
-    assert "flowlib" in ls.stdout
+    assert "flib" in ls.stdout
 
 def test_local_echo(localhost):
     echo = localhost.sh("echo", "hello world")
