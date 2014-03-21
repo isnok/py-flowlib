@@ -45,5 +45,8 @@ if command in cmd_reg:
         print "Command resulted:"
         print result
 else:
-    print "Unknown command:", command
-    print "Use --list to discover available commands."
+    print "Unknown command: %r" % command
+    print "Available commands are:", ", ".join(cmd_reg)
+    print "Hint: Use --list for more details on the available commands."
+    import sys
+    sys.exit(1)
