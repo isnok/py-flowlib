@@ -13,7 +13,7 @@ class SimpleArgs(dict):
 
 
 def parse(docstring, **kwd):
-    if not args in globals():
+    if not 'args' in globals():
         global args
         args = SimpleArgs(docopt(docstring, options_first=True))
         return args
