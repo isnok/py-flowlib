@@ -19,5 +19,5 @@ class SimpleArgs(dict):
 
 def parse(docstring):
     global args
-    args = SimpleArgs(docopt(docstring))
+    args = SimpleArgs(docopt(docstring, options_first=True))
     return args
