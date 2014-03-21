@@ -1,6 +1,7 @@
 from docopt import docopt
 
 class SimpleArgs(dict):
+    '''Make docopt args more accesible.'''
 
     def __init__(self, parsed):
         dict.__init__(self)
