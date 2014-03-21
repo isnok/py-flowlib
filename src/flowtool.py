@@ -2,12 +2,14 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hd] [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hd] [ --list | -l ]
+    flowtool.py [-hd] [-c <cfg>] [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hd] [-c <cfg>] [ --list | -l ]
 
+Options:
     -h, --help          print this help
     -l, --list          list available commands
     -d, --debug         print debug information
+    -c, --config <cfg>  use configuration file [default: ./flow.cfg]
 
 Invoking without any arguments dumps the config.
 '''
@@ -22,8 +24,7 @@ if args['--debug']:
 ##
 #  import custom flows here
 ##
-
-import flowlib.test_flow
+from configobj import ConfigObj
 
 
 from flowlib.flow import cmd_reg
