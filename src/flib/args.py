@@ -3,22 +3,19 @@ from docopt import docopt
 class SimpleArgs(dict):
     '''Make docopt args more accesible.'''
 
-    def __init__(self, parsed):
-        dict.__init__(self)
-        for arg, value in parsed.iteritems():
-            if arg.startswith('--'):
-                self[arg[2:]] = value
-            else:
-                self[arg] = value
-
     def __getattr__(self, name):
         if name in self:
             return self[name]
+        elif '--' + name in self:
+            return self['--' + name]
         else:
             raise AttributeError
 
 
-def parse(docstring):
-    global args
-    args = SimpleArgs(docopt(docstring, options_first=True))
-    return args
+def parse(docstring, **kwd):
+    if not args in globals():
+        global args
+        args = SimpleArgs(docopt(docstring, options_first=True))
+        return args
+    else:
+        return SimpleArgs(docopt(docstring, **kwd))
