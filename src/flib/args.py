@@ -6,7 +6,6 @@ class SimpleArgs(dict):
         dict.__init__(self)
         for arg, value in parsed.iteritems():
             if arg.startswith('--'):
-                self[arg] = value
                 self[arg[2:]] = value
             else:
                 self[arg] = value

@@ -27,8 +27,8 @@ if args.debug:
 
 from configobj import ConfigObj
 
-config = ConfigObj(args['--config'])
-if args['--debug']:
+config = ConfigObj(args.config)
+if args.debug:
     print config
 
 
@@ -42,7 +42,7 @@ if 'flow' in config:
 
 from flib.flow import cmd_reg
 
-if args['--list']:
+if args.list:
     print "Available commands:"
     for cmd, func in cmd_reg.iteritems():
         print "    %-16s%s" % (cmd, func.__doc__)
@@ -52,7 +52,7 @@ command = args['COMMAND']
 
 if command is None:
     import pprint
-    print "Parsed configuration: %s" % args['--config']
+    print "Parsed configuration: %s" % args.config
     pprint.pprint(dict(config))
     sys.exit(0)
 
