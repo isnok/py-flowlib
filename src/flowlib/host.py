@@ -1,4 +1,17 @@
 import sh
+from collections import namedtuple
+
+ShellResult = namedtuple("ShellResult", ['cmdline', 'stdout', 'stderr', 'exit_code'])
+
+def _reprif(thing):
+    string = str(thing)
+    if " " in string:
+        return repr(string)
+    return string
+
+def _sh2res(result):
+    cmd = " ".join([_reprif(x) for x in result.cmd])
+    return ShellResult(cmd, result.stdout, result.stderr, result.exit_code)
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
@@ -11,7 +24,7 @@ class Localhost(Host):
 
     def sh(self, command, *args):
         result = getattr(sh, command)(*args)
-        return result
+        return _sh2res(result)
 
     def run(self, command):
         '''emulate fabric.api.run'''
