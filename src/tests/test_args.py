@@ -30,3 +30,15 @@ def test_debug(tool, cached):
     assert debuged
     assert debuged.exit_code == 0
     assert debuged.stdout != cached.stdout
+
+from sh import ErrorReturnCode_1
+
+def test_wrongcommand(tool):
+    with pytest.raises(ErrorReturnCode_1) as excinfo:
+        tool('booOOooOOOoom!')
+
+    assert "Hint:" in str(excinfo.value.message)
+    assert excinfo.type is ErrorReturnCode_1
+
+    result = tool('booOOooOOOoom!', _ok_code=[1])
+    assert result.exit_code == 1
