@@ -15,15 +15,18 @@ Invoking without any arguments dumps the config.
 '''
 
 import sys
-from docopt import docopt
 
-args = docopt(__doc__)
 
-if args['--debug']:
+from flib.args import parse
+
+args = parse(__doc__)
+
+if args.debug:
     print args
 
 
 from configobj import ConfigObj
+
 config = ConfigObj(args['--config'])
 if args['--debug']:
     print config
