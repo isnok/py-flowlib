@@ -25,7 +25,9 @@ if args['--debug']:
 #  import custom flows here
 ##
 from configobj import ConfigObj
-
+config = ConfigObj(args['--config'])
+if args['--debug']:
+    print config
 
 from flowlib.flow import cmd_reg
 
