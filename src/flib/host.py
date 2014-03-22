@@ -15,14 +15,33 @@ def lst2str(lst):
 def sh2res(r):
     return ShellResult(lst2str(r.cmd), r.stdout, r.stderr, r.exit_code)
 
+from flib.repo import GitRepository
+
 class Host(object):
     '''Base class for hosts of all sorts.'''
+
+    def getdir(self, path):
+        return GitRepository(self, path)
+
+    def bake(self, command=None, cwd=None):
+        if command is None:
+            def baked(*args):
+                return self._sh(cwd, *args)
+        else:
+            def baked(*args):
+                return self._sh(cwd, command, *args)
+        return baked
+
 
 class Localhost(Host):
 
     def __init__(self):
         self._sudo = sh.sudo.bake()
         self._cp = sh.cp.bake('-n', '-v')
+
+    def _sh(self, cwd, command, *args):
+        result = getattr(sh, command)(*args, _cwd=cwd)
+        return sh2res(result)
 
     def sh(self, command, *args):
         result = getattr(sh, command)(*args)
@@ -74,6 +93,15 @@ class RemoteHost(Host):
             name = "%s@%s" % (user, name)
         self.user, self.hostname = name.split("@")
         self.login = name
+
+    @quietly
+    def _sh(self, cwd, *args):
+        '''emulate sh.command(*args)'''
+        def run():
+            with fabapi.cd(cwd):
+                return fabapi.run(lst2str(args), pty=False)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
 
     @quietly
     def sh(self, *args):
