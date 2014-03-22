@@ -1,5 +1,7 @@
 from docopt import docopt
 
+args = None
+
 class SimpleArgs(dict):
     '''Make docopt args more accesible.'''
 
@@ -12,16 +14,20 @@ class SimpleArgs(dict):
             raise AttributeError
 
 
-def parse_args(docstring, **kwd):
-    if not 'args' in globals():
-        global args
+def parse_args(docstring, argv=None, **kwd):
+    if docstring is None:
+        docstring = ''
+    global args
+    if argv is None:
         args = SimpleArgs(docopt(docstring, options_first=True))
         return args
     else:
-        return SimpleArgs(docopt(docstring, **kwd))
+        return SimpleArgs(docopt(docstring, argv, **kwd))
 
 
 from configobj import ConfigObj
+
+config = None
 
 class SimpleConfig(ConfigObj):
     '''Make ConfigObj more accesible.'''
@@ -37,8 +43,8 @@ class SimpleConfig(ConfigObj):
             raise AttributeError
 
 def parse_config(filename):
-    if not 'config' in globals():
-        global config
+    global config
+    if config is None:
         config = SimpleConfig(ConfigObj(filename))
         return config
     else:

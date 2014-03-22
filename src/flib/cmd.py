@@ -5,15 +5,15 @@ from flib.env import parse_args
 
 cmd_reg = {}
 
-def expose(name, do_args=False):
+def expose(name=None, docargs=False):
     def wrap(func):
-        if not do_args:
+        if not docargs:
             cmd_reg[memo] = func
             return func
         else:
             @wraps(func)
-            def wrapped(*args, **kwd):
-                return func(parse_args)
+            def wrapped(*args):
+                return func(parse_args(func.__doc__, argv=args))
             cmd_reg[memo] = wrapped
             return wrapped
     if isfunction(name):
@@ -29,4 +29,4 @@ class FlowCommand(object):
 
     def __init__(self, *args):
         self.args = parse_args(args)
-        self.config = config
+        #self.config = config

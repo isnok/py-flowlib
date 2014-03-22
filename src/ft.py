@@ -49,12 +49,16 @@ if args.debug:
 
 from importlib import import_module
 
-if 'flow' in config:
-    if 'module' in config:
-        import_module(config['module'])
+if 'module' in config:
+    if args.debug:
+        print "Flow module:", config['module']
+    import_module(config['module'])
 
 
 from flib.cmd import cmd_reg
+
+if args.debug:
+    print "Commands registered:", ' '.join(cmd_reg)
 
 if args.list:
     print "Available commands:"

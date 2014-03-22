@@ -17,10 +17,13 @@ def aliased():
         print config['module']
 
 
-@expose(do_args=True)
-def tryme(*args):
-    '''try me'''
-    print args
+@expose("try", docargs=True)
+def tryme(*rgs):
+    '''usage: try [-l]
+
+        -l, --lame      be lame as hell
+    '''
+    print repr(rgs)
 
 @expose
 def test():
