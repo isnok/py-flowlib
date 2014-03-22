@@ -2,19 +2,19 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hd] [-c <cfg>] [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hd] [-c <cfg>] [ --list | -l ]
+    flowtool.py [-hdr] [-c <cfg>] [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [ --list | -l ]
 
 Options:
     -h, --help          print this help
+    -c, --config <cfg>  use configuration file [default: flow.cfg]
+    -r, --recurse       recurse up searching for a config
     -l, --list          list available commands
     -d, --debug         print debug information
-    -c, --config <cfg>  use configuration file [default: ./flow.cfg]
 
 Invoking without any arguments dumps the config.
 '''
-
-import sys
+import os, sys
 
 import flib.env
 
@@ -23,7 +23,25 @@ if args.debug:
     print "Args:"
     print args
 
-config = flib.env.parse_config(args.config)
+if not args.recurse:
+    config = flib.env.parse_config(args.config)
+else:
+    curdir = os.path.abspath(os.curdir)
+    olddir = None
+    while curdir != olddir:
+        if args.debug:
+            print 'recursing:', curdir
+        here = os.sep.join((curdir, args.config))
+        if os.path.isfile(here):
+            config = flib.env.parse_config(here)
+            break
+        olddir = curdir
+        curdir = os.path.dirname(curdir)
+    else:
+        print 'Error: No flowfile found here or in parent directories.'
+        sys.exit(1)
+    args['recurse_dir'] = curdir
+
 if args.debug:
     print "Config:"
     print config
