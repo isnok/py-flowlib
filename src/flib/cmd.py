@@ -5,24 +5,28 @@ from flib.env import parse_args
 
 cmd_reg = {}
 
+def add_cmd(func, alias=None):
+    if alias is None:
+        alias = func.__name__
+    cmd_reg[alias] = func
+
 def expose(name=None, docargs=False):
     def wrap(func):
-        if not 'memo' in locals():
-            memo = func.__name__
         if not docargs:
-            cmd_reg[memo] = func
+            add_cmd(func, memo)
             return func
         else:
             @wraps(func)
             def wrapped(*args):
                 return func(parse_args(func.__doc__, argv=args))
-            cmd_reg[memo] = wrapped
+            add_cmd(wrapped, memo)
             return wrapped
     if isfunction(name):
+        memo = name.__name__
         return wrap(name)
-    elif name is not None:
+    else:
         memo = name
-    return wrap
+        return wrap
 
 #from flib.env import args, parse_args, config
 

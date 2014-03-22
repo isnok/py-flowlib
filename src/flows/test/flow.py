@@ -28,6 +28,7 @@ def tryme(*myargs):
 
 @expose
 def test():
+    """Some local commands"""
     flowcfg = config.flow
 
     master = flowcfg.master
@@ -45,6 +46,7 @@ def test():
 
 @expose
 def remote():
+    """Some remote commands"""
     from flib.remote import RemoteHost
     rhost = RemoteHost('localhost')
 
