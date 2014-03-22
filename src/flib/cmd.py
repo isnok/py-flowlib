@@ -7,6 +7,8 @@ cmd_reg = {}
 
 def expose(name=None, docargs=False):
     def wrap(func):
+        if not 'memo' in locals():
+            memo = func.__name__
         if not docargs:
             cmd_reg[memo] = func
             return func
@@ -17,11 +19,10 @@ def expose(name=None, docargs=False):
             cmd_reg[memo] = wrapped
             return wrapped
     if isfunction(name):
-        memo = name.__name__
         return wrap(name)
-    else:
+    elif name is not None:
         memo = name
-        return wrap
+    return wrap
 
 #from flib.env import args, parse_args, config
 
