@@ -58,8 +58,9 @@ def invisible(func):
     context = fabapi.warn_only if args.debug else fabapi.quiet
     @wraps(func)
     def wrapped(*args, **kwd):
-        with context():
-            return func(*args, **kwd)
+        with fabapi.settings(use_ssh_config=True):
+            with context():
+                return func(*args, **kwd)
     return wrapped
 
 def fab2res(r):
