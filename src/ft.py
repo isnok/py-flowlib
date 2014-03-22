@@ -16,7 +16,6 @@ Invoking without any arguments dumps the config.
 
 import sys
 
-
 from flib.args import parse
 
 args = parse(__doc__)
@@ -31,13 +30,16 @@ config = ConfigObj(args.config)
 if args.debug:
     print config
 
+import flib.args
+flib.args.config = config
+
 
 from importlib import import_module
 
 if 'flow' in config:
     flowcfg = config['flow']
-    if 'class' in flowcfg:
-        import_module(flowcfg['class'])
+    if 'module' in flowcfg:
+        import_module(flowcfg['module'])
 
 
 from flib.flow import cmd_reg

@@ -1,11 +1,10 @@
-from flib.flow import expose
+from flib.flow import expose, prefix_funcs
+from flib.args import args, config
 
-@expose("alias")
-def aliased():
-    # an undocumented command
-    print "this is aliased"
+ft = prefix_funcs(config.flow.feature)
+print ft
 
 @expose
-def aliased():
-    """A documented command"""
-    print "this is weird"
+def feature(name):
+    # an undocumented command
+    print "this is not aliased"
