@@ -69,7 +69,7 @@ class RemoteHost(Host):
 
     def __init__(self, name, user=None):
         if user is None and not "@" in name:
-            name = "%s@%s" % (user, name)
+            name = "%s@%s" % (fabapi.env['user'], name)
         elif user is not None:
             name = "%s@%s" % (user, name)
         self.user, self.hostname = name.split("@")
