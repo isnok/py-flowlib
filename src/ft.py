@@ -50,9 +50,8 @@ if args.debug:
 from importlib import import_module
 
 if 'flow' in config:
-    flowcfg = config['flow']
-    if 'module' in flowcfg:
-        import_module(flowcfg['module'])
+    if 'module' in config:
+        import_module(config['module'])
 
 
 from flib.flow import cmd_reg
