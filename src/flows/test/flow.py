@@ -1,5 +1,5 @@
 from flib.flow import expose
-from flib.args import args
+from flib.env import args, config
 
 @expose("alias")
 def aliased():
@@ -12,3 +12,5 @@ def aliased():
 def aliased():
     """A documented command"""
     print "this is weird"
+    if args.debug:
+        print config['module']

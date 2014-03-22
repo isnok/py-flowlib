@@ -1,8 +1,9 @@
 from flib.flow import expose, prefix_funcs
-from flib.args import args, config
+from flib.env import args, config
 
-ft = prefix_funcs(config.flow.feature)
-print ft
+flowcfg = config.flow
+ft = prefix_funcs(flowcfg.feature)
+rl = prefix_funcs(flowcfg.release)
 
 @expose
 def feature(name):

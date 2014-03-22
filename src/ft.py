@@ -16,22 +16,17 @@ Invoking without any arguments dumps the config.
 
 import sys
 
-from flib.args import parse
+import flib.env
 
-args = parse(__doc__)
-
+args = flib.env.parse_args(__doc__)
 if args.debug:
+    print "Args:"
     print args
 
-
-from configobj import ConfigObj
-
-config = ConfigObj(args.config)
+config = flib.env.parse_config(args.config)
 if args.debug:
+    print "Config:"
     print config
-
-import flib.args
-flib.args.config = config
 
 
 from importlib import import_module

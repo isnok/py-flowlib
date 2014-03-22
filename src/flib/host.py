@@ -50,7 +50,7 @@ class Localhost(Host):
 from fabric import api as fabapi
 from functools import wraps
 try:
-    from flib.args import args
+    from flib.env import args
 except:
     args = namedtuple("Defaults", ['debug'])(False)
 
