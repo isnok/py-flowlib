@@ -1,4 +1,5 @@
-from flib.flow import expose
+from flib.cmd import expose
+from flib.flow import prefix_funcs
 from flib.env import args, config
 
 @expose("alias")
@@ -14,3 +15,35 @@ def aliased():
     print "this is weird"
     if args.debug:
         print config['module']
+
+
+@expose(do_args=True)
+def tryme(*args):
+    '''try me'''
+    print args
+
+@expose
+def test():
+    flowcfg = config.flow
+
+    master = flowcfg.master
+    develop = flowcfg.develop
+
+    ft = prefix_funcs(flowcfg.feature)
+    rl = prefix_funcs(flowcfg.release)
+
+    from flib.local import LocalHost
+    host = LocalHost()
+
+    d = host.getdir('/')
+    print d.sh("ls")
+    print d.git('-c', 'color.ui=false', 'status').stdout
+
+@expose
+def remote():
+    from flib.remote import RemoteHost
+    rhost = RemoteHost('localhost')
+
+    rd = rhost.getdir('/home/k')
+    print rd.sh("ls")
+    print rd.git('-c', 'color.ui=false', 'status').stdout

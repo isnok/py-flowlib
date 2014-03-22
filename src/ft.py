@@ -54,7 +54,7 @@ if 'flow' in config:
         import_module(config['module'])
 
 
-from flib.flow import cmd_reg
+from flib.cmd import cmd_reg
 
 if args.list:
     print "Available commands:"
