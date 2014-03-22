@@ -28,9 +28,14 @@ class Host(object):
             def baked(*args):
                 return self._sh(cwd, *args)
         else:
-            def baked(*args):
-                return self._sh(cwd, command, *args)
+            if cwd is None:
+                def baked(*args):
+                    return self.sh(command, *args)
+            else:
+                def baked(*args):
+                    return self._sh(cwd, command, *args)
         return baked
+
 
 
 class Localhost(Host):

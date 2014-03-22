@@ -16,11 +16,12 @@ d = host.getdir('/')
 print d.sh("ls")
 print d.git('-c', 'color.ui=false', 'status').stdout
 
-#from flib.host import RemoteHost
-#rhost = RemoteHost('localhost')
+from flib.host import RemoteHost
+rhost = RemoteHost('localhost')
 
-#rd = rhost.getdir('/')
-#print rd.sh("ls")
+rd = rhost.getdir('/home/k')
+print rd.sh("ls")
+print rd.git('-c', 'color.ui=false', 'status').stdout
 
 @expose
 def feature(name):
