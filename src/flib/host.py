@@ -54,13 +54,12 @@ try:
 except:
     args = namedtuple("Defaults", ['debug'])(False)
 
-def invisible(func):
+def quietly(func):
     context = fabapi.warn_only if args.debug else fabapi.quiet
     @wraps(func)
     def wrapped(*args, **kwd):
-        with fabapi.settings(use_ssh_config=True):
-            with context():
-                return func(*args, **kwd)
+        with fabapi.settings(context(), use_ssh_config=True):
+            return func(*args, **kwd)
     return wrapped
 
 def fab2res(r):
@@ -76,7 +75,7 @@ class RemoteHost(Host):
         self.user, self.hostname = name.split("@")
         self.login = name
 
-    @invisible
+    @quietly
     def sh(self, *args):
         '''emulate sh.command(*args)'''
         def run():
