@@ -1,11 +1,12 @@
 import pytest
 
-import flib.host
+from flib.local import LocalHost
+from flib.remote import RemoteHost
 
 fixtures = {
-    'hostclass': [flib.host.LocalHost, flib.host.RemoteHost],
+    'hostclass': [LocalHost, RemoteHost],
     'hostname': ['localhost', 'tuxcode.org'],
-    'host': [flib.host.Localhost(), flib.host.RemoteHost('localhost')],
+    'host': [LocalHost(), RemoteHost('localhost')],
 }
 
 def pytest_generate_tests(metafunc):
@@ -15,7 +16,7 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def localhost():
-    return flib.host.Localhost()
+    return LocalHost()
 
 def test_local_ls(localhost):
     ls = localhost.sh("ls")

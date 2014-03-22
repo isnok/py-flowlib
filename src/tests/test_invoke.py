@@ -37,7 +37,7 @@ def test_wrongcommand(tool):
     with pytest.raises(ErrorReturnCode_1) as excinfo:
         tool('booOOooOOOoom!')
 
-    assert "Hint:" in str(excinfo.value.message)
+    assert "Hint:" in str(excinfo.value.stdout)
     assert excinfo.type is ErrorReturnCode_1
 
     result = tool('booOOooOOOoom!', _ok_code=[1])
