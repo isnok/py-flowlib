@@ -67,22 +67,21 @@ def fab2res(r):
 
 class RemoteHost(Host):
 
-    def __init__(self, name, user=None, cwd='.'):
+    def __init__(self, name, user=None):
         if user is None and not "@" in name:
             name = "%s@%s" % (user, name)
         elif user is not None:
             name = "%s@%s" % (user, name)
-        self.user = name.split("@")[0]
+        self.user, self.hostname = name.split("@")
         self.login = name
-        self.cwd = cwd
-        self.connstr = "%s:%s" % (name, cwd)
 
     @invisible
     def sh(self, *args):
         '''emulate sh.command(*args)'''
-        with fabapi.hosts(self.login):
-            result = fabapi.run(lst2str(args))
-        return fab2res(result)
+        def run():
+            return fabapi.run(lst2str(args), pty=False)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
 
     def run(self, command):
         result = self.sh(command.split())
