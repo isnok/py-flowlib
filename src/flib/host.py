@@ -22,7 +22,7 @@ class Localhost(Host):
 
     def __init__(self):
         self._sudo = sh.sudo.bake()
-        self._cp = sh.cp.bake("-n")
+        self._cp = sh.cp.bake('-n', '-v')
 
     def sh(self, command, *args):
         result = getattr(sh, command)(*args)
@@ -83,21 +83,28 @@ class RemoteHost(Host):
         result = fabapi.execute(run, hosts=[self.login])
         return fab2res(result[self.login])
 
+    @quietly
     def run(self, command):
-        result = self.sh(command.split())
-        return fab2res(result)
+        def run():
+            return fabapi.run(command, pty=False)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
 
+    @quietly
     def sudo(self, command):
-        '''emulate fabric.api.sudo'''
-        result = self._sudo(command.split())
-        return result
+        def run():
+            return fabapi.sudo(command, pty=False)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
 
     def put(self, source, dest):
-        result = self._cp(source, dest)
-        return result
+        def run():
+            return fabapi.put(source, dest)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
 
     def get(self, source, dest):
-        result = self._cp(source, dest)
-        return result
-
-# next up: implement remote hosts via fabric
+        def run():
+            return fabapi.get(source, dest)
+        result = fabapi.execute(run, hosts=[self.login])
+        return fab2res(result[self.login])
