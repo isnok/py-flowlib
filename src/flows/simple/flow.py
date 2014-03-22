@@ -9,19 +9,19 @@ develop = flowcfg.develop
 ft = prefix_funcs(flowcfg.feature)
 rl = prefix_funcs(flowcfg.release)
 
-from flib.host import Localhost
-host = Localhost()
+from flib.local import LocalHost
+host = LocalHost()
 
 d = host.getdir('/')
 print d.sh("ls")
 print d.git('-c', 'color.ui=false', 'status').stdout
 
-from flib.host import RemoteHost
-rhost = RemoteHost('localhost')
+#from flib.remote import RemoteHost
+#rhost = RemoteHost('localhost')
 
-rd = rhost.getdir('/home/k')
-print rd.sh("ls")
-print rd.git('-c', 'color.ui=false', 'status').stdout
+#rd = rhost.getdir('/home/k')
+#print rd.sh("ls")
+#print rd.git('-c', 'color.ui=false', 'status').stdout
 
 @expose
 def feature(name):

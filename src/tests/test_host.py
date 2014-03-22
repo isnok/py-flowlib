@@ -3,7 +3,7 @@ import pytest
 import flib.host
 
 fixtures = {
-    'hostclass': [flib.host.Localhost, flib.host.RemoteHost],
+    'hostclass': [flib.host.LocalHost, flib.host.RemoteHost],
     'hostname': ['localhost', 'tuxcode.org'],
     'host': [flib.host.Localhost(), flib.host.RemoteHost('localhost')],
 }
