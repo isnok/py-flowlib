@@ -2,7 +2,7 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] (-o <file>)... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [ --nofmt ] [-o <file>]... [COMMAND] [ARGUMENTS ...]
     flowtool.py [-hdr] [-c <cfg>] [ --list | -l ]
 
 Options:
@@ -12,16 +12,20 @@ Options:
     -l, --list              list available commands
     -d, --debug             print debug information
     -o, --output <file>     write a log to <file>
+    --nofmt                 don't format (and color) output
 
 Invoking without any arguments dumps the config.
 '''
 import os, sys
 
+cmd_name = sys.argv[0]
+cmd_args = sys.argv[1:]
+
 import flib.env
-args = flib.env.parse_args(__doc__)
+args = flib.env.parse_global_args(__doc__, cmd_args)
 
 from flib.output import configure_logger
-logger = configure_logger(sys.argv[0])
+logger = configure_logger(cmd_name)
 logger.debug("Args:")
 logger.debug(args)
 

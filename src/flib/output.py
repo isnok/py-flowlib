@@ -19,21 +19,31 @@ def configure_logger(name, args=None, config=None):
 
 from pprint import pformat
 from fabric import colors
+from flib.env import args
+
 class ColorFormatter(logging.Formatter):
 
     def format(self, record):
+        bold = False
         if record.levelno >= logging.ERROR:
             color = colors.red
         elif record.levelno >= logging.WARNING:
             color = colors.yellow
         elif record.levelno >= logging.INFO:
+            if args.debug:
+                bold = True
             color = colors.cyan
         else:
-            color = colors.white
+            if args.debug:
+                color = colors.cyan
+            else:
+                color = colors.white
+
         if isinstance(record.msg, dict):
             record.msg = pformat(record.msg)
         msg = super(ColorFormatter, self).format(record)
-        return color(msg)
+
+        return color(msg, bold)
 
 def getConsoleHandler(args, config):
     '''creates a handler for console output'''
@@ -42,7 +52,10 @@ def getConsoleHandler(args, config):
         handler.setLevel(logging.DEBUG)
     else:
         handler.setLevel(logging.INFO)
-    formatter = ColorFormatter('%(message)s')
+    if args.nofmt or args.list:
+        formatter = logging.Formatter('%(message)s')
+    else:
+        formatter = ColorFormatter('%(message)s')
     handler.setFormatter(formatter)
     return handler
 

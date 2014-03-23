@@ -13,16 +13,15 @@ class SimpleArgs(dict):
         else:
             raise AttributeError
 
+def parse_global_args(docstring, argv):
+    global args
+    args = parse_args(docstring, argv, options_first=True)
+    return args
 
-def parse_args(docstring, argv=None, **kwd):
+def parse_args(docstring, argv, **kwd):
     if docstring is None:
         docstring = ''
-    global args
-    if argv is None:
-        args = SimpleArgs(docopt(docstring, options_first=True))
-        return args
-    else:
-        return SimpleArgs(docopt(docstring, argv, **kwd))
+    return SimpleArgs(docopt(docstring, argv, **kwd))
 
 
 from configobj import ConfigObj
