@@ -43,7 +43,7 @@ class SimpleConfig(ConfigObj):
             else:
                 return val
         else:
-            raise AttributeError
+            raise AttributeError(name)
 
 def parse_config(filename):
     global config
