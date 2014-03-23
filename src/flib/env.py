@@ -35,6 +35,9 @@ config = None
 class SimpleConfig(ConfigObj):
     '''Make ConfigObj more accesible.'''
 
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
+
     def __getattr__(self, name):
         if name in self:
             val = self[name]
