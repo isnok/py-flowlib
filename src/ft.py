@@ -2,8 +2,8 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-o <file>]... [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [--list|-l]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-o <file>]... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v] [--list|-l]
 
 Options:
     -h, --help              print this help
@@ -12,6 +12,7 @@ Options:
     -l, --list              list available commands
     -d, --debug             print debug information
     -o, --output <file>     write a log to <file>
+    -v, --verbose           control how much is said about commands
     --nofmt                 don't format (and color) output
 
 Invoking without any arguments dumps the config.

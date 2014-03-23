@@ -24,10 +24,13 @@ def list_commands(cmd_dct):
     logger = configure_logger('list_commands')
     logger.info("Available commands:")
     for cmd, func in cmd_dct.iteritems():
+        doc = func.__doc__
+        if doc is not None and not args.verbose:
+            doc = doc.split('\n')[0]
         if args.nofmt:
-            msg = "    %-16s%s" % (cmd, func.__doc__)
+            msg = "    %-16s%s" % (cmd, doc)
         else:
-            msg = "    %-25s%s" % (colors.green(cmd), colors.cyan(func.__doc__))
+            msg = "    %-25s%s" % (colors.green(cmd), colors.cyan(doc))
         logger.info(msg)
 
 
