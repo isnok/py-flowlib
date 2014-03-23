@@ -2,11 +2,12 @@ from flib.cmd import expose
 from flib.flow import prefix_funcs
 from flib.env import args, config
 from flib.output import configure_logger
-from flib import host
+from flib import repo
+from flib import abort
 
 log = configure_logger('test_flow')
 
-host = host.from_env()
+repo = repo.from_env()
 
 master = config.flow.master
 develop = config.flow.develop
@@ -18,9 +19,7 @@ rl = prefix_funcs(config.flow.release)
 def feature(name=None):
     'Should create a new feature branch.'
     if name is None:
-        log.error("feature requires a name. Stop.")
-        import sys
-        sys.exit(1)
+        abort(log, "feature requires a name. Stop.")
 
     feature = ft.makeit(name)
-    log.info('Will create %r in %s.' % (feature, host))
+    log.info('Will create %r in %s.' % (feature, repo))

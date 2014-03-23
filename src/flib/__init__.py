@@ -10,3 +10,7 @@ def lst2cmd(lst):
     cmd = " ".join([repr_if(x) for x in lst]) if len(lst) is not 1 else lst[0]
     return cmd
 
+import sys
+def abort(log, msg, exit_code=1):
+    log.error(msg)
+    sys.exit(exit_code)

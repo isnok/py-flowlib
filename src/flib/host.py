@@ -16,19 +16,24 @@ def fabputget2res(pg, s, d, r):
 
 from flib.env import args as global_args, config
 
+_cache = None
 def from_env():
+    global _cache
+    if _cache is not None:
+        return _cache
     if global_args.host:
         from flib.remote import RemoteHost
-        return RemoteHost(global_args.host)
+        _cache = RemoteHost(global_args.host)
     elif 'host' in config:
         from flib.remote import RemoteHost
-        return RemoteHost(config.host)
+        _cache = RemoteHost(config.host)
     elif 'repo' in config and 'host' in config.repo:
         from flib.remote import RemoteHost
-        return RemoteHost(config.repo.host)
+        _cache = RemoteHost(config.repo.host)
     else:
         from flib.local import LocalHost
-        return LocalHost()
+        _cache = LocalHost()
+    return _cache
 
 
 from flib.repo import Directory, GitRepository
@@ -48,16 +53,17 @@ class Host(object):
         else:
             return "%s(%r)" % (self.__class__.__name__, self.login)
 
-    def handle_command(self, command, *args):
+    def sh(self, command, *args):
         log_cmd(command, *args)
         if global_args.notreally:
             cmd = ' $ %s %s' % (command, lst2cmd(args))
             return log_result(ShellResult(cmd, '', '', 0))
         else:
-            return log_result(self.sh(command, *args))
+            return log_result(self.handle_command(command, *args))
 
-    def sh(self, command, *args):
-        self._handle_cwd_command(self, '.', command, *args)
+    def handle_command(self, command, *args):
+        import flib.repo
+        self._handle_cwd_command(self, flib.repo.from_env().path, command, *args)
 
     def _handle_cwd_command(self, cwd, command, *args):
         log_cwd_cmd(cwd, command, *args)

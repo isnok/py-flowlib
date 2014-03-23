@@ -2,7 +2,7 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-P <path>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
     flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [--list|-l]
 
 Options:
@@ -18,8 +18,8 @@ Options:
 
 Flow hooks:
 
-    -H, --host <host>       override default and config host
-    -R, --repo <repo>       override default and config repo
+    -H, --host <host>       override default and config host [default: ]
+    -P, --path <path>       override default and config repo [default: .]
 
 Invoking without any arguments dumps the config.
 '''
