@@ -9,7 +9,8 @@ def repr_if(thing):
     return string
 
 def lst2cmd(lst):
-    return " ".join([repr_if(x) for x in lst])
+    cmd = " ".join([repr_if(x) for x in lst]) if len(lst) is not 1 else lst[0]
+    return cmd
 
 def sh2res(r):
     return ShellResult(lst2cmd(r.cmd), r.stdout, r.stderr, r.exit_code)

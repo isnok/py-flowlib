@@ -28,7 +28,7 @@ def tryme(*myargs):
     log.info(repr(myargs))
 
 @expose
-def test():
+def local():
     """Some local commands"""
     #flowcfg = config.flow
 
@@ -43,7 +43,9 @@ def test():
 
     d = host.bake_dir('/')
     log.info(d.sh("ls"))
-    log.info(d.git('-c', 'color.ui=false', 'status').stdout)
+    log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
+    log.info(d.sh('ls | grep boot').stdout)
+    log.error(d.sh('ls | grep boot').exit_code)
 
 @expose
 def remote():
