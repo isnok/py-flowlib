@@ -56,3 +56,9 @@ def remote():
     rd = rhost.bake_dir('/home/k')
     log.info(rd.sh("ls"))
     log.info(rd.git('-c', 'color.ui=false', 'status').stdout)
+
+    d = rhost.bake_dir('/')
+    log.info(d.sh("ls"))
+    log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
+    log.info(d.sh('ls | grep boot').stdout)
+    log.error(d.sh('ls | grep boot').exit_code)
