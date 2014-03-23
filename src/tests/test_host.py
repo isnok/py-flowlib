@@ -18,7 +18,7 @@ def pytest_generate_tests(metafunc):
 def localhost():
     return LocalHost()
 
-def test_ls(localhost):
+def test_local_ls(localhost):
     ls = localhost.sh("ls")
     assert ls.exit_code == 0
 

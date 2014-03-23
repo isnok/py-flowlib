@@ -33,14 +33,6 @@ from flib.local import LocalHost
 @expose
 def local():
     """Some local commands"""
-    #flowcfg = config.flow
-
-    #master = flowcfg.master
-    #develop = flowcfg.develop
-
-    #ft = prefix_funcs(flowcfg.feature)
-    #rl = prefix_funcs(flowcfg.release)
-
     host = LocalHost()
 
     d = host.bake_git('/')
@@ -48,6 +40,11 @@ def local():
     d.git('-c', 'color.ui=false', 'status')
     d.sh('ls | grep boot')
     d.sh('ls | grep boot')
+
+@expose("config")
+def cfg():
+    """Use stuff from flowcfg/"""
+    log.info(config)
 
 @expose
 def putget():
