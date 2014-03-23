@@ -2,8 +2,8 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [ --nofmt ] [-o <file>]... [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hdr] [-c <cfg>] [ --list | -l ]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-o <file>]... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [--list|-l]
 
 Options:
     -h, --help              print this help
@@ -67,9 +67,8 @@ if args.debug:
     logger.debug("Commands registered: %s" % ' '.join(cmd_reg))
 
 if args.list:
-    logger.info("Available commands:")
-    for cmd, func in cmd_reg.iteritems():
-        logger.info("    %-16s%s" % (cmd, func.__doc__))
+    from flib.output import list_commands
+    list_commands(cmd_reg)
     sys.exit(0)
 
 command = args['COMMAND']

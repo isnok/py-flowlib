@@ -17,9 +17,20 @@ def configure_logger(name, args=None, config=None):
     return logger
 
 
-from pprint import pformat
 from fabric import colors
 from flib.env import args
+
+def list_commands(cmd_dct):
+    logger = configure_logger('list_commands')
+    logger.info("Available commands:")
+    for cmd, func in cmd_dct.iteritems():
+        if args.nofmt:
+            msg = "    %-16s%s" % (cmd, func.__doc__)
+        else:
+            msg = "    %-25s%s" % (colors.green(cmd), colors.cyan(func.__doc__))
+        logger.info(msg)
+
+from pprint import pformat
 
 class ColorFormatter(logging.Formatter):
 
