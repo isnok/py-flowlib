@@ -27,6 +27,7 @@ def tryme(*myargs):
     '''
     log.info(repr(myargs))
 
+from flib.local import LocalHost
 @expose
 def local():
     """Some local commands"""
@@ -38,7 +39,6 @@ def local():
     #ft = prefix_funcs(flowcfg.feature)
     #rl = prefix_funcs(flowcfg.release)
 
-    from flib.local import LocalHost
     host = LocalHost()
 
     d = host.bake_dir('/')
@@ -47,8 +47,28 @@ def local():
     log.info(d.sh('ls | grep boot').stdout)
     log.error(d.sh('ls | grep boot').exit_code)
 
+@expose
+def putget():
+    host = LocalHost()
+
     host.put('ft.py', '/tmp')
     host.get('/tmp/ft.py', 'tmp')
+
+    ok_put = host.put('ft.py', '/tmp')
+    log.info(ok_put.stdout)
+    log.info(ok_put.exit_code)
+
+    ok_put = host.put('ft.py', '/')
+    log.warn(ok_put.stderr)
+    log.warn(ok_put.exit_code)
+
+    ok_get = host.get('/tmp/ft.py', 'tmp')
+    log.info(ok_get.stdout)
+    log.info(ok_get.exit_code)
+
+    ok_get = host.get('/tmp/xxx', 'tmp')
+    log.warn(ok_get.stderr)
+    log.warn(ok_get.exit_code)
 
 @expose
 def remote():
@@ -71,7 +91,7 @@ def remote():
     log.info(ok_put.exit_code)
 
     ok_put = rhost.put('ft.py', '/')
-    log.warn(ok_put.stdout)
+    log.warn(ok_put.stderr)
     log.warn(ok_put.exit_code)
 
     ok_get = rhost.get('/tmp/ft.py', 'tmp')
@@ -79,5 +99,5 @@ def remote():
     log.info(ok_get.exit_code)
 
     ok_get = rhost.get('/tmp/xxx', 'tmp')
-    log.warn(ok_get.stdout)
+    log.warn(ok_get.stderr)
     log.warn(ok_get.exit_code)

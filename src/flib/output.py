@@ -33,6 +33,23 @@ def list_commands(cmd_dct):
             msg = "    %-25s%s" % (colors.green(cmd), colors.cyan(doc))
         logger.info(msg)
 
+from flib import lst2cmd
+def log_cmd(command, *cmd_args):
+    if args.verbose:
+        if args.nofmt:
+            cmd = ' $ %s %s' % (command, lst2cmd(cmd_args))
+            logging.getLogger('command').info(cmd)
+
+def log_cwd_cmd(cwd, command, *cmd_args):
+    if args.verbose:
+        if args.nofmt:
+            cmd = '%s $ %s %s' % (cwd, command, lst2cmd(cmd_args))
+            logging.getLogger('command').info(cmd)
+        else:
+            cmd = colors.yellow('%s %s' % (command, lst2cmd(cmd_args)), True)
+            cmd = '%s $ %s' % (cwd, cmd)
+            logging.getLogger('command').info(cmd)
+
 
 from pprint import pformat
 
@@ -57,8 +74,10 @@ class ColorFormatter(logging.Formatter):
         if isinstance(record.msg, dict):
             record.msg = pformat(record.msg)
         msg = super(ColorFormatter, self).format(record)
-
-        return color(msg, bold)
+        if msg.endswith('\n'):
+            return color(msg[:-1], bold)
+        else:
+            return color(msg, bold)
 
 def getConsoleHandler(args, config):
     '''creates a handler for console output'''

@@ -2,15 +2,7 @@ from collections import namedtuple
 
 ShellResult = namedtuple("ShellResult", ['cmdline', 'stdout', 'stderr', 'exit_code'])
 
-def repr_if(thing):
-    string = str(thing)
-    if " " in string:
-        return repr(string)
-    return string
-
-def lst2cmd(lst):
-    cmd = " ".join([repr_if(x) for x in lst]) if len(lst) is not 1 else lst[0]
-    return cmd
+from flib import lst2cmd
 
 def sh2res(r):
     return ShellResult(lst2cmd(r.cmd), r.stdout, r.stderr, r.exit_code)
@@ -22,17 +14,36 @@ def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
 
 from flib.repo import GitRepository
-from flib.output import configure_logger
+from flib.output import configure_logger, log_cmd, log_cwd_cmd
+from flib.env import args as global_args
+log = configure_logger('command')
 log = configure_logger('BaseHost')
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
 
+    def handle_command(self, command, *args):
+        log_cmd(command, *args)
+        if global_args.noshell:
+            cmd = ' $ %s %s' % (command, lst2cmd(args))
+            return ShellResult(cmd, '', '', 0)
+        else:
+            return self.sh(command, *args)
+
     def sh(self, command, *args):
-        raise NotImplementedError('Base host class has no sh implementation.')
+        self._handle_cwd_command(self, '.', command, *args)
+
+    def _handle_cwd_command(self, cwd, command, *args):
+        log_cwd_cmd(cwd, command, *args)
+        if global_args.noshell:
+            cmd = '%s $ %s %s' % (cwd, command, lst2cmd(args))
+            return ShellResult(cmd, '', '', 0)
+        else:
+            return self._sh(cwd, command, *args)
 
     def _sh(self, cwd, command, *args):
-        raise NotImplementedError('Base host class has no _sh implementation.')
+        raise NotImplementedError('Base host class does not implement _sh')
+
 
     def bake_dir(self, path):
         return GitRepository(self, path)
@@ -41,14 +52,14 @@ class Host(object):
         if command is None:
             def baked(*args):
                 log.debug('Cmd bakery: %r %r' % (cwd, args))
-                return self._sh(cwd, *args)
+                return self._handle_cwd_command(cwd, *args)
         else:
             if cwd is None:
                 def baked(*args):
                     log.debug('Cmd bakery: %r %r' % (command, args))
-                    return self.sh(command, *args)
+                    return self.handle_command(command, *args)
             else:
                 def baked(*args):
                     log.debug('Cmd bakery: %r %r %r' % (cwd, command, args))
-                    return self._sh(cwd, command, *args)
+                    return self._handle_cwd_command(cwd, command, *args)
         return baked

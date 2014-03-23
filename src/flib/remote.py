@@ -1,4 +1,5 @@
-from flib.host import Host, lst2cmd, fab2res, fabputget2res
+from flib.host import Host, fab2res, fabputget2res
+from flib import lst2cmd
 from fabric import api
 
 from functools import wraps

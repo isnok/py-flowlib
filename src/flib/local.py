@@ -1,4 +1,5 @@
-from flib.host import Host, lst2cmd, sh2res
+from flib.host import Host, sh2res
+from flib import lst2cmd
 import sh
 
 class AllContainer(tuple):
@@ -14,7 +15,7 @@ class LocalHost(Host):
 
     def __init__(self):
         self._bash = sh.bash.bake('-l', '-c')
-        self._cp = sh.cp.bake('-n', '-v')
+        self._cp = sh.cp.bake('-v')
 
     def _sh(self, cwd, *args):
         result = self._bash(lst2cmd(args), _cwd=cwd, ok_code=all_ok)
