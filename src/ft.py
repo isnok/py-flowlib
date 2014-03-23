@@ -19,14 +19,14 @@ Options:
 Flow hooks:
     -H, --host <host>       override default and config host [default: ]
     -P, --path <path>       override default and config repo [default: .]
-    -D, --dirs <dirs>       set default behaviour if dirs do not exist [default: abort]
-    -G, --gits <gits>       set default behaviour if gits do not exist [default: abort]
+    -D, --dirs <dirs>       set default behaviour if dirs do not exist (valid: {0}) [default: abort]
+    -G, --gits <gits>       set default behaviour if gits do not exist (valid: {1}) [default: abort]
 
 Invoking flowtool without any arguments dumps the config.
 '''
 DIR_MODES = ['abort', 'create', 'warn', 'ignore']
 GIT_MODES = ['abort', 'create', 'warn', 'ignore', 'init']
-doc = __doc__.format(*[" | ".join(x) for x in (DIR_MODES, GIT_MODES)])
+doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES)])
 
 import sys
 cmd_name = sys.argv[0]
@@ -39,6 +39,16 @@ from flib.output import configure_logger
 log = configure_logger(cmd_name)
 log.debug("Args:")
 log.debug(args)
+
+from flib import abort
+invalid = args.invalidate({
+    '--dirs': DIR_MODES,
+    '--gits': GIT_MODES
+})
+if invalid:
+    abort(log, invalid)
+else:
+    del invalid
 
 if not args.recurse:
     config = flib.env.parse_config(args.config)

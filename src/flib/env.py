@@ -6,6 +6,7 @@ args = namedtuple(
     ['debug', 'verbose', 'nofmt', 'output', 'notreally', 'host', 'path']
 )(False, False, True, [], False, None, '.')
 
+
 class SimpleArgs(dict):
     '''Make docopt args more accesible.'''
 
@@ -16,6 +17,15 @@ class SimpleArgs(dict):
             return self['--' + name]
         else:
             raise AttributeError
+
+    def _invalid_msg(self, key, choices):
+        errtmpl = "Error: given %s option %r is not one of: %s"
+        return errtmpl % (key, self[key], ", ".join(choices))
+
+    def invalidate(self, schema):
+        for k, v in schema.items():
+            if self[k] not in v:
+                return self._invalid_msg(k, v)
 
 def parse_global_args(docstring, argv):
     global args
