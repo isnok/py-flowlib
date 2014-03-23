@@ -153,7 +153,10 @@ def log_result(result):
                 cmdline = colors.red(result.cmdline, True)
                 exit_color = colors.red
         log.info('ran: %s' % cmdline)
-        log.info('in: %s' % exit_color(result.cwd))
+        if args.verbose > 4:
+            log.info('in: %s' % exit_color(repr(result.cwd)))
+        else:
+            log.info('in: %s' % exit_color(result.cwd))
         if result.stdout or args.verbose > 3:
             if args.verbose == 3:
                 log.info('stdout:\n%s' % result.stdout)
