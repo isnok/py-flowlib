@@ -52,5 +52,5 @@ def remote():
     rhost = RemoteHost('localhost')
 
     rd = rhost.getdir('/home/k')
-    print rd.sh("ls")
-    print rd.git('-c', 'color.ui=false', 'status').stdout
+    log.info(rd.sh("ls"))
+    log.info(rd.git('-c', 'color.ui=false', 'status').stdout)

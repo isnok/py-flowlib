@@ -30,6 +30,7 @@ def list_commands(cmd_dct):
             msg = "    %-25s%s" % (colors.green(cmd), colors.cyan(func.__doc__))
         logger.info(msg)
 
+
 from pprint import pformat
 
 class ColorFormatter(logging.Formatter):
