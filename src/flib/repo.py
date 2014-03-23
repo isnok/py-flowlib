@@ -15,3 +15,4 @@ class GitRepository(Directory):
     def __init__(self, host, path):
         super(GitRepository, self).__init__(host, path)
         self.git = self.host.bake('git', cwd=self.path)
+        assert self.git('rev-parse', '--is-inside-work-tree').exit_code == 0
