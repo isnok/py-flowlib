@@ -47,6 +47,9 @@ def local():
     log.info(d.sh('ls | grep boot').stdout)
     log.error(d.sh('ls | grep boot').exit_code)
 
+    host.put('ft.py', '/tmp')
+    host.get('/tmp/ft.py', 'tmp')
+
 @expose
 def remote():
     """Some remote commands"""
