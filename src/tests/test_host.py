@@ -18,10 +18,9 @@ def pytest_generate_tests(metafunc):
 def localhost():
     return LocalHost()
 
-def test_local_ls(localhost):
+def test_ls(localhost):
     ls = localhost.sh("ls")
     assert ls.exit_code == 0
-    assert "flib" in ls.stdout
 
 def test_local_echo(localhost):
     echo = localhost.sh("echo", "hello world")
