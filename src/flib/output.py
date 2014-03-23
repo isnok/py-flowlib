@@ -1,5 +1,75 @@
 import logging
 
+from flib.env import args
+
+from fabric import colors
+from pprint import pformat
+
+class ColorFormatter(logging.Formatter):
+
+    def format(self, record):
+        bold = False
+        if record.levelno >= logging.ERROR:
+            color = colors.red
+        elif record.levelno >= logging.WARNING:
+            color = colors.yellow
+        elif record.levelno >= logging.INFO:
+            if args.debug:
+                bold = True
+            color = colors.cyan
+        else:
+            if args.debug:
+                color = colors.cyan
+            else:
+                color = colors.white
+
+        if isinstance(record.msg, dict):
+            record.msg = pformat(record.msg)
+        msg = super(ColorFormatter, self).format(record)
+        if msg.endswith('\n'):
+            return color(msg[:-1], bold)
+        else:
+            return color(msg, bold)
+
+class UpToLogLevel(logging.Filter):
+
+    def filter(self, record):
+        if record.levelno < self.upTo:
+            return True
+        else:
+            return False
+
+def getConsoleHandlers(args, config):
+    '''creates a handler for console output'''
+    import sys
+    ok_handler = logging.StreamHandler(sys.stdout)
+    if args.debug:
+        ok_handler.setLevel(logging.DEBUG)
+    else:
+        ok_handler.setLevel(logging.INFO)
+    nok_filter = UpToLogLevel()
+    nok_filter.upTo = logging.WARNING
+    ok_handler.addFilter(nok_filter)
+
+    errhandler = logging.StreamHandler(sys.stderr)
+    errhandler.setLevel(logging.WARNING)
+    if args.nofmt or args.list:
+        formatter = logging.Formatter('%(message)s')
+    else:
+        formatter = ColorFormatter('%(message)s')
+    ok_handler.setFormatter(formatter)
+    errhandler.setFormatter(formatter)
+    return ok_handler, errhandler
+
+
+def getFileHandler(filename, args, config):
+    '''creates a file handler'''
+    handler = logging.FileHandler(filename)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    return handler
+
 def configure_logger(name, args=None, config=None):
     '''create a logger configured from args and config'''
 
@@ -11,14 +81,13 @@ def configure_logger(name, args=None, config=None):
 
     logger = logging.getLogger(name)
     logger.setLevel(1)
-    logger.addHandler(getConsoleHandler(args, config))
+    ok_handler, errhandler = getConsoleHandlers(args, config)
+    logger.addHandler(ok_handler)
+    logger.addHandler(errhandler)
     for fname in args.output:
         logger.addHandler(getFileHandler(fname, args, config))
     return logger
 
-
-from fabric import colors
-from flib.env import args
 
 def list_commands(cmd_dct):
     logger = configure_logger('list_commands')
@@ -93,55 +162,3 @@ def log_result(result):
                 log.warn('stderr:\n%r' % result.stderr)
         log.info('return: %s' % exit_code)
     return result
-
-
-from pprint import pformat
-
-class ColorFormatter(logging.Formatter):
-
-    def format(self, record):
-        bold = False
-        if record.levelno >= logging.ERROR:
-            color = colors.red
-        elif record.levelno >= logging.WARNING:
-            color = colors.yellow
-        elif record.levelno >= logging.INFO:
-            if args.debug:
-                bold = True
-            color = colors.cyan
-        else:
-            if args.debug:
-                color = colors.cyan
-            else:
-                color = colors.white
-
-        if isinstance(record.msg, dict):
-            record.msg = pformat(record.msg)
-        msg = super(ColorFormatter, self).format(record)
-        if msg.endswith('\n'):
-            return color(msg[:-1], bold)
-        else:
-            return color(msg, bold)
-
-def getConsoleHandler(args, config):
-    '''creates a handler for console output'''
-    handler = logging.StreamHandler()
-    if args.debug:
-        handler.setLevel(logging.DEBUG)
-    else:
-        handler.setLevel(logging.INFO)
-    if args.nofmt or args.list:
-        formatter = logging.Formatter('%(message)s')
-    else:
-        formatter = ColorFormatter('%(message)s')
-    handler.setFormatter(formatter)
-    return handler
-
-
-def getFileHandler(filename, args, config):
-    '''creates a file handler'''
-    handler = logging.FileHandler(filename)
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    return handler

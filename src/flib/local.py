@@ -1,19 +1,12 @@
 from flib.host import Host, sh2res
 from flib import lst2cmd
-import sh
-
-class AllContainer(tuple):
-    '''claims to contain everything'''
-    def __contains__(self, code):
-        return True
-from sh import Command
-Command._call_args['ok_code'] = AllContainer()
+from flib import ok_sh
 
 class LocalHost(Host):
 
     def __init__(self):
-        self._bash = sh.bash.bake('-l', '-c')
-        self._cp = sh.cp.bake('-v')
+        self._bash = ok_sh.bash.bake('-l', '-c')
+        self._cp = ok_sh.cp.bake('-v')
 
     def _sh(self, cwd, *args):
         result = self._bash(lst2cmd(args), _cwd=cwd)

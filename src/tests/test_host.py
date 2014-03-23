@@ -33,8 +33,8 @@ def test_local_echo(localhost):
     assert echoecho.exit_code == 0
     assert echoecho.stdout == "hello world\n"
     assert echoecho.stderr == ""
-    assert echo.cmdline == "/bin/echo 'hello world'"
-    assert echoecho.cmdline == "/bin/echo hello world"
+    assert echo.cmdline == "/bin/bash -l -c \"echo 'hello world'\""
+    assert echoecho.cmdline == "/bin/bash -l -c 'echo hello world'"
 
 #def test_ls(host):
     #assert host.sh("ls")
