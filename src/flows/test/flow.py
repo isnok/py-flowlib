@@ -56,12 +56,28 @@ def remote():
     from flib.remote import RemoteHost
     rhost = RemoteHost('localhost')
 
-    rd = rhost.bake_dir('/home/k')
-    log.info(rd.sh("ls"))
-    log.info(rd.git('-c', 'color.ui=false', 'status').stdout)
+    #rd = rhost.bake_dir('/home/k')
+    #log.info(rd.sh("ls"))
+    #log.info(rd.git('-c', 'color.ui=false', 'status').stdout)
 
-    d = rhost.bake_dir('/')
-    log.info(d.sh("ls"))
-    log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
-    log.info(d.sh('ls | grep boot').stdout)
-    log.error(d.sh('ls | grep boot').exit_code)
+    #d = rhost.bake_dir('/')
+    #log.info(d.sh("ls"))
+    #log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
+    #log.info(d.sh('ls | grep boot').stdout)
+    #log.error(d.sh('ls | grep boot').exit_code)
+
+    ok_put = rhost.put('ft.py', '/tmp')
+    log.info(ok_put.stdout)
+    log.info(ok_put.exit_code)
+
+    ok_put = rhost.put('ft.py', '/')
+    log.warn(ok_put.stdout)
+    log.warn(ok_put.exit_code)
+
+    ok_get = rhost.get('/tmp/ft.py', 'tmp')
+    log.info(ok_get.stdout)
+    log.info(ok_get.exit_code)
+
+    ok_get = rhost.get('/tmp/xxx', 'tmp')
+    log.warn(ok_get.stdout)
+    log.warn(ok_get.exit_code)

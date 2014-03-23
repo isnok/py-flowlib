@@ -18,6 +18,9 @@ def sh2res(r):
 def fab2res(r):
     return ShellResult(r.real_command, r.stdout, r.stderr, r.return_code)
 
+def fabputget2res(pg, s, d, r):
+    return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
+
 from flib.repo import GitRepository
 from flib.output import configure_logger
 log = configure_logger('BaseHost')

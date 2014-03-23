@@ -1,4 +1,4 @@
-from flib.host import Host, lst2cmd, fab2res
+from flib.host import Host, lst2cmd, fab2res, fabputget2res
 from fabric import api
 
 from functools import wraps
@@ -53,15 +53,17 @@ class RemoteHost(Host):
         result = api.execute(run, hosts=[self.login])
         return fab2res(result[self.login])
 
+    @quietly
     def put(self, source, dest):
         def run():
             return api.put(source, dest)
         result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
+        return fabputget2res('put', source, dest, result[self.login])
 
+    @quietly
     def get(self, source, dest):
         def run():
             return api.get(source, dest)
         result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
+        return fabputget2res('get', source, dest, result[self.login])
 
