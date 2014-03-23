@@ -42,10 +42,10 @@ def local():
     host = LocalHost()
 
     d = host.bake_dir('/')
-    log.info(d.sh("ls"))
-    log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
-    log.info(d.sh('ls | grep boot').stdout)
-    log.error(d.sh('ls | grep boot').exit_code)
+    d.sh("ls")
+    d.git('-c', 'color.ui=false', 'status')
+    d.sh('ls | grep boot')
+    d.sh('ls | grep boot')
 
 @expose
 def putget():

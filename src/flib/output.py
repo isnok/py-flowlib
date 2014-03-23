@@ -36,19 +36,46 @@ def list_commands(cmd_dct):
 from flib import lst2cmd
 def log_cmd(command, *cmd_args):
     if args.verbose:
+        log = logging.getLogger('command')
         if args.nofmt:
             cmd = ' $ %s %s' % (command, lst2cmd(cmd_args))
-            logging.getLogger('command').info(cmd)
+            log.info(cmd)
+        else:
+            cmd = colors.yellow(' $ %s %s' % (command, lst2cmd(cmd_args)), True)
+            log.info(cmd)
 
 def log_cwd_cmd(cwd, command, *cmd_args):
     if args.verbose:
+        log = logging.getLogger('command')
         if args.nofmt:
-            cmd = '%s $ %s %s' % (cwd, command, lst2cmd(cmd_args))
-            logging.getLogger('command').info(cmd)
+            log.info('%s $ %s %s' % (cwd, command, lst2cmd(cmd_args)))
         else:
             cmd = colors.yellow('%s %s' % (command, lst2cmd(cmd_args)), True)
-            cmd = '%s $ %s' % (cwd, cmd)
-            logging.getLogger('command').info(cmd)
+            log.info('%s $ %s' % (cwd, cmd))
+
+def log_result(result):
+    if result.exit_code == 0:
+        if args.verbose == 2:
+            log = logging.getLogger('results')
+            if result.stdout:
+                log.info(result.stdout)
+            if result.stderr:
+                log.warn(result.stderr)
+        elif args.verbose == 3:
+            log = logging.getLogger('results')
+            log.info('ran: %s' % result.cmdline)
+            log.info('stdout:\n%s' % result.stdout)
+            log.warn('stderr:\n%s' % result.stderr)
+        elif args.verbose >= 4:
+            log = logging.getLogger('results')
+            log.info('ran: %r' % result.cmdline)
+            log.info('stdout:\n%r' % result.stdout)
+            log.warn('stderr:\n%r' % result.stderr)
+            log.info('return: %s' % result.exit_code)
+    else:
+        log = logging.getLogger('results')
+        log.error(result)
+    return result
 
 
 from pprint import pformat

@@ -14,10 +14,12 @@ def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
 
 from flib.repo import GitRepository
-from flib.output import configure_logger, log_cmd, log_cwd_cmd
+from flib.output import configure_logger
+from flib.output import log_cmd, log_cwd_cmd, log_result
 from flib.env import args as global_args
-log = configure_logger('command')
 log = configure_logger('BaseHost')
+configure_logger('command')
+configure_logger('results')
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
@@ -26,9 +28,9 @@ class Host(object):
         log_cmd(command, *args)
         if global_args.noshell:
             cmd = ' $ %s %s' % (command, lst2cmd(args))
-            return ShellResult(cmd, '', '', 0)
+            return log_result(ShellResult(cmd, '', '', 0))
         else:
-            return self.sh(command, *args)
+            return log_result(self.sh(command, *args))
 
     def sh(self, command, *args):
         self._handle_cwd_command(self, '.', command, *args)
@@ -37,9 +39,9 @@ class Host(object):
         log_cwd_cmd(cwd, command, *args)
         if global_args.noshell:
             cmd = '%s $ %s %s' % (cwd, command, lst2cmd(args))
-            return ShellResult(cmd, '', '', 0)
+            return log_result(ShellResult(cmd, '', '', 0))
         else:
-            return self._sh(cwd, command, *args)
+            return log_result(self._sh(cwd, command, *args))
 
     def _sh(self, cwd, command, *args):
         raise NotImplementedError('Base host class does not implement _sh')
@@ -51,15 +53,15 @@ class Host(object):
     def bake(self, command=None, cwd=None):
         if command is None:
             def baked(*args):
-                log.debug('Cmd bakery: %r %r' % (cwd, args))
+                log.debug('cwd bakery: %r %r' % (cwd, args))
                 return self._handle_cwd_command(cwd, *args)
         else:
             if cwd is None:
                 def baked(*args):
-                    log.debug('Cmd bakery: %r %r' % (command, args))
+                    log.debug('cmd bakery: %r %r' % (command, args))
                     return self.handle_command(command, *args)
             else:
                 def baked(*args):
-                    log.debug('Cmd bakery: %r %r %r' % (cwd, command, args))
+                    log.debug('cwdcmd bakery: %r %r %r' % (cwd, command, args))
                     return self._handle_cwd_command(cwd, command, *args)
         return baked

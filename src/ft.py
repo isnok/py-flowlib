@@ -3,7 +3,7 @@
 
 Usage:
     flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-o <file>]... [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v] [--list|-l]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [--list|-l]
 
 Options:
     -h, --help              print this help

@@ -6,10 +6,8 @@ class AllContainer(tuple):
     '''claims to contain everything'''
     def __contains__(self, code):
         return True
-
-all_ok = AllContainer()
 from sh import Command
-Command._call_args['ok_code'] = all_ok
+Command._call_args['ok_code'] = AllContainer()
 
 class LocalHost(Host):
 
@@ -18,21 +16,21 @@ class LocalHost(Host):
         self._cp = sh.cp.bake('-v')
 
     def _sh(self, cwd, *args):
-        result = self._bash(lst2cmd(args), _cwd=cwd, ok_code=all_ok)
+        result = self._bash(lst2cmd(args), _cwd=cwd)
         return sh2res(result)
 
     def sh(self, *args):
-        result = self._bash(lst2cmd(args), ok_code=all_ok)
+        result = self._bash(lst2cmd(args))
         return sh2res(result)
 
     def run(self, command):
         '''emulate fabric.api.run'''
-        result = self._bash(command, ok_code=all_ok)
+        result = self._bash(command)
         return sh2res(result)
 
     def sudo(self, command):
         '''emulate fabric.api.sudo'''
-        result = self._bash('sudo ' + command, ok_code=all_ok)
+        result = self._bash('sudo ' + command)
         return sh2res(result)
 
     def put(self, source, dest):
