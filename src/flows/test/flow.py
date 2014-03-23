@@ -41,7 +41,7 @@ def test():
     from flib.local import LocalHost
     host = LocalHost()
 
-    d = host.getdir('/')
+    d = host.bake_dir('/')
     log.info(d.sh("ls"))
     log.info(d.git('-c', 'color.ui=false', 'status').stdout)
 
@@ -51,6 +51,6 @@ def remote():
     from flib.remote import RemoteHost
     rhost = RemoteHost('localhost')
 
-    rd = rhost.getdir('/home/k')
+    rd = rhost.bake_dir('/home/k')
     log.info(rd.sh("ls"))
     log.info(rd.git('-c', 'color.ui=false', 'status').stdout)

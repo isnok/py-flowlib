@@ -1,18 +1,24 @@
-from flib.host import Host, sh2res
+from flib.host import Host, lst2cmd, sh2res
 import sh
+
+class AllContainer(object):
+    def __contains__(self, code):
+        return True
+
+all_ok = AllContainer()
 
 class LocalHost(Host):
 
     def __init__(self):
-        self._sudo = sh.sudo.bake()
+        self._bash = sh.bash.bake('-l', '-c')
         self._cp = sh.cp.bake('-n', '-v')
 
-    def _sh(self, cwd, command, *args):
-        result = getattr(sh, command)(*args, _cwd=cwd)
+    def _sh(self, cwd, *args):
+        result = self._bash(lst2cmd(args), _cwd=cwd, ok_code=all_ok)
         return sh2res(result)
 
-    def sh(self, command, *args):
-        result = getattr(sh, command)(*args)
+    def sh(self, *args):
+        result = self._bash(lst2cmd(args), ok_code=all_ok)
         return sh2res(result)
 
     def run(self, command):
@@ -22,7 +28,7 @@ class LocalHost(Host):
 
     def sudo(self, command):
         '''emulate fabric.api.sudo'''
-        result = self._sudo(command.split())
+        result = self._bash(['sudo'] + command.split())
         return sh2res(result)
 
     def put(self, source, dest):

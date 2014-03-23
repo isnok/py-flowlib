@@ -22,24 +22,27 @@ from flib.repo import GitRepository
 class Host(object):
     '''Base class for hosts of all sorts.'''
 
-    def getdir(self, path):
-        return GitRepository(self, path)
-
-    def bake(self, command=None, cwd=None):
-        if command is None:
-            def baked(*args):
-                return self._sh(cwd, *args)
-        else:
-            if cwd is None:
-                def baked(*args):
-                    return self.sh(command, *args)
-            else:
-                def baked(*args):
-                    return self._sh(cwd, command, *args)
-        return baked
-
     def sh(self, command, *args):
         raise NotImplementedError('Base host class has no sh implementation.')
 
     def _sh(self, cwd, command, *args):
         raise NotImplementedError('Base host class has no _sh implementation.')
+
+    def bake_dir(self, path):
+        return GitRepository(self, path)
+
+    def bake(self, command=None, cwd=None):
+        if command is None:
+            def baked(*args):
+                print 1
+                return self._sh(cwd, *args)
+        else:
+            if cwd is None:
+                def baked(*args):
+                    print 2
+                    return self.sh(command, *args)
+            else:
+                def baked(*args):
+                    print 3
+                    return self._sh(cwd, command, *args)
+        return baked
