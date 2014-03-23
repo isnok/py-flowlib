@@ -35,7 +35,7 @@ def list_commands(cmd_dct):
 
 from flib import lst2cmd
 def log_cmd(command, *cmd_args):
-    if args.verbose:
+    if 0 < args.verbose < 3:
         log = logging.getLogger('command')
         if args.nofmt:
             cmd = ' $ %s %s' % (command, lst2cmd(cmd_args))
@@ -45,7 +45,7 @@ def log_cmd(command, *cmd_args):
             log.info(cmd)
 
 def log_cwd_cmd(cwd, command, *cmd_args):
-    if args.verbose:
+    if 0 < args.verbose < 3:
         log = logging.getLogger('command')
         if args.nofmt:
             log.info('%s $ %s %s' % (cwd, command, lst2cmd(cmd_args)))
@@ -54,36 +54,36 @@ def log_cwd_cmd(cwd, command, *cmd_args):
             log.info('%s $ %s' % (cwd, cmd))
 
 def log_result(result):
-    if result.exit_code == 0:
-        if args.verbose == 2:
-            log = logging.getLogger('results')
-            if result.stdout:
-                log.info(result.stdout)
-            if result.stderr:
-                log.warn(result.stderr)
-        elif args.verbose >= 3:
-            log = logging.getLogger('results')
-            if args.nofmt:
-                cmdline = result.cmdline
-                exit_code = result.exit_code
-            else:
+    if args.verbose == 2:
+        log = logging.getLogger('results')
+        if result.stdout:
+            log.info(result.stdout)
+        if result.stderr:
+            log.warn(result.stderr)
+    elif args.verbose >= 3:
+        log = logging.getLogger('results')
+        if args.nofmt:
+            cmdline = result.cmdline
+            exit_code = result.exit_code
+        else:
+            if not result.exit_code:
                 cmdline = colors.white(result.cmdline, True)
                 exit_code = colors.green(result.exit_code)
-            log.info('ran: %s' % cmdline)
-            if result.stdout or args.verbose > 3:
-                if args.verbose == 3:
-                    log.info('stdout:\n%s' % result.stdout)
-                else:
-                    log.info('stdout:\n%r' % result.stdout)
-            if result.stderr or args.verbose > 3:
-                if args.verbose == 3:
-                    log.warn('stderr:\n%s' % result.stderr)
-                else:
-                    log.warn('stderr:\n%r' % result.stderr)
-            log.info('return: %s' % exit_code)
-    else:
-        log = logging.getLogger('results')
-        log.error(result)
+            else:
+                cmdline = colors.red(result.cmdline, True)
+                exit_code = colors.red(result.exit_code)
+        log.info('ran: %s' % cmdline)
+        if result.stdout or args.verbose > 3:
+            if args.verbose == 3:
+                log.info('stdout:\n%s' % result.stdout)
+            else:
+                log.info('stdout:\n%r' % result.stdout)
+        if result.stderr or args.verbose > 3:
+            if args.verbose == 3:
+                log.warn('stderr:\n%s' % result.stderr)
+            else:
+                log.warn('stderr:\n%r' % result.stderr)
+        log.info('return: %s' % exit_code)
     return result
 
 
