@@ -37,7 +37,7 @@ def local():
     """Some local commands"""
     host = LocalHost()
 
-    d = host.bake_git('/')
+    d = host.bake_git('/tmp/foo')
     d.sh("ls")
     d.git('-c', 'color.ui=false', 'status')
     d.sh('ls | grep boot')

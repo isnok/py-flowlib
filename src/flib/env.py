@@ -3,8 +3,8 @@ from docopt import docopt
 from collections import namedtuple
 args = namedtuple(
     "DefaultGlobalArgs",
-    ['debug', 'verbose', 'nofmt', 'output', 'notreally', 'host', 'path']
-)(False, False, True, [], False, None, '.')
+    ['debug', 'verbose', 'nofmt', 'output', 'notreally', 'host', 'path', 'dirs', 'gits']
+)(False, False, True, [], False, None, '.', 'abort', 'abort')
 
 
 class SimpleArgs(dict):
