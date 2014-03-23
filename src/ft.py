@@ -13,7 +13,7 @@ Options:
     -d, --debug             print debug information
     -o, --output <file>     write a log to <file>
     -v, --verbose           control how much is said about commands
-    -n, --noshell           don't execute any shell commands
+    -n, --notreally         don't execute api commands
     --nofmt                 don't format (and color) output
 
 Invoking without any arguments dumps the config.

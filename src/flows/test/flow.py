@@ -27,7 +27,9 @@ def tryme(*myargs):
     '''
     log.info(repr(myargs))
 
+
 from flib.local import LocalHost
+
 @expose
 def local():
     """Some local commands"""
@@ -49,55 +51,43 @@ def local():
 
 @expose
 def putget():
+    """Some local puts and gets"""
     host = LocalHost()
 
     host.put('ft.py', '/tmp')
     host.get('/tmp/ft.py', 'tmp')
 
     ok_put = host.put('ft.py', '/tmp')
-    log.info(ok_put.stdout)
-    log.info(ok_put.exit_code)
-
-    ok_put = host.put('ft.py', '/')
-    log.warn(ok_put.stderr)
-    log.warn(ok_put.exit_code)
+    nok_put = host.put('ft.py', '/')
 
     ok_get = host.get('/tmp/ft.py', 'tmp')
-    log.info(ok_get.stdout)
-    log.info(ok_get.exit_code)
+    nok_get = host.get('/tmp/xxx', 'tmp')
 
-    ok_get = host.get('/tmp/xxx', 'tmp')
-    log.warn(ok_get.stderr)
-    log.warn(ok_get.exit_code)
+
+from flib.remote import RemoteHost
 
 @expose
 def remote():
     """Some remote commands"""
-    from flib.remote import RemoteHost
     rhost = RemoteHost('localhost')
 
-    #rd = rhost.bake_dir('/home/k')
-    #log.info(rd.sh("ls"))
-    #log.info(rd.git('-c', 'color.ui=false', 'status').stdout)
+    rd = rhost.bake_dir('/home/k')
+    rd.sh("ls")
+    rd.git('-c', 'color.ui=false', 'status').stdout
 
-    #d = rhost.bake_dir('/')
-    #log.info(d.sh("ls"))
-    #log.warn(d.git('-c', 'color.ui=false', 'status').stderr)
-    #log.info(d.sh('ls | grep boot').stdout)
-    #log.error(d.sh('ls | grep boot').exit_code)
+    d = rhost.bake_dir('/')
+    d.sh("ls")
+    d.git('-c', 'color.ui=false', 'status').stderr
+    d.sh('ls | grep boot').stdout
+    d.sh('ls | grep boot').exit_code
+
+@expose
+def rputget():
+    """Some remote puts and gets"""
+    rhost = RemoteHost('localhost')
 
     ok_put = rhost.put('ft.py', '/tmp')
-    log.info(ok_put.stdout)
-    log.info(ok_put.exit_code)
-
-    ok_put = rhost.put('ft.py', '/')
-    log.warn(ok_put.stderr)
-    log.warn(ok_put.exit_code)
+    nok_put = rhost.put('ft.py', '/')
 
     ok_get = rhost.get('/tmp/ft.py', 'tmp')
-    log.info(ok_get.stdout)
-    log.info(ok_get.exit_code)
-
-    ok_get = rhost.get('/tmp/xxx', 'tmp')
-    log.warn(ok_get.stderr)
-    log.warn(ok_get.exit_code)
+    nok_get = rhost.get('/tmp/xxx', 'tmp')

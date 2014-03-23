@@ -38,8 +38,7 @@ def log_cmd(command, *cmd_args):
     if 0 < args.verbose < 3:
         log = logging.getLogger('command')
         if args.nofmt:
-            cmd = ' $ %s %s' % (command, lst2cmd(cmd_args))
-            log.info(cmd)
+            log.info(' $ %s %s' % (command, lst2cmd(cmd_args)))
         else:
             cmd = colors.yellow(' $ %s %s' % (command, lst2cmd(cmd_args)), True)
             log.info(cmd)
@@ -52,6 +51,15 @@ def log_cwd_cmd(cwd, command, *cmd_args):
         else:
             cmd = colors.yellow('%s %s' % (command, lst2cmd(cmd_args)), True)
             log.info('%s $ %s' % (cwd, cmd))
+
+def log_putget(pg, src, dest):
+    if 0 < args.verbose < 3:
+        log = logging.getLogger('command')
+        if args.nofmt:
+            log.info(' %s %s %s' % (pg, src, dest))
+        else:
+            cmd = colors.yellow(' %s %s %s' % (pg, src, dest), True)
+            log.info(cmd)
 
 def log_result(result):
     if args.verbose == 2:

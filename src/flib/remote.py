@@ -40,31 +40,30 @@ class RemoteHost(Host):
         result = api.execute(run, hosts=[self.login])
         return fab2res(result[self.login])
 
-    @quietly
-    def run(self, command):
-        def run():
-            return api.run(command, pty=False)
-        result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
+    #@quietly
+    #def run(self, command):
+        #def run():
+            #return api.run(command, pty=False)
+        #result = api.execute(run, hosts=[self.login])
+        #return fab2res(result[self.login])
+
+    #@quietly
+    #def sudo(self, command):
+        #def run():
+            #return api.sudo(command, pty=False)
+        #result = api.execute(run, hosts=[self.login])
+        #return fab2res(result[self.login])
 
     @quietly
-    def sudo(self, command):
-        def run():
-            return api.sudo(command, pty=False)
-        result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
-
-    @quietly
-    def put(self, source, dest):
+    def _put(self, source, dest):
         def run():
             return api.put(source, dest)
         result = api.execute(run, hosts=[self.login])
         return fabputget2res('put', source, dest, result[self.login])
 
     @quietly
-    def get(self, source, dest):
+    def _get(self, source, dest):
         def run():
             return api.get(source, dest)
         result = api.execute(run, hosts=[self.login])
         return fabputget2res('get', source, dest, result[self.login])
-

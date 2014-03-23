@@ -15,7 +15,7 @@ def fabputget2res(pg, s, d, r):
 
 from flib.repo import GitRepository
 from flib.output import configure_logger
-from flib.output import log_cmd, log_cwd_cmd, log_result
+from flib.output import log_cmd, log_cwd_cmd, log_putget, log_result
 from flib.env import args as global_args
 log = configure_logger('BaseHost')
 configure_logger('command')
@@ -26,7 +26,7 @@ class Host(object):
 
     def handle_command(self, command, *args):
         log_cmd(command, *args)
-        if global_args.noshell:
+        if global_args.notreally:
             cmd = ' $ %s %s' % (command, lst2cmd(args))
             return log_result(ShellResult(cmd, '', '', 0))
         else:
@@ -37,7 +37,7 @@ class Host(object):
 
     def _handle_cwd_command(self, cwd, command, *args):
         log_cwd_cmd(cwd, command, *args)
-        if global_args.noshell:
+        if global_args.notreally:
             cmd = '%s $ %s %s' % (cwd, command, lst2cmd(args))
             return log_result(ShellResult(cmd, '', '', 0))
         else:
@@ -65,3 +65,26 @@ class Host(object):
                     log.debug('cwdcmd bakery: %r %r %r' % (cwd, command, args))
                     return self._handle_cwd_command(cwd, command, *args)
         return baked
+
+
+    def put(self, *args):
+        log_putget('>', *args)
+        if global_args.notreally:
+            cmd = 'put(%r, %r)' % args
+            return log_result(ShellResult(cmd, '', '', 0))
+        else:
+            return log_result(self._put(*args))
+
+    def _put(self, src, dest):
+        raise NotImplementedError('Base host class does not implement _put')
+
+    def get(self, *args):
+        log_putget('<', *args)
+        if global_args.notreally:
+            cmd = 'get(%r, %r)' % args
+            return log_result(ShellResult(cmd, '', '', 0))
+        else:
+            return log_result(self._put(*args))
+
+    def _get(self, src, dest):
+        raise NotImplementedError('Base host class does not implement _get')

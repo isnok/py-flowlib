@@ -23,20 +23,20 @@ class LocalHost(Host):
         result = self._bash(lst2cmd(args))
         return sh2res(result)
 
-    def run(self, command):
-        '''emulate fabric.api.run'''
-        result = self._bash(command)
-        return sh2res(result)
+    #def run(self, command):
+        #'''emulate fabric.api.run'''
+        #result = self._bash(command)
+        #return sh2res(result)
 
-    def sudo(self, command):
-        '''emulate fabric.api.sudo'''
-        result = self._bash('sudo ' + command)
-        return sh2res(result)
+    #def sudo(self, command):
+        #'''emulate fabric.api.sudo'''
+        #result = self._bash('sudo ' + command)
+        #return sh2res(result)
 
-    def put(self, source, dest):
+    def _put(self, source, dest):
         result = self._cp(source, dest)
         return sh2res(result)
 
-    def get(self, source, dest):
+    def _get(self, source, dest):
         result = self._cp(source, dest)
         return sh2res(result)
