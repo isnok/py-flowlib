@@ -61,17 +61,26 @@ def log_result(result):
                 log.info(result.stdout)
             if result.stderr:
                 log.warn(result.stderr)
-        elif args.verbose == 3:
+        elif args.verbose >= 3:
             log = logging.getLogger('results')
-            log.info('ran: %s' % result.cmdline)
-            log.info('stdout:\n%s' % result.stdout)
-            log.warn('stderr:\n%s' % result.stderr)
-        elif args.verbose >= 4:
-            log = logging.getLogger('results')
-            log.info('ran: %r' % result.cmdline)
-            log.info('stdout:\n%r' % result.stdout)
-            log.warn('stderr:\n%r' % result.stderr)
-            log.info('return: %s' % result.exit_code)
+            if args.nofmt:
+                cmdline = result.cmdline
+                exit_code = result.exit_code
+            else:
+                cmdline = colors.white(result.cmdline, True)
+                exit_code = colors.green(result.exit_code)
+            log.info('ran: %s' % cmdline)
+            if result.stdout or args.verbose > 3:
+                if args.verbose == 3:
+                    log.info('stdout:\n%s' % result.stdout)
+                else:
+                    log.info('stdout:\n%r' % result.stdout)
+            if result.stderr or args.verbose > 3:
+                if args.verbose == 3:
+                    log.warn('stderr:\n%s' % result.stderr)
+                else:
+                    log.warn('stderr:\n%r' % result.stderr)
+            log.info('return: %s' % exit_code)
     else:
         log = logging.getLogger('results')
         log.error(result)
