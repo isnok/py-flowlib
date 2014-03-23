@@ -40,8 +40,6 @@ def parse_args(docstring, argv, **kwd):
 
 from configobj import ConfigObj
 
-config = None
-
 class SimpleConfig(ConfigObj):
     '''Make ConfigObj more accesible.'''
 
@@ -57,6 +55,8 @@ class SimpleConfig(ConfigObj):
                 return val
         else:
             raise AttributeError(name)
+
+config = SimpleConfig({'repo':'.'})
 
 def parse_config(filename):
     global config

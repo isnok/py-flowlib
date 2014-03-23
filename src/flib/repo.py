@@ -24,8 +24,8 @@ class Directory(object):
         if path is None:
             path = self.path
         try:
-            return self.sh('test', '-d', path).exit_code == 0
-        except:
+            return self.host.sh('test', '-d', path).exit_code == 0
+        except Exception, ex:
             return False
 
     def create(self, path=None):
@@ -58,7 +58,7 @@ class Directory(object):
 
     def cwd(self, path, not_there=None):
         self.path = path
-        self.exists = self.check_exists()
+        self.exists = self.check_exists(path)
 
         if self.exists:
             self.sh = self.host.bake(cwd=path)
@@ -99,13 +99,15 @@ class GitRepository(Directory):
             log.warn(msg)
             return InexistingShellResult(cmd, '', '', 1)
 
-
     def cwd(self, path, not_there=None):
         if not_there is None:
             not_there = self.not_there
 
         if not_there == 'init':
-            super(GitRepository, self).cwd(path, not_there='create')
+            if self.exists or self.check_exists():
+                super(GitRepository, self).cwd(path)
+            else:
+                super(GitRepository, self).cwd(path, not_there='create')
         else:
             super(GitRepository, self).cwd(path, not_there=not_there)
 
@@ -117,16 +119,13 @@ class GitRepository(Directory):
         if not self.git('rev-parse', '--is-inside-work-tree').exit_code == 0:
             if not_there == 'ignore':
                 pass
-            elif not_there == 'create':
-                log.info('Creating %s.' % self)
-                self.host.sh('mkdir', '-p', self.path)
             elif not_there == 'abort':
-                abort(log, 'Error: %r is not a directory!' % (self,))
+                abort(log, 'Error: %r is not a repository!' % (self,))
             elif not_there == 'init':
                 log.info('Initializing %s.' % self)
                 self.git('init', self.path)
             else:
-                assert not_there == 'warn'
+                assert not_there in ('warn', 'create')
                 log.warn('Warning: %s is not a repository.' % (self,))
 
     def bake_branch(self, name):
