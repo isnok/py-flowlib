@@ -13,7 +13,7 @@ def fab2res(r):
 def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
 
-from flib.repo import GitRepository
+from flib.repo import Directory, GitRepository
 from flib.output import configure_logger
 from flib.output import log_cmd, log_cwd_cmd, log_putget, log_result
 from flib.env import args as global_args
@@ -23,6 +23,12 @@ configure_logger('results')
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
+
+    def __str__(self):
+        if not hasattr(self, 'login'):
+            return "%s()" % (self.__class__.__name__)
+        else:
+            return "%s(%r)" % (self.__class__.__name__, self.login)
 
     def handle_command(self, command, *args):
         log_cmd(command, *args)
@@ -47,9 +53,6 @@ class Host(object):
         raise NotImplementedError('Base host class does not implement _sh')
 
 
-    def bake_dir(self, path):
-        return GitRepository(self, path)
-
     def bake(self, command=None, cwd=None):
         if command is None:
             def baked(*args):
@@ -65,6 +68,12 @@ class Host(object):
                     log.debug('cwdcmd bakery: %r %r %r' % (cwd, command, args))
                     return self._handle_cwd_command(cwd, command, *args)
         return baked
+
+    def bake_dir(self, path):
+        return Directory(self, path)
+
+    def bake_git(self, path):
+        return GitRepository(self, path)
 
 
     def put(self, *args):

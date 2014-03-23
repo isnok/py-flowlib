@@ -47,12 +47,14 @@ def getConsoleHandlers(args, config):
         ok_handler.setLevel(logging.DEBUG)
     else:
         ok_handler.setLevel(logging.INFO)
+
     nok_filter = UpToLogLevel()
     nok_filter.upTo = logging.WARNING
     ok_handler.addFilter(nok_filter)
 
     errhandler = logging.StreamHandler(sys.stderr)
-    errhandler.setLevel(logging.WARNING)
+    errhandler.setLevel(nok_filter.upTo)
+
     if args.nofmt or args.list:
         formatter = logging.Formatter('%(message)s')
     else:

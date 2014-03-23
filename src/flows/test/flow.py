@@ -43,7 +43,7 @@ def local():
 
     host = LocalHost()
 
-    d = host.bake_dir('/')
+    d = host.bake_git('/')
     d.sh("ls")
     d.git('-c', 'color.ui=false', 'status')
     d.sh('ls | grep boot')
@@ -71,11 +71,11 @@ def remote():
     """Some remote commands"""
     rhost = RemoteHost('localhost')
 
-    rd = rhost.bake_dir('/home/k')
+    rd = rhost.bake_git('/home/k')
     rd.sh("ls")
     rd.git('-c', 'color.ui=false', 'status').stdout
 
-    d = rhost.bake_dir('/')
+    d = rhost.bake_git('/')
     d.sh("ls")
     d.git('-c', 'color.ui=false', 'status').stderr
     d.sh('ls | grep boot').stdout
