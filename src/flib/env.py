@@ -1,6 +1,7 @@
 from docopt import docopt
 
-args = None
+from collections import namedtuple
+args = namedtuple("DefaultGlobalArgs", ['debug', 'nofmt', 'output'])(False, True, [])
 
 class SimpleArgs(dict):
     '''Make docopt args more accesible.'''

@@ -2,11 +2,7 @@ from flib.host import Host, lst2cmd, fab2res
 from fabric import api
 
 from functools import wraps
-try:
-    from flib.env import args
-except:
-    from collections import namedtuple
-    args = namedtuple("Defaults", ['debug'])(False)
+from flib.env import args
 
 def quietly(func):
     context = api.warn_only if args.debug else api.quiet

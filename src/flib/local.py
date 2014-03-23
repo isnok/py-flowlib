@@ -1,11 +1,14 @@
 from flib.host import Host, lst2cmd, sh2res
 import sh
 
-class AllContainer(object):
+class AllContainer(tuple):
+    '''claims to contain everything'''
     def __contains__(self, code):
         return True
 
 all_ok = AllContainer()
+from sh import Command
+Command._call_args['ok_code'] = all_ok
 
 class LocalHost(Host):
 
@@ -23,12 +26,12 @@ class LocalHost(Host):
 
     def run(self, command):
         '''emulate fabric.api.run'''
-        result = self.sh(command.split())
+        result = self._bash(command, ok_code=all_ok)
         return sh2res(result)
 
     def sudo(self, command):
         '''emulate fabric.api.sudo'''
-        result = self._bash(['sudo'] + command.split())
+        result = self._bash('sudo ' + command, ok_code=all_ok)
         return sh2res(result)
 
     def put(self, source, dest):

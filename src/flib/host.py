@@ -18,6 +18,8 @@ def fab2res(r):
     return ShellResult(r.real_command, r.stdout, r.stderr, r.return_code)
 
 from flib.repo import GitRepository
+from flib.output import configure_logger
+log = configure_logger('BaseHost')
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
@@ -34,15 +36,15 @@ class Host(object):
     def bake(self, command=None, cwd=None):
         if command is None:
             def baked(*args):
-                print 1
+                log.debug('Cmd bakery: %r %r' % (cwd, args))
                 return self._sh(cwd, *args)
         else:
             if cwd is None:
                 def baked(*args):
-                    print 2
+                    log.debug('Cmd bakery: %r %r' % (command, args))
                     return self.sh(command, *args)
             else:
                 def baked(*args):
-                    print 3
+                    log.debug('Cmd bakery: %r %r %r' % (cwd, command, args))
                     return self._sh(cwd, command, *args)
         return baked
