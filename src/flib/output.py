@@ -148,11 +148,12 @@ def log_result(result):
         else:
             if not result.exit_code:
                 cmdline = colors.white(result.cmdline, True)
-                exit_code = colors.green(result.exit_code)
+                exit_color = colors.green
             else:
                 cmdline = colors.red(result.cmdline, True)
-                exit_code = colors.red(result.exit_code)
+                exit_color = colors.red
         log.info('ran: %s' % cmdline)
+        log.info('in: %s' % exit_color(result.cwd))
         if result.stdout or args.verbose > 3:
             if args.verbose == 3:
                 log.info('stdout:\n%s' % result.stdout)
@@ -163,5 +164,5 @@ def log_result(result):
                 log.warn('stderr:\n%s' % result.stderr)
             else:
                 log.warn('stderr:\n%r' % result.stderr)
-        log.info('return: %s' % exit_code)
+        log.info('return: %s' % exit_color(result.exit_code))
     return result

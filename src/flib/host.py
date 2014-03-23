@@ -1,17 +1,17 @@
 from collections import namedtuple
 
-ShellResult = namedtuple("ShellResult", ['cmdline', 'stdout', 'stderr', 'exit_code'])
+ShellResult = namedtuple("ShellResult", ['cmdline', 'cwd', 'stdout', 'stderr', 'exit_code'])
 
 from flib import lst2cmd
 
 def sh2res(r):
-    return ShellResult(lst2cmd(r.cmd), r.stdout, r.stderr, r.exit_code)
+    return ShellResult(lst2cmd(r.cmd), r.call_args['cwd'], r.stdout, r.stderr, r.exit_code)
 
 def fab2res(r):
-    return ShellResult(r.real_command, r.stdout, r.stderr, r.return_code)
+    return ShellResult(r.real_command, r.cwd, r.stdout, r.stderr, r.return_code)
 
 def fabputget2res(pg, s, d, r):
-    return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
+    return ShellResult('%s(%s, %s)' % (pg, s, d), d, tuple(r), r.succeeded, int(not r.succeeded))
 
 
 from flib.env import args as global_args
@@ -37,7 +37,7 @@ class Host(object):
         log_cmd(command, *args)
         if global_args.notreally:
             cmd = ' $ %s %s' % (command, lst2cmd(args))
-            return log_result(ShellResult(cmd, '', '', 0))
+            return log_result(ShellResult(cmd, None, '', '', 0))
         else:
             return log_result(self.handle_command(command, *args))
 
@@ -48,7 +48,7 @@ class Host(object):
         log_cwd_cmd(cwd, command, *args)
         if global_args.notreally:
             cmd = '%s $ %s %s' % (cwd, command, lst2cmd(args))
-            return log_result(ShellResult(cmd, '', '', 0))
+            return log_result(ShellResult(cmd, cwd, '', '', 0))
         else:
             return log_result(self._sh(cwd, command, *args))
 
@@ -84,7 +84,7 @@ class Host(object):
         log_putget('>', *args)
         if global_args.notreally:
             cmd = 'put(%r, %r)' % args
-            return log_result(ShellResult(cmd, '', '', 0))
+            return log_result(ShellResult(cmd, tuple(args), '', '', 0))
         else:
             return log_result(self._put(*args))
 
@@ -95,7 +95,7 @@ class Host(object):
         log_putget('<', *args)
         if global_args.notreally:
             cmd = 'get(%r, %r)' % args
-            return log_result(ShellResult(cmd, '', '', 0))
+            return log_result(ShellResult(cmd, tuple(args), '', '', 0))
         else:
             return log_result(self._put(*args))
 

@@ -28,7 +28,9 @@ class RemoteHost(Host):
         '''emulate sh.command(*args)'''
         def run():
             with api.cd(cwd):
-                return api.run(lst2cmd(args), pty=False)
+                result = api.run(lst2cmd(args), pty=False)
+                result.cwd = cwd
+                return result
         result = api.execute(run, hosts=[self.login])
         return fab2res(result[self.login])
 

@@ -5,7 +5,7 @@ from flib import abort, lst2cmd
 log = configure_logger('objmappers')
 
 from collections import namedtuple
-InexistingShellResult = namedtuple('InexistingShellResult', ['cmdline', 'stdout', 'stderr', 'exit_code'])
+InexistingShellResult = namedtuple('InexistingShellResult', ['cmdline', 'cwd', 'stdout', 'stderr', 'exit_code'])
 
 class Directory(object):
     '''Base class for a directory on some host.'''
@@ -47,11 +47,11 @@ class Directory(object):
     def not_there_sh(self, command, *args):
         cmd = '%s %s' % (command, lst2cmd(args))
         if self.not_there == 'ignore':
-            return InexistingShellResult(cmd, '', '', 0)
+            return InexistingShellResult(cmd, self.path, '', '', 0)
         else:
             msg = 'Not exisitng %s ignores command: %s' % (self, cmd)
             log.warn(msg)
-            return InexistingShellResult(cmd, '', '', 1)
+            return InexistingShellResult(cmd, self.path, '', '', 1)
 
     def __repr__(self):
         return "%s(%s, %r)" % (self.__class__.__name__, self.host, self.path)
@@ -93,11 +93,11 @@ class GitRepository(Directory):
     def not_there_git(self, *args):
         cmd = 'git %s' % lst2cmd(args)
         if self.not_there == 'ignore':
-            return InexistingShellResult(cmd, '', '', 0)
+            return InexistingShellResult(cmd, self.path, '', '', 0)
         else:
             msg = 'Uninitialized %s ignores command: %s' % (self, cmd)
             log.warn(msg)
-            return InexistingShellResult(cmd, '', '', 1)
+            return InexistingShellResult(cmd, self.path, '', '', 1)
 
     def cwd(self, path, not_there=None):
         if not_there is None:
