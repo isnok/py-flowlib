@@ -1,20 +1,21 @@
 from flib.cmd import expose
 from flib.flow import prefix_funcs
 from flib.env import args, config
+from flib.output import configure_logger
+
+log = configure_logger('test_flow')
 
 @expose("alias")
 def aliased():
     # an undocumented command
-    print "this is aliased"
-    if args.debug:
-        print "You're in debug, and i know it."
+    log.info("this is aliased")
+    log.debug("You're in debug, and i know it.")
 
 @expose
 def aliased():
     """A documented command"""
-    print "this is weird"
-    if args.debug:
-        print config['module']
+    log.info("this is weird")
+    log.debug(config['module'])
 
 
 @expose(docargs=True)
@@ -24,25 +25,25 @@ def tryme(*myargs):
         -c, --cool      be cool as heck
         -l, --lame      be lame as hell
     '''
-    print repr(myargs)
+    log.info(repr(myargs))
 
 @expose
 def test():
     """Some local commands"""
-    flowcfg = config.flow
+    #flowcfg = config.flow
 
-    master = flowcfg.master
-    develop = flowcfg.develop
+    #master = flowcfg.master
+    #develop = flowcfg.develop
 
-    ft = prefix_funcs(flowcfg.feature)
-    rl = prefix_funcs(flowcfg.release)
+    #ft = prefix_funcs(flowcfg.feature)
+    #rl = prefix_funcs(flowcfg.release)
 
     from flib.local import LocalHost
     host = LocalHost()
 
     d = host.getdir('/')
-    print d.sh("ls")
-    print d.git('-c', 'color.ui=false', 'status').stdout
+    log.info(d.sh("ls"))
+    log.info(d.git('-c', 'color.ui=false', 'status').stdout)
 
 @expose
 def remote():

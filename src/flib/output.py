@@ -16,11 +16,33 @@ def configure_logger(name, args=None, config=None):
         logger.addHandler(getFileHandler(fname, args, config))
     return logger
 
+
+from pprint import pformat
+from fabric import colors
+class ColorFormatter(logging.Formatter):
+
+    def format(self, record):
+        if record.levelno >= logging.ERROR:
+            color = colors.red
+        elif record.levelno >= logging.WARNING:
+            color = colors.yellow
+        elif record.levelno >= logging.INFO:
+            color = colors.cyan
+        else:
+            color = colors.white
+        if isinstance(record.msg, dict):
+            record.msg = pformat(record.msg)
+        msg = super(ColorFormatter, self).format(record)
+        return color(msg)
+
 def getConsoleHandler(args, config):
     '''creates a handler for console output'''
     handler = logging.StreamHandler()
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    if args.debug:
+        handler.setLevel(logging.DEBUG)
+    else:
+        handler.setLevel(logging.INFO)
+    formatter = ColorFormatter('%(message)s')
     handler.setFormatter(formatter)
     return handler
 
