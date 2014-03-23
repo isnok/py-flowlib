@@ -2,26 +2,28 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] (-o <file>)... [COMMAND] [ARGUMENTS ...]
     flowtool.py [-hdr] [-c <cfg>] [ --list | -l ]
 
 Options:
-    -h, --help          print this help
-    -c, --config <cfg>  use configuration file [default: flow.cfg]
-    -r, --recurse       recurse up searching for a config
-    -l, --list          list available commands
-    -d, --debug         print debug information
+    -h, --help              print this help
+    -c, --config <cfg>      use configuration file [default: flow.cfg]
+    -r, --recurse           recurse up searching for a config
+    -l, --list              list available commands
+    -d, --debug             print debug information
+    -o, --output <file>     write a log to <file>
 
 Invoking without any arguments dumps the config.
 '''
 import os, sys
 
 import flib.env
-
 args = flib.env.parse_args(__doc__)
-if args.debug:
-    print "Args:"
-    print args
+
+from flib.output import configure_logger
+logger = configure_logger(sys.argv[0])
+logger.debug("Args:")
+logger.debug(args)
 
 if not args.recurse:
     config = flib.env.parse_config(args.config)
@@ -30,7 +32,7 @@ else:
     olddir = None
     while curdir != olddir:
         if args.debug:
-            print 'recursing:', curdir
+            logger.debug('recursing: %s' % curdir)
         here = os.sep.join((curdir, args.config))
         if os.path.isfile(here):
             config = flib.env.parse_config(here)
@@ -38,40 +40,40 @@ else:
         olddir = curdir
         curdir = os.path.dirname(curdir)
     else:
-        print 'Error: No flowfile found here or in parent directories.'
+        logger.error('Error: No flowfile found here or in parent directories.')
         sys.exit(1)
     args['recurse_dir'] = curdir
 
 if args.debug:
-    print "Config:"
-    print config
+    logger.debug("Config:")
+    logger.debug(config)
 
 
 from importlib import import_module
 
 if 'module' in config:
     if args.debug:
-        print "Flow module:", config['module']
+        logger.debug("Flow module: %s" % config['module'])
     import_module(config['module'])
 
 
 from flib.cmd import cmd_reg
 
 if args.debug:
-    print "Commands registered:", ' '.join(cmd_reg)
+    logger.debug("Commands registered: %s" % ' '.join(cmd_reg))
 
 if args.list:
-    print "Available commands:"
+    logger.info("Available commands:")
     for cmd, func in cmd_reg.iteritems():
-        print "    %-16s%s" % (cmd, func.__doc__)
+        logger.info("    %-16s%s" % (cmd, func.__doc__))
     sys.exit(0)
 
 command = args['COMMAND']
 
 if command is None:
-    import pprint
-    print "Parsed configuration: %s" % args.config
-    pprint.pprint(dict(config))
+    from pprint import pformat
+    logger.info( "Parsed configuration: %s" % args.config)
+    logger.info(pformat(dict(config)))
     sys.exit(0)
 
 arguments = args['ARGUMENTS']
