@@ -13,13 +13,31 @@ def fab2res(r):
 def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
 
+
+from flib.env import args as global_args, config
+
+def from_env():
+    if global_args.host:
+        from flib.remote import RemoteHost
+        return RemoteHost(global_args.host)
+    elif 'host' in config:
+        from flib.remote import RemoteHost
+        return RemoteHost(config.host)
+    elif 'repo' in config and 'host' in config.repo:
+        from flib.remote import RemoteHost
+        return RemoteHost(config.repo.host)
+    else:
+        from flib.local import LocalHost
+        return LocalHost()
+
+
 from flib.repo import Directory, GitRepository
 from flib.output import configure_logger
 from flib.output import log_cmd, log_cwd_cmd, log_putget, log_result
-from flib.env import args as global_args
 log = configure_logger('BaseHost')
 configure_logger('command')
 configure_logger('results')
+
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
