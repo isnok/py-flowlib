@@ -33,7 +33,7 @@ class RemoteHost(Host):
         return fab2res(result[self.login])
 
     @quietly
-    def sh(self, *args):
+    def handle_command(self, *args):
         '''emulate sh.command(*args)'''
         def run():
             return api.run(lst2cmd(args), pty=False)

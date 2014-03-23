@@ -4,42 +4,41 @@ from flib import abort
 
 log = configure_logger('objmappers')
 
-def from_env(git=True):
-    if git:
-        cls = GitRepository
-    else:
-        cls = Directory
-    from flib import host
-    if args.path:
-        return cls(host.from_env(), args.path)
-    elif 'repo' in config and 'location' in config.repo:
-        return cls(host.from_env(), config.repo.location)
-    else:
-        return cls(host.from_env(), args.repo)
+NOT_THERE_DEFAULT = 'warn'
 
 class Directory(object):
     '''Base class for a directory on some host.'''
 
-    def __init__(self, host, path):
+    def __init__(self, host, path, not_there=NOT_THERE_DEFAULT):
         self.host = host
-        self.cwd(path)
+        if 'import_deferred' in config:
+            config.import_deferred.append((self.cwd, [path], {}))
+        else:
+            self.cwd(path, not_there=not_there)
 
-    def __str__(self):
+    def __repr__(self):
         return "%s(%s, %r)" % (self.__class__.__name__, self.host, self.path)
 
-    def cwd(self, path):
+    def cwd(self, path, not_there=NOT_THERE_DEFAULT):
         self.path = path
         self.sh = self.host.bake(cwd=path)
         if not self.sh('test', '-d', path):
-            log.warn('Warning: %s is not a directory!' % (self,))
+            if not_there == 'ignore':
+                pass
+            elif not_there == 'create':
+                self.host.sh('mkdir', '-p', self.path)
+            elif not_there == 'abort':
+                abort(log, 'Error: %r is not a directory!' % (self,))
+            else:
+                log.warn('Warning: %r is not a directory!' % (self,))
 
 
 class GitRepository(Directory):
 
-    def __init__(self, host, path):
-        super(GitRepository, self).__init__(host, path)
+    def __init__(self, host, path, not_there=NOT_THERE_DEFAULT):
+        super(GitRepository, self).__init__(host, path, not_there=not_there)
 
-    def cwd(self, path):
+    def cwd(self, path, not_there=NOT_THERE_DEFAULT):
         super(GitRepository, self).cwd(path)
         self.git = self.host.bake('git', cwd=self.path)
         if not self.git('rev-parse', '--is-inside-work-tree').exit_code == 0:

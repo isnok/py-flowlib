@@ -14,35 +14,15 @@ def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d),  tuple(r), r.succeeded, int(not r.succeeded))
 
 
-from flib.env import args as global_args, config
-
-_cache = None
-def from_env():
-    global _cache
-    if _cache is not None:
-        return _cache
-    if global_args.host:
-        from flib.remote import RemoteHost
-        _cache = RemoteHost(global_args.host)
-    elif 'host' in config:
-        from flib.remote import RemoteHost
-        _cache = RemoteHost(config.host)
-    elif 'repo' in config and 'host' in config.repo:
-        from flib.remote import RemoteHost
-        _cache = RemoteHost(config.repo.host)
-    else:
-        from flib.local import LocalHost
-        _cache = LocalHost()
-    return _cache
-
-
-from flib.repo import Directory, GitRepository
+from flib.env import args as global_args
 from flib.output import configure_logger
 from flib.output import log_cmd, log_cwd_cmd, log_putget, log_result
 log = configure_logger('BaseHost')
 configure_logger('command')
 configure_logger('results')
 
+from flib.repo import GitRepository
+from flib.repo import Directory
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
@@ -62,8 +42,7 @@ class Host(object):
             return log_result(self.handle_command(command, *args))
 
     def handle_command(self, command, *args):
-        import flib.repo
-        self._handle_cwd_command(self, flib.repo.from_env().path, command, *args)
+        self._handle_cwd_command(self, '.', command, *args)
 
     def _handle_cwd_command(self, cwd, command, *args):
         log_cwd_cmd(cwd, command, *args)
@@ -86,12 +65,13 @@ class Host(object):
             if cwd is None:
                 def baked(*args):
                     log.debug('cmd bakery: %r %r' % (command, args))
-                    return self.handle_command(command, *args)
+                    return self.sh(command, *args)
             else:
                 def baked(*args):
                     log.debug('cwdcmd bakery: %r %r %r' % (cwd, command, args))
                     return self._handle_cwd_command(cwd, command, *args)
         return baked
+
 
     def bake_dir(self, path):
         return Directory(self, path)

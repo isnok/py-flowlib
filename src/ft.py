@@ -57,12 +57,19 @@ else:
 log.debug("Config:")
 log.debug(config)
 
+import flib.configured
+
 
 from importlib import import_module
 
 if 'module' in config:
-    log.debug("Flow module: %s" % config['module'])
+    log.debug("Flow module: %s" % config.module)
+    config['import_deferred'] = []
     import_module(config['module'])
+    deferred = config.pop('import_deferred')
+    for func, fn_args, fn_kwd in deferred:
+        log.debug("deferred func: %s %s %s" % (func.__name__, fn_args, fn_kwd))
+        func(*fn_args, **fn_kwd)
 
 
 from flib.cmd import cmd_reg

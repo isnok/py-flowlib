@@ -12,7 +12,7 @@ class LocalHost(Host):
         result = self._bash(lst2cmd(args), _cwd=cwd)
         return sh2res(result)
 
-    def sh(self, *args):
+    def handle_command(self, *args):
         result = self._bash(lst2cmd(args))
         return sh2res(result)
 

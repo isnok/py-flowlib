@@ -29,6 +29,8 @@ def tryme(*myargs):
 
 
 from flib.local import LocalHost
+from flib.repo import Directory, GitRepository
+from flib.configured import host_obj
 
 @expose
 def local():
