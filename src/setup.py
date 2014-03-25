@@ -10,6 +10,8 @@ setup(
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='http://tuxcode.org/k',
+    scripts=['ft.py'],
     packages=['flib',],
-    install_requires=['Fabric', 'configobj', 'docopt', 'sh']
+    install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
+    keywords=['git','flow','shell','local','remote','commandline'],
     )
