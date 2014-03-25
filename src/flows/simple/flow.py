@@ -19,7 +19,15 @@ rl = prefix_funcs(config.flow.release)
 
 @expose
 def feature(name=None):
-    'Should create a new feature branch.'
+    '''Manage feature branches.
+
+    Usage:
+        feature NAME
+        feature [ -n | --new ] NAME
+        feature [ -u | --update ] NAME
+        feature [ -c | --continued ] NAME
+        feature [ -f | --finish ] NAME
+    '''
     if name is None:
         abort(log, "feature requires a name. Stop.")
 
