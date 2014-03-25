@@ -37,5 +37,14 @@ def feature(ftargs):
         repo.git('checkout', master)
         repo.git('checkout', '-b', feature)
         log.info('Enjoy %s.' % feature)
+    elif ftargs.finish:
+        log.info('Update %s.' % feature)
+        repo.git('checkout', feature)
+        repo.git('merge', master)
+        log.info('Merge into %s.' % master)
+        repo.git('checkout', master)
+        repo.git('merge', feature)
+        log.info('Clean up %s.' % feature)
+        repo.git('branch', '-d', feature)
     else:
         log.info('Sry, not yet impl. ;-p')
