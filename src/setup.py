@@ -9,7 +9,7 @@ setup(
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
-    url='http://tuxcode.org/k',
+    url='https://github.com/isnok/py-flowlib',
     scripts=['ft.py'],
     packages=['flib',],
     install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
