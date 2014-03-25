@@ -26,6 +26,7 @@ class Directory(object):
         try:
             return self.host.sh('test', '-d', path).exit_code == 0
         except Exception, ex:
+            log.error(ex)
             return False
 
     def create(self, path=None):
@@ -60,18 +61,16 @@ class Directory(object):
         self.path = path
         self.exists = self.check_exists(path)
 
-        if self.exists:
+        if not_there is None:
+            not_there = self.not_there
+
+        if self.exists or not_there == 'ignore':
             self.sh = self.host.bake(cwd=path)
             return True
         else:
             self.sh = self.not_there_sh
 
-        if not_there is None:
-            not_there = self.not_there
-
-        if not_there == 'ignore':
-            return True
-        elif not_there == 'create':
+        if not_there == 'create':
             return self.create()
         elif not_there == 'abort':
             abort(log, 'Error: %r is not a directory!' % (self,))

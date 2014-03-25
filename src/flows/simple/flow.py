@@ -17,8 +17,8 @@ develop = config.flow.develop
 ft = prefix_funcs(config.flow.feature)
 rl = prefix_funcs(config.flow.release)
 
-@expose
-def feature(name=None):
+@expose(docargs=True)
+def feature(ftargs):
     '''Manage feature branches.
 
     Usage:
@@ -28,11 +28,14 @@ def feature(name=None):
         feature [ -c | --continued ] NAME
         feature [ -f | --finish ] NAME
     '''
-    if name is None:
-        abort(log, "feature requires a name. Stop.")
+    log.debug(ftargs)
+    name = ftargs.NAME
 
-    feature = ft.makeit(name)
-    log.info('Will create %r in %s.' % (feature, repo))
-    repo.git('checkout', master)
-    repo.git('checkout', '-b', feature)
-    log.info('Enjoy %s.' % feature)
+    if ftargs.new:
+        feature = ft.makeit(name)
+        log.info('Will create %r in %s.' % (feature, repo))
+        repo.git('checkout', master)
+        repo.git('checkout', '-b', feature)
+        log.info('Enjoy %s.' % feature)
+    else:
+        log.info('Sry, not yet impl. ;-p')
