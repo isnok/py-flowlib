@@ -7,7 +7,7 @@ from flib.env import args
 from flib import ShellResult
 
 def fab2res(r):
-    return ShellResult(r.real_command, api.env['cwd'], r.stdout, r.stderr, r.return_code)
+    return ShellResult(r.real_command, r.cwd, r.stdout, r.stderr, r.return_code)
 
 def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d), d, tuple(r), r.succeeded, int(not r.succeeded))
@@ -45,7 +45,9 @@ class RemoteHost(Host):
     def handle_command(self, *args):
         '''emulate sh.command(*args)'''
         def run():
-            return api.run(lst2cmd(args), pty=False)
+            result = api.run(lst2cmd(args), pty=False)
+            result.cwd = ''
+            return result
         result = api.execute(run, hosts=[self.login])
         return fab2res(result[self.login])
 
