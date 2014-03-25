@@ -7,9 +7,9 @@ from flib import abort
 
 log = configure_logger('test_flow')
 
-myrepo = configured.path_obj()
+repo = configured.path_obj(git=True)
 
-log.info(config)
+#log.info(config)
 
 master = config.flow.master
 develop = config.flow.develop
@@ -24,4 +24,7 @@ def feature(name=None):
         abort(log, "feature requires a name. Stop.")
 
     feature = ft.makeit(name)
-    log.info('Will create %r in %s.' % (feature, myrepo))
+    log.info('Will create %r in %s.' % (feature, repo))
+    repo.git('checkout', master)
+    repo.git('checkout', '-b', feature)
+    log.info('Enjoy %s.' % feature)
