@@ -1,4 +1,8 @@
-'''Pure python helper functions'''
+'''Pure python helpes'''
+from collections import namedtuple
+
+ShellResult = namedtuple("ShellResult", ['cmdline', 'cwd', 'stdout', 'stderr', 'exit_code'])
+
 
 def repr_if(thing):
     string = str(thing)

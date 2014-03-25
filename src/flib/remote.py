@@ -1,9 +1,16 @@
-from flib.host import Host, fab2res, fabputget2res
+from flib.host import Host
 from flib import lst2cmd
 from fabric import api
 
 from functools import wraps
 from flib.env import args
+from flib import ShellResult
+
+def fab2res(r):
+    return ShellResult(r.real_command, api.env['cwd'], r.stdout, r.stderr, r.return_code)
+
+def fabputget2res(pg, s, d, r):
+    return ShellResult('%s(%s, %s)' % (pg, s, d), d, tuple(r), r.succeeded, int(not r.succeeded))
 
 def quietly(func):
     context = api.warn_only if args.debug else api.quiet
@@ -20,7 +27,7 @@ class RemoteHost(Host):
             name = "%s@%s" % (api.env['user'], name)
         elif user is not None:
             name = "%s@%s" % (user, name)
-        self.user, self.hostname = name.split("@")
+        self.user, self.name = name.split("@")
         self.login = name
 
     @quietly

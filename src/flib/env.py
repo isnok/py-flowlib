@@ -58,10 +58,10 @@ class SimpleConfig(ConfigObj):
 
 config = SimpleConfig({'repo':'.'})
 
-def parse_config(filename):
+def parse_config(filename, update=False):
     global config
-    if config is None:
-        config = SimpleConfig(ConfigObj(filename))
+    if update:
+        config.update(ConfigObj(filename))
         return config
     else:
         return SimpleConfig(ConfigObj(filename))

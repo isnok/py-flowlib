@@ -9,6 +9,8 @@ log = configure_logger('test_flow')
 
 myrepo = configured.path_obj()
 
+log.info(config)
+
 master = config.flow.master
 develop = config.flow.develop
 

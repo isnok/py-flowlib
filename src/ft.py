@@ -50,8 +50,8 @@ if invalid:
 else:
     del invalid
 
-if not args.recurse:
-    config = flib.env.parse_config(args.config)
+if args.config.startswith('/') or not args.recurse:
+    config = flib.env.parse_config(args.config, update=True)
 else:
     import os
     curdir = os.path.abspath(os.curdir)
@@ -60,7 +60,7 @@ else:
         log.debug('recursing: %s' % curdir)
         here = os.sep.join((curdir, args.config))
         if os.path.isfile(here):
-            config = flib.env.parse_config(here)
+            config = flib.env.parse_config(here, update=True)
             break
         olddir = curdir
         curdir = os.path.dirname(curdir)

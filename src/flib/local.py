@@ -1,12 +1,21 @@
-from flib.host import Host, sh2res
+import os
+import socket
+from flib.host import Host
 from flib import lst2cmd
 from flib import ok_sh
+from flib import ShellResult
+
+def sh2res(r):
+    return ShellResult(lst2cmd(r.cmd), r.call_args['cwd'], r.stdout, r.stderr, r.exit_code)
 
 class LocalHost(Host):
 
     def __init__(self):
         self._bash = ok_sh.bash.bake('-l', '-c')
         self._cp = ok_sh.cp.bake('-v')
+        self.user = os.getlogin()
+        self.name = socket.gethostname()
+        self.login = '%s@%s' % (self.user, self.name)
 
     def _sh(self, cwd, *args):
         result = self._bash(lst2cmd(args), _cwd=cwd)

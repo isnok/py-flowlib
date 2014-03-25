@@ -1,19 +1,4 @@
-from collections import namedtuple
-
-ShellResult = namedtuple("ShellResult", ['cmdline', 'cwd', 'stdout', 'stderr', 'exit_code'])
-
 from flib import lst2cmd
-
-def sh2res(r):
-    return ShellResult(lst2cmd(r.cmd), r.call_args['cwd'], r.stdout, r.stderr, r.exit_code)
-
-def fab2res(r):
-    return ShellResult(r.real_command, r.cwd, r.stdout, r.stderr, r.return_code)
-
-def fabputget2res(pg, s, d, r):
-    return ShellResult('%s(%s, %s)' % (pg, s, d), d, tuple(r), r.succeeded, int(not r.succeeded))
-
-
 from flib.env import args as global_args
 from flib.output import configure_logger
 from flib.output import log_cmd, log_cwd_cmd, log_putget, log_result
@@ -26,6 +11,10 @@ from flib.repo import Directory
 
 class Host(object):
     '''Base class for hosts of all sorts.'''
+
+    name = None
+    user = None
+    login = None
 
     def __str__(self):
         if not hasattr(self, 'login'):
