@@ -28,7 +28,8 @@ DIR_MODES = ['abort', 'create', 'warn', 'ignore']
 GIT_MODES = ['abort', 'create', 'warn', 'ignore', 'init']
 doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES)])
 
-import sys
+import os, sys
+sys.path.append(os.curdir)
 cmd_name = sys.argv[0]
 cmd_args = sys.argv[1:]
 
@@ -53,7 +54,6 @@ else:
 if args.config.startswith('/') or not args.recurse:
     config = flib.env.parse_config(args.config, update=True)
 else:
-    import os
     curdir = os.path.abspath(os.curdir)
     olddir = None
     while curdir != olddir:
