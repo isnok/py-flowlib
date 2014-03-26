@@ -1,15 +1,20 @@
 Metadata-Version: 1.1
 Name: flowlib
 Version: 0.6
-Author: Konstantin Martini
-Author-email: k at tuxcode org
-Maintainer: Konstantin Martini
-Maintainer-email: isnok at tuxcode org
-Home-page: https://github.com/isnok/py-flowlib
-Download-url: UNKNOWN
 Summary: Build your own git flow!
+Home-page: https://github.com/isnok/py-flowlib
+Author: Konstantin Martini
+Author-email: k@tuxcode.org
 License: UNKNOWN
-Description: This library aims to ease the implementation of custom git flows.
+Description: flowtoolkit
+        ===========
+        
+        Some basic functionality to execute stuff here and there.
+        
+        what's in the box?
+        ------------------
+        
+        This library aims to ease the implementation of custom git flows.
         
         For that purpose a libary to manage name prefixes and the like is provided.
         And since a lot of code flows are part of a deployment strategy, object wrappers for remote hosts and directories are also included.
@@ -17,6 +22,8 @@ Description: This library aims to ease the implementation of custom git flows.
         A flow can be implemented as a separate module, and used flexibly (like dry-running) if that module is made available to the packaged commandline-tool, and requested in the flow configuration (via the 'module' section/key). Shaping out that is part of the current development, as well as adding more the object mapper classes (git branches/remotes, local/remote files, etc).
         
         Check out the github repository for more related code, like the tests and the two (still raw) flow modules that already exist.
+        
 Keywords: git,flow,shell,local,remote,commandline
 Platform: Debian/GNU Linux
 Classifier: Development Status :: 3 - Alpha
+Classifier: Topic :: Utilities
