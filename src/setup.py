@@ -2,6 +2,7 @@
 
 #from distutils.core import setup
 from setuptools import setup
+from setuptools import find_packages
 
 import os
 
@@ -25,12 +26,12 @@ setup(
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
     scripts=['ft.py'],
-    packages=['flib', 'flib.flows'],
+    packages=find_packages(), #['flib', 'flib.flows'],
     data_files=[
         ('', ['README']),
         ('flib.flows', [relname('flib', 'flows', f) for f in flowcfgs]),
     ],
-    package_data={'flib.flows':flowcfgs},
+    package_data={'flib.flows': flowcfgs},
     #include_package_data=True,
     install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
     keywords=['git','flow','shell','local','remote','commandline'],

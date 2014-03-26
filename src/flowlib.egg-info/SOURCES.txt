@@ -22,3 +22,6 @@ flowlib.egg-info/SOURCES.txt
 flowlib.egg-info/dependency_links.txt
 flowlib.egg-info/requires.txt
 flowlib.egg-info/top_level.txt
+tests/__init__.py
+tests/test_host.py
+tests/test_invoke.py
