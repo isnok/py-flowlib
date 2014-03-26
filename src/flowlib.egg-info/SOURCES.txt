@@ -1,3 +1,4 @@
+README
 ft.py
 setup.py
 flib/__init__.py

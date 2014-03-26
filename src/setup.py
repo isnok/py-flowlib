@@ -21,9 +21,12 @@ setup(
     url='https://github.com/isnok/py-flowlib',
     scripts=['ft.py'],
     packages=['flib',],
+    data_files=[('', 'README')],
+    #package_data={'':['README.md']},
+    #include_package_data=True,
     install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
     keywords=['git','flow','shell','local','remote','commandline'],
-    long_description=read(os.path.join('..', 'README.md')),
+    long_description=read('README'),
     platforms=['Debian/GNU Linux'],
     classifiers=[
         "Development Status :: 3 - Alpha",
