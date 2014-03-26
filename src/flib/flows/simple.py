@@ -9,7 +9,7 @@ log = configure_logger('simple_flow')
 
 repo = configured.path_obj(git=True)
 
-#log.info(config)
+log.debug(config)
 
 master = config.flow.master
 develop = config.flow.develop
