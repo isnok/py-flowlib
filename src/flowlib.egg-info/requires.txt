@@ -1,0 +1,4 @@
+Fabric
+configobj
+docopt
+sh
