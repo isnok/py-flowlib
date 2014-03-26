@@ -36,13 +36,15 @@ def feature(ftargs):
     '''
     log.debug(ftargs)
     name = ftargs.NAME
-    feature = ft.makeit(name)
-    repo.git('checkout', feature)
 
     if ftargs.new:
+        feature = ft.makeit(name)
         return new_feature(feature)
 
-    elif ftargs['--update']:
+    feature = repo.get_branch(name)
+    repo.git('checkout', feature)
+
+    if ftargs['--update']:
         return update_feature(feature)
 
     elif ftargs.continued:
