@@ -1,6 +1,7 @@
 from flib.output import configure_logger
 from flib.env import args, config
 from flib import abort, lst2cmd
+from flib import abort
 
 log = configure_logger('objmappers')
 
@@ -140,21 +141,32 @@ class GitRepository(Directory):
                 line = line[2:]
                 current = line
             if line:
-                result.append(line)
+                result.append(Branch(line.strip()))
         log.debug(result)
         return result, current
 
-    def local_brances(self):
+    def local_branches(self):
         return self._branches()[0]
 
     def current_branch(self):
         return self._branches()[1]
 
+    def get_branch(self, part, on_many='abort'):
+        '''convenience method for commandline input'''
+        possible = [Branch(b) for b in self.local_branches() if part in b]
+        if len(possible) == 1:
+            return possible.pop()
+        elif on_many == 'abort':
+            log.error('Given branch part does not identify exactly one branch: %s' % possible)
+        else:
+            return possible
+
     def bake_branch(self, name):
         return Branch(self, name)
 
-class Branch(object):
+class Branch(str):
 
-    def __init__(self, repo, name):
+    def __init__(self, name, repo=None):
+        str.__init__(self, name)
         self.name = name
         self.repo = repo
