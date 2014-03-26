@@ -51,7 +51,9 @@ if invalid:
 else:
     del invalid
 
+config_found = False
 if args.config.startswith('/') or not args.recurse:
+    config_found = os.path.isfile(args.config)
     config = flib.env.parse_config(args.config, update=True)
 else:
     curdir = os.path.abspath(os.curdir)
@@ -67,7 +69,9 @@ else:
     else:
         log.error('Error: No flowfile found here or in parent directories.')
         sys.exit(1)
+    config_found = True
     args['recurse_dir'] = curdir
+    sys.path.append(curdir)
 
 log.debug("Config:")
 log.debug(config)
@@ -100,7 +104,8 @@ command = args['COMMAND']
 
 if command is None:
     from pprint import pformat
-    log.info( "Parsed configuration: %s" % args.config)
+    config_found = {True:'', False:'not '}[config_found]
+    log.info("Parsed configuration: %s (%sfound)" % (args.config, config_found))
     log.info(pformat(dict(config)))
     sys.exit(0)
 
