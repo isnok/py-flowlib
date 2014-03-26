@@ -42,7 +42,6 @@ def feature(ftargs):
         return new_feature(feature)
 
     feature = repo.get_branch(name)
-    repo.git('checkout', feature)
 
     if ftargs['--update']:
         return update_feature(feature)
@@ -54,6 +53,9 @@ def feature(ftargs):
         result = update_feature(feature)
         return finish_feature(feature, result)
 
+    else:
+        repo.git('checkout', feature)
+
 
 def new_feature(feature):
     log.info('Will create %r in %s.' % (feature, repo))
@@ -62,6 +64,7 @@ def new_feature(feature):
     log.info('Enjoy %s.' % feature)
 
 def update_feature(feature):
+    repo.git('checkout', feature)
     log.info('Update %s.' % feature)
     repo.git('merge', master)
 
@@ -78,5 +81,7 @@ def continued_feature(feature):
 
 @expose
 def remaster():
-    '''Update all branches based on master.'''
-
+    '''Update all branches that are based on master.'''
+    branches = repo.local_branches()
+    for b in ft.filterit(branches):
+        update_feature(b)
