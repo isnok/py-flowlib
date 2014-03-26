@@ -98,6 +98,10 @@ class GitRepository(Directory):
             log.warn(msg)
             return InexistingShellResult(cmd, self.path, '', '', 1)
 
+    def _git(self, *args):
+        git = self.host.bake('git', cwd=self.path)
+        return git('-c', 'color.ui=false', *args)
+
     def cwd(self, path, not_there=None):
         if not_there is None:
             not_there = self.not_there
@@ -113,7 +117,7 @@ class GitRepository(Directory):
         if not self.exists:
             self.git = self.not_there_git
         else:
-            self.git = self.host.bake('git', cwd=self.path)
+            self.git = self._git
 
         if not self.git('rev-parse', '--is-inside-work-tree').exit_code == 0:
             if not_there == 'ignore':
@@ -126,6 +130,25 @@ class GitRepository(Directory):
             else:
                 assert not_there in ('warn', 'create')
                 log.warn('Warning: %s is not a repository.' % (self,))
+
+    def _branches(self):
+        result = []
+        current = None
+        for line in self.git("branch", "-l").stdout.split('\n'):
+            if line.startswith('* '):
+                log.debug(line)
+                line = line[2:]
+                current = line
+            if line:
+                result.append(line)
+        log.debug(result)
+        return result, current
+
+    def local_brances(self):
+        return self._branches()[0]
+
+    def current_branch(self):
+        return self._branches()[1]
 
     def bake_branch(self, name):
         return Branch(self, name)

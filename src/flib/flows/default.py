@@ -19,3 +19,11 @@ def clean():
     if do_delete:
         map(os.remove, to_clean)
         log.info('done.')
+
+@expose
+def tst():
+    '''quick test'''
+    from flib.repo import GitRepository
+    from flib.local import LocalHost
+    repo = GitRepository(LocalHost(), '.')
+    log.info(repo.current_branch())
