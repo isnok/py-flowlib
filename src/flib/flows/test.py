@@ -70,11 +70,11 @@ def remote():
     """Some remote commands"""
     rhost = RemoteHost('localhost')
 
-    rd = rhost.bake_git('/home/k')
+    rd = rhost.bake_dir('/home/k', git=True)
     rd.sh("ls")
     rd.git('-c', 'color.ui=false', 'status').stdout
 
-    d = rhost.bake_git('/')
+    d = rhost.bake_dir('/', git=True)
     d.sh("ls")
     d.git('-c', 'color.ui=false', 'status').stderr
     d.sh('ls | grep boot').stdout

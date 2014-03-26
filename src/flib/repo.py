@@ -12,7 +12,7 @@ InexistingShellResult = namedtuple('InexistingShellResult', ['cmdline', 'cwd', '
 class Directory(object):
     '''Base class for a directory on some host.'''
 
-    def __init__(self, host, path, not_there=args.dirs):
+    def __init__(self, host=None, path=None, not_there=args.dirs):
         self.host = host
         self.path = path
         self.exists = self.check_exists(path)
@@ -21,6 +21,11 @@ class Directory(object):
             config.import_deferred.append((self.cwd, [path], {}))
         else:
             self.cwd(path, not_there=not_there)
+
+    #@property
+    #def host(self, host):
+        #if isinstance(host, str):
+            #if host 
 
     def check_exists(self, path=None):
         if path is None:

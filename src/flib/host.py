@@ -63,11 +63,11 @@ class Host(object):
         return baked
 
 
-    def bake_dir(self, path):
-        return Directory(self, path)
-
-    def bake_git(self, path):
-        return GitRepository(self, path)
+    def bake_dir(self, path, git=False):
+        if git:
+            return GitRepository(self, path)
+        else:
+            return Directory(self, path)
 
 
     def put(self, *args):
