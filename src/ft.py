@@ -84,6 +84,8 @@ import flib.configured
 from importlib import import_module
 
 if 'module' in config:
+    log.debug("Importing default command set: flib.flows.default")
+    import_module('flib.flows.default')
     log.debug("Flow module: %s" % config.module)
     config['import_deferred'] = []
     import_module(config.module)

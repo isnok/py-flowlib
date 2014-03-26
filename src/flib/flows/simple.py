@@ -5,7 +5,7 @@ from flib.output import configure_logger
 from flib import configured
 from flib import abort
 
-log = configure_logger('test_flow')
+log = configure_logger('simple_flow')
 
 repo = configured.path_obj(git=True)
 
@@ -72,3 +72,9 @@ def finish_feature(feature, update_result):
 
 def continued_feature(feature):
     log.info('Sry, not yet impl. ;-p')
+
+
+@expose
+def remaster():
+    '''Update all branches based on master.'''
+
