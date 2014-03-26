@@ -1,3 +1,4 @@
+from inspect import isfunction
 from flib.output import configure_logger
 from flib.env import args, config
 from flib import abort, lst2cmd
@@ -151,9 +152,18 @@ class GitRepository(Directory):
     def current_branch(self):
         return self._branches()[1]
 
+    def get_branches(self, filter_thing):
+        '''Return all branches that match the filter criteria.'''
+        if hasattr(filter_thing, 'hasit'):
+            return filter(filter_thing.hasit, self.local_branches())
+        elif hasattr(filter_thing, 'hasone'):
+            return filter(filter_thing.hasone, self.local_branches())
+        elif isfunction(filter_thing):
+            return filter(filter_thing, self.local_branches())
+
     def get_branch(self, part, on_many='abort'):
         '''convenience method for commandline input'''
-        possible = [Branch(b) for b in self.local_branches() if part in b]
+        possible = [b for b in self.local_branches() if part in b]
         if len(possible) == 1:
             return possible.pop()
         elif on_many == 'abort':
