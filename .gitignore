@@ -4,5 +4,3 @@ __pycache__
 .*.swp
 .*.swo
 src/build
-src/dist
-src/flowlib.egg-info
