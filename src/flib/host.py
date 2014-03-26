@@ -8,6 +8,7 @@ configure_logger('results')
 
 from flib.repo import GitRepository
 from flib.repo import Directory
+from flib import ShellResult
 
 class Host(object):
     '''Base class for hosts of all sorts.'''

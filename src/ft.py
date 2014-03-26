@@ -29,7 +29,6 @@ GIT_MODES = ['abort', 'create', 'warn', 'ignore', 'init']
 doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES)])
 
 import os, sys
-sys.path.append(os.curdir)
 cmd_name = sys.argv[0]
 cmd_args = sys.argv[1:]
 
@@ -38,6 +37,8 @@ args = flib.env.parse_global_args(doc, cmd_args)
 
 from flib.output import configure_logger
 log = configure_logger(cmd_name)
+sys.path.append(os.curdir)
+log.debug("cwd (added to pythonpath): %s" % os.path.abspath(os.curdir))
 log.debug("Args:")
 log.debug(args)
 
@@ -51,7 +52,9 @@ if invalid:
 else:
     del invalid
 
+config_found = False
 if args.config.startswith('/') or not args.recurse:
+    config_found = os.path.isfile(args.config)
     config = flib.env.parse_config(args.config, update=True)
 else:
     curdir = os.path.abspath(os.curdir)
@@ -67,7 +70,10 @@ else:
     else:
         log.error('Error: No flowfile found here or in parent directories.')
         sys.exit(1)
+    config_found = True
     args['recurse_dir'] = curdir
+    sys.path.append(curdir)
+    log.debug("flowfile found here (added to pythonpath): %s" % os.path.abspath(curdir))
 
 log.debug("Config:")
 log.debug(config)
@@ -78,9 +84,11 @@ import flib.configured
 from importlib import import_module
 
 if 'module' in config:
+    log.debug("Importing default command set: flib.flows.default")
+    import_module('flib.flows.default')
     log.debug("Flow module: %s" % config.module)
     config['import_deferred'] = []
-    import_module(config['module'])
+    import_module(config.module)
     deferred = config.pop('import_deferred')
     for func, fn_args, fn_kwd in deferred:
         log.debug("deferred func: %s %s %s" % (func.__name__, fn_args, fn_kwd))
@@ -100,7 +108,8 @@ command = args['COMMAND']
 
 if command is None:
     from pprint import pformat
-    log.info( "Parsed configuration: %s" % args.config)
+    config_found = {True:'', False:'not '}[config_found]
+    log.info("Parsed configuration: %s (%sfound)" % (args.config, config_found))
     log.info(pformat(dict(config)))
     sys.exit(0)
 

@@ -1,6 +1,8 @@
+from inspect import isfunction
 from flib.output import configure_logger
 from flib.env import args, config
 from flib import abort, lst2cmd
+from flib import abort
 
 log = configure_logger('objmappers')
 
@@ -98,6 +100,10 @@ class GitRepository(Directory):
             log.warn(msg)
             return InexistingShellResult(cmd, self.path, '', '', 1)
 
+    def _git(self, *args):
+        git = self.host.bake('git', cwd=self.path)
+        return git('-c', 'color.ui=false', *args)
+
     def cwd(self, path, not_there=None):
         if not_there is None:
             not_there = self.not_there
@@ -113,7 +119,7 @@ class GitRepository(Directory):
         if not self.exists:
             self.git = self.not_there_git
         else:
-            self.git = self.host.bake('git', cwd=self.path)
+            self.git = self._git
 
         if not self.git('rev-parse', '--is-inside-work-tree').exit_code == 0:
             if not_there == 'ignore':
@@ -127,11 +133,50 @@ class GitRepository(Directory):
                 assert not_there in ('warn', 'create')
                 log.warn('Warning: %s is not a repository.' % (self,))
 
+    def _branches(self):
+        result = []
+        current = None
+        for line in self.git("branch", "-l").stdout.split('\n'):
+            if line.startswith('* '):
+                log.debug(line)
+                line = line[2:]
+                current = line
+            if line:
+                result.append(Branch(line.strip()))
+        log.debug(result)
+        return result, current
+
+    def local_branches(self):
+        return self._branches()[0]
+
+    def current_branch(self):
+        return self._branches()[1]
+
+    def get_branches(self, filter_thing):
+        '''Return all branches that match the filter criteria.'''
+        if hasattr(filter_thing, 'hasit'):
+            return filter(filter_thing.hasit, self.local_branches())
+        elif hasattr(filter_thing, 'hasone'):
+            return filter(filter_thing.hasone, self.local_branches())
+        elif isfunction(filter_thing):
+            return filter(filter_thing, self.local_branches())
+
+    def get_branch(self, part, on_many='abort'):
+        '''convenience method for commandline input'''
+        possible = [b for b in self.local_branches() if part in b]
+        if len(possible) == 1:
+            return possible.pop()
+        elif on_many == 'abort':
+            log.error('Given branch part does not identify exactly one branch: %s' % possible)
+        else:
+            return possible
+
     def bake_branch(self, name):
         return Branch(self, name)
 
-class Branch(object):
+class Branch(str):
 
-    def __init__(self, repo, name):
+    def __init__(self, name, repo=None):
+        str.__init__(self, name)
         self.name = name
         self.repo = repo

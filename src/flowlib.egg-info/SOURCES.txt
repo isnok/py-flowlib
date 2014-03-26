@@ -1,3 +1,4 @@
+README
 ft.py
 setup.py
 flib/__init__.py
@@ -11,8 +12,17 @@ flib/ok_sh.py
 flib/output.py
 flib/remote.py
 flib/repo.py
+flib/flows/__init__.py
+flib/flows/default.py
+flib/flows/simple.cfg
+flib/flows/simple.py
+flib/flows/test.cfg
+flib/flows/test.py
 flowlib.egg-info/PKG-INFO
 flowlib.egg-info/SOURCES.txt
 flowlib.egg-info/dependency_links.txt
 flowlib.egg-info/requires.txt
 flowlib.egg-info/top_level.txt
+tests/__init__.py
+tests/test_host.py
+tests/test_invoke.py
