@@ -40,20 +40,35 @@ def feature(ftargs):
     repo.git('checkout', feature)
 
     if ftargs.new:
-        log.info('Will create %r in %s.' % (feature, repo))
-        repo.git('checkout', master)
-        repo.git('checkout', '-b', feature)
-        log.info('Enjoy %s.' % feature)
-        return
-    if ftargs.update or ftargs.finish:
-        log.info('Update %s.' % feature)
-        repo.git('merge', master)
-    if ftargs.finish:
-        log.info('Merge into %s.' % master)
-        repo.git('checkout', master)
-        repo.git('merge', feature)
-        log.info('Clean up %s.' % feature)
-        repo.git('branch', '-d', feature)
+        return new_feature(feature)
 
-    if ftargs.continued:
-        log.info('Sry, not yet impl. ;-p')
+    elif ftargs['--update']:
+        return update_feature(feature)
+
+    elif ftargs.continued:
+        return continued_feature(feature)
+
+    elif ftargs.finish:
+        result = update_feature(feature)
+        return finish_feature(feature, result)
+
+
+def new_feature(feature):
+    log.info('Will create %r in %s.' % (feature, repo))
+    repo.git('checkout', master)
+    repo.git('checkout', '-b', feature)
+    log.info('Enjoy %s.' % feature)
+
+def update_feature(feature):
+    log.info('Update %s.' % feature)
+    repo.git('merge', master)
+
+def finish_feature(feature, update_result):
+    log.info('Merge into %s.' % master)
+    repo.git('checkout', master)
+    repo.git('merge', feature)
+    log.info('Clean up %s.' % feature)
+    repo.git('branch', '-d', feature)
+
+def continued_feature(feature):
+    log.info('Sry, not yet impl. ;-p')
