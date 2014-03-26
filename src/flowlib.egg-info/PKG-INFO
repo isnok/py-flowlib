@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: flowlib
-Version: 0.6
+Version: 0.6.2
 Summary: Build your own git flow!
 Home-page: https://github.com/isnok/py-flowlib
 Author: Konstantin Martini
