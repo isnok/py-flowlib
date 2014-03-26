@@ -21,9 +21,9 @@ def clean():
         log.info('done.')
 
 @expose
-def tst():
-    '''quick test'''
+def get_branch(nam):
+    '''get_branch test'''
     from flib.repo import GitRepository
     from flib.local import LocalHost
     repo = GitRepository(LocalHost(), '.')
-    log.info(repo.current_branch())
+    log.info(repo.get_branch(nam))
