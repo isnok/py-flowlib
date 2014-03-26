@@ -19,7 +19,7 @@ flowcfgs = ['simple.cfg', 'test.cfg']
 
 setup(
     name='flowlib',
-    version='0.6.3',
+    version='0.6.4',
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
