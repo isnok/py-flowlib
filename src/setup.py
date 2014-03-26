@@ -14,13 +14,13 @@ def read(fname):
 
 setup(
     name='flowlib',
-    version='0.6.2',
+    version='0.6.3',
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
     scripts=['ft.py'],
-    packages=['flib',],
+    packages=['flib', 'flib.flows'],
     data_files=[('', ['README'])],
     #package_data={'':['README.md']},
     #include_package_data=True,

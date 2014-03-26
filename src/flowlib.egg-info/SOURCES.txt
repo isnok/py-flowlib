@@ -12,6 +12,9 @@ flib/ok_sh.py
 flib/output.py
 flib/remote.py
 flib/repo.py
+flib/flows/__init__.py
+flib/flows/simple.py
+flib/flows/test.py
 flowlib.egg-info/PKG-INFO
 flowlib.egg-info/SOURCES.txt
 flowlib.egg-info/dependency_links.txt
