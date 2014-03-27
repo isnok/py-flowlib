@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: flowlib
-Version: 0.6.6
+Version: 0.6.6.2
 Summary: Build your own git flow!
 Home-page: https://github.com/isnok/py-flowlib
 Author: Konstantin Martini
@@ -26,4 +26,13 @@ Description: flowtoolkit
 Keywords: git,flow,shell,local,remote,commandline
 Platform: Debian/GNU Linux
 Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: System :: Software Distribution
+Classifier: Topic :: System :: Systems Administration
 Classifier: Topic :: Utilities
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Environment :: Console
