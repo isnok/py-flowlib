@@ -18,12 +18,14 @@ class LocalHost(Host):
         self.login = '%s@%s' % (self.user, self.name)
 
     def _sh(self, cwd, *args):
-        result = self._bash(lst2cmd(args), _cwd=cwd)
-        return sh2res(result)
+        result = sh2res(self._bash(lst2cmd(args), _cwd=cwd))
+        assert result.exit_code == 0
+        return result
 
     def handle_command(self, *args):
-        result = self._bash(lst2cmd(args))
-        return sh2res(result)
+        result = sh2res(self._bash(lst2cmd(args)))
+        assert result.exit_code == 0
+        return result
 
     #def run(self, command):
         #'''emulate fabric.api.run'''

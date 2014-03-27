@@ -40,7 +40,9 @@ class Host(object):
             cmd = '%s $ %s %s' % (cwd, command, lst2cmd(args))
             return log_result(ShellResult(cmd, cwd, '', '', 0))
         else:
-            return log_result(self._sh(cwd, command, *args))
+            result = self._sh(cwd, command, *args)
+            log_result(result)
+            return result
 
     def _sh(self, cwd, command, *args):
         raise NotImplementedError('Base host class does not implement _sh')

@@ -38,8 +38,9 @@ class RemoteHost(Host):
                 result = api.run(lst2cmd(args), pty=False)
                 result.cwd = cwd
                 return result
-        result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
+        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
+        assert result.exit_code == 0
+        return result
 
     @quietly
     def handle_command(self, *args):
@@ -48,8 +49,9 @@ class RemoteHost(Host):
             result = api.run(lst2cmd(args), pty=False)
             result.cwd = ''
             return result
-        result = api.execute(run, hosts=[self.login])
-        return fab2res(result[self.login])
+        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
+        assert result.exit_code == 0
+        return result
 
     #@quietly
     #def run(self, command):
