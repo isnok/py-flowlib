@@ -10,7 +10,7 @@ def sh2res(r):
 
 class LocalHost(Host):
 
-    def __init__(self):
+    def __init__(self, *args, **kwd):
         self._bash = ok_sh.bash.bake('-l', '-c')
         self._cp = ok_sh.cp.bake('-v')
         self.user = os.getlogin()

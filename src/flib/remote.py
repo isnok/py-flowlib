@@ -22,13 +22,14 @@ def quietly(func):
 
 class RemoteHost(Host):
 
-    def __init__(self, name, user=None):
+    def __init__(self, name, user=None, key_file=None):
         if user is None and not "@" in name:
             name = "%s@%s" % (api.env['user'], name)
         elif user is not None:
             name = "%s@%s" % (user, name)
         self.user, self.name = name.split("@")
         self.login = name
+        self.key_file = key_file
 
     @quietly
     def _sh(self, cwd, *args):
@@ -38,7 +39,7 @@ class RemoteHost(Host):
                 result = api.run(lst2cmd(args), pty=False)
                 result.cwd = cwd
                 return result
-        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
+        result = fab2res(api.execute(run, hosts=[self.login], key_filename=self.key_file)[self.login])
         assert result.exit_code == 0
         return result
 
@@ -49,7 +50,7 @@ class RemoteHost(Host):
             result = api.run(lst2cmd(args), pty=False)
             result.cwd = ''
             return result
-        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
+        result = fab2res(api.execute(run, hosts=[self.login], key_filename=self.key_file)[self.login])
         assert result.exit_code == 0
         return result
 
