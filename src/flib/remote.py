@@ -22,24 +22,25 @@ def quietly(func):
 
 class RemoteHost(Host):
 
-    def __init__(self, name, user=None, key_file=None):
+    def __init__(self, name, user=None, port=None, key_file=None):
         if user is None and not "@" in name:
             name = "%s@%s" % (api.env['user'], name)
         elif user is not None:
             name = "%s@%s" % (user, name)
         self.user, self.name = name.split("@")
         self.login = name
+        self.port = None
         self.key_file = key_file
 
     @quietly
     def _sh(self, cwd, *args):
         '''emulate sh.command(*args)'''
         def run():
-            with api.cd(cwd):
+            with api.settings(api.cd(cwd), port=self.port, key_filename=self.key_file):
                 result = api.run(lst2cmd(args), pty=False)
                 result.cwd = cwd
                 return result
-        result = fab2res(api.execute(run, hosts=[self.login], key_filename=self.key_file)[self.login])
+        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
         assert result.exit_code == 0
         return result
 
@@ -47,10 +48,11 @@ class RemoteHost(Host):
     def handle_command(self, *args):
         '''emulate sh.command(*args)'''
         def run():
-            result = api.run(lst2cmd(args), pty=False)
-            result.cwd = ''
-            return result
-        result = fab2res(api.execute(run, hosts=[self.login], key_filename=self.key_file)[self.login])
+            with api.settings(port=self.port, key_filename=self.key_file):
+                result = api.run(lst2cmd(args), pty=False)
+                result.cwd = ''
+                return result
+        result = fab2res(api.execute(run, hosts=[self.login])[self.login])
         assert result.exit_code == 0
         return result
 
