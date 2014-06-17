@@ -18,12 +18,20 @@ class LocalHost(Host):
         self.login = '%s@%s' % (self.user, self.name)
 
     def _sh(self, cwd, *args):
-        result = sh2res(self._bash(lst2cmd(args), _cwd=cwd))
+        try:
+            shres = self._bash(lst2cmd(args), _cwd=cwd)
+        except Exception, ex:
+            log.error(ex)
+        result = sh2res(shres)
         assert result.exit_code == 0
         return result
 
     def handle_command(self, *args):
-        result = sh2res(self._bash(lst2cmd(args)))
+        try:
+            self._bash(lst2cmd(args))
+        except Exception, ex:
+            log.error(ex)
+        result = sh2res(shres)
         assert result.exit_code == 0
         return result
 

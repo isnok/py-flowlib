@@ -41,8 +41,7 @@ class Host(object):
             return log_result(ShellResult(cmd, cwd, '', '', 0))
         else:
             result = self._sh(cwd, command, *args)
-            log_result(result)
-            return result
+            return log_result(result)
 
     def _sh(self, cwd, command, *args):
         raise NotImplementedError('Base host class does not implement _sh')
