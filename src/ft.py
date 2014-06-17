@@ -2,7 +2,7 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-P <path>] [-D <dirs>] [-G <gits>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-P <path>] [-D <dirs>] [-G <gits>] [-C <cmds>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
     flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [--list|-l]
 
 Options:
@@ -16,17 +16,19 @@ Options:
     -n, --notreally         don't execute api commands
     --nofmt                 don't format (and color) output
 
-Flow hooks:
+Default behaviour settings:
     -H, --host <host>       override default and config host [default: ]
     -P, --path <path>       override default and config repo [default: .]
     -D, --dirs <dirs>       set default behaviour if dirs do not exist (valid: {0}) [default: abort]
     -G, --gits <gits>       set default behaviour if gits do not exist (valid: {1}) [default: abort]
+    -C, --cmds <dirs>       set default behaviour if commands fail (valid: {2}) [default: abort]
 
 Invoking flowtool without any arguments dumps the config.
 '''
 DIR_MODES = ['abort', 'create', 'warn', 'ignore']
 GIT_MODES = ['abort', 'create', 'warn', 'ignore', 'init']
-doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES)])
+CMD_MODES = ['abort', 'warn', 'ignore']
+doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES, CMD_MODES)])
 
 import os, sys
 cmd_name = sys.argv[0]
@@ -45,7 +47,8 @@ log.debug(args)
 from flib import abort
 invalid = args.invalidate({
     '--dirs': DIR_MODES,
-    '--gits': GIT_MODES
+    '--gits': GIT_MODES,
+    '--cmds': CMD_MODES,
 })
 if invalid:
     abort(log, invalid)

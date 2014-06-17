@@ -3,7 +3,9 @@ import socket
 from flib.host import Host
 from flib import lst2cmd
 from flib import ok_sh
+from flib import abort
 from flib import ShellResult
+from flib.env import args as global_args
 
 def sh2res(r):
     return ShellResult(lst2cmd(r.cmd), r.call_args['cwd'], r.stdout, r.stderr, r.exit_code)
@@ -21,16 +23,22 @@ class LocalHost(Host):
         try:
             shres = self._bash(lst2cmd(args), _cwd=cwd)
         except Exception, ex:
-            log.error(ex)
+            if global_args.cmds == 'abort':
+                abort(log, ex)
+            elif global_args.cmds == 'warn':
+                log.error(ex)
         result = sh2res(shres)
         assert result.exit_code == 0
         return result
 
     def handle_command(self, *args):
         try:
-            self._bash(lst2cmd(args))
+            shres = self._bash(lst2cmd(args))
         except Exception, ex:
-            log.error(ex)
+            if global_args.cmds == 'abort':
+                abort(log, ex)
+            elif global_args.cmds == 'warn':
+                log.error(ex)
         result = sh2res(shres)
         assert result.exit_code == 0
         return result
