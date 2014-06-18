@@ -64,8 +64,8 @@ def new_feature(feature):
     log.info('Enjoy %s.' % feature)
 
 def update_feature(feature):
-    repo.git('checkout', feature)
     log.info('Update %s.' % feature)
+    repo.git('checkout', feature)
     repo.git('merge', master)
 
 def finish_feature(feature, update_result):
