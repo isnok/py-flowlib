@@ -23,6 +23,12 @@ def check_result(result, policy='abort', log=None):
     log.debug('check_result: %s' % (result,))
     if result.exit_code == 0:
         return
+
+    if result.stdout:
+        log.info(result.stdout)
+    if result.stderr:
+        log.warn(result.stderr)
+
     if policy == 'abort':
         abort(log, 'exited %s : %s' % (result.exit_code, result.cmdline))
     elif policy == 'warn':
