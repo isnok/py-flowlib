@@ -18,3 +18,11 @@ import sys
 def abort(log, msg, exit_code=1):
     log.error(msg)
     sys.exit(exit_code)
+
+def check_result(result, policy='abort', log=None):
+    if result.exit_code == 0:
+        return
+    if policy == 'abort':
+        abort(log, 'exited %s : %s' % (result.exit_code, result.cmdline))
+    elif policy == 'warn':
+        log.error('exited %s : %s' % (result.exit_code, result.cmdline))
