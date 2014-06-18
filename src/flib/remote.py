@@ -3,8 +3,11 @@ from flib import lst2cmd
 from fabric import api
 
 from functools import wraps
-from flib.env import args
+from flib.env import args as global_args
 from flib import ShellResult
+from flib import check_result
+from flib.output import configure_logger
+log = configure_logger('remotehost')
 
 def fab2res(r):
     return ShellResult(r.real_command, r.cwd, r.stdout, r.stderr, r.return_code)
@@ -13,7 +16,7 @@ def fabputget2res(pg, s, d, r):
     return ShellResult('%s(%s, %s)' % (pg, s, d), d, tuple(r), r.succeeded, int(not r.succeeded))
 
 def quietly(func):
-    context = api.warn_only if args.debug else api.quiet
+    context = api.warn_only if global_args.debug else api.quiet
     @wraps(func)
     def wrapped(*args, **kwd):
         with api.settings(context(), use_ssh_config=True):
@@ -41,7 +44,7 @@ class RemoteHost(Host):
                 result.cwd = cwd
                 return result
         result = fab2res(api.execute(run, hosts=[self.login])[self.login])
-        assert result.exit_code == 0
+        check_result(result, global_args.cmds, log)
         return result
 
     @quietly
@@ -53,7 +56,7 @@ class RemoteHost(Host):
                 result.cwd = ''
                 return result
         result = fab2res(api.execute(run, hosts=[self.login])[self.login])
-        assert result.exit_code == 0
+        check_result(result, global_args.cmds, log)
         return result
 
     #@quietly

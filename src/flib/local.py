@@ -4,8 +4,11 @@ from flib.host import Host
 from flib import lst2cmd
 from flib import ok_sh
 from flib import abort
+from flib import check_result
 from flib import ShellResult
 from flib.env import args as global_args
+from flib.output import configure_logger
+log = configure_logger('localhost')
 
 def sh2res(r):
     return ShellResult(lst2cmd(r.cmd), r.call_args['cwd'], r.stdout, r.stderr, r.exit_code)
@@ -28,7 +31,7 @@ class LocalHost(Host):
             elif global_args.cmds == 'warn':
                 log.error(ex)
         result = sh2res(shres)
-        assert result.exit_code == 0
+        check_result(result, global_args.cmds, log)
         return result
 
     def handle_command(self, *args):
@@ -40,7 +43,7 @@ class LocalHost(Host):
             elif global_args.cmds == 'warn':
                 log.error(ex)
         result = sh2res(shres)
-        assert result.exit_code == 0
+        check_result(result, global_args.cmds, log)
         return result
 
     #def run(self, command):

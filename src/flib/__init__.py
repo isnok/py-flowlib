@@ -20,6 +20,7 @@ def abort(log, msg, exit_code=1):
     sys.exit(exit_code)
 
 def check_result(result, policy='abort', log=None):
+    log.debug('check_result: %s' % (result,))
     if result.exit_code == 0:
         return
     if policy == 'abort':
