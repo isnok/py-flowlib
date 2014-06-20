@@ -25,7 +25,7 @@ def check_result(result, policy='abort', log=None):
         return
 
     if result.stdout:
-        log.info(result.stdout)
+        log.warn(result.stdout)
     if result.stderr:
         log.warn(result.stderr)
 
