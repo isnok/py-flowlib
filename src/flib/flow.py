@@ -33,4 +33,3 @@ def prefixes_funcs(prefixes):
         return [ x for x in lst if hasone(x) ]
 
     return PrefixesFunctions(prefixes, hasone, filterem, [prefix_funcs(p) for p in prefixes])
-

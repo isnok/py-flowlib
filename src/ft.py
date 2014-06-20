@@ -86,12 +86,15 @@ import flib.configured
 
 from importlib import import_module
 
-if 'module' in config:
-    log.debug("Importing default command set: flib.flows.default")
-    import_module('flib.flows.default')
-    log.debug("Flow module: %s" % config.module)
+if 'flowtool' in config and 'modules' in config.flowtool:
     config['import_deferred'] = []
-    import_module(config.module)
+    if isinstance(config.flowtool.modules, list):
+        for mod in config.flowtool.modules:
+            log.debug("Flow module: %s" % mod)
+            import_module(mod)
+    else:
+        log.debug("Flow module: %s" % config.flowtool.modules)
+        import_module(config.flowtool.modules)
     deferred = config.pop('import_deferred')
     for func, fn_args, fn_kwd in deferred:
         log.debug("deferred func: %s %s %s" % (func.__name__, fn_args, fn_kwd))
