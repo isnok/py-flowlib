@@ -83,7 +83,6 @@ log.debug(config)
 
 import flib.configured
 
-
 from importlib import import_module
 
 if 'flowtool' in config and 'modules' in config.flowtool:
