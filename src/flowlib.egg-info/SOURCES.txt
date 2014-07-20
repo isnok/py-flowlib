@@ -13,11 +13,12 @@ flib/output.py
 flib/remote.py
 flib/repo.py
 flib/flows/__init__.py
+flib/flows/basics.py
 flib/flows/default.py
 flib/flows/simple.cfg
 flib/flows/simple.py
-flib/flows/test.cfg
-flib/flows/test.py
+flib/test/__init__.py
+flib/test/test.py
 flowlib.egg-info/PKG-INFO
 flowlib.egg-info/SOURCES.txt
 flowlib.egg-info/dependency_links.txt

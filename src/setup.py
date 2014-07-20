@@ -20,7 +20,7 @@ flowcfgs = ['simple.cfg', 'test.cfg']
 
 setup(
     name='flowlib',
-    version='0.6.6.8',
+    version='0.6.6.9c',
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -29,10 +29,14 @@ setup(
     packages=find_packages(), #['flib', 'flib.flows'],
     data_files=[
         ('', ['README']),
-        #('flib.flows', [relname('flib', 'flows', f) for f in flowcfgs]),
+        ('flib/flows', 'simple.cfg'),
+        ('flib/test', 'test.cfg'),
     ],
-    package_data={'flib.flows': flowcfgs},
-    include_package_data=True,
+    #package_data={
+        #'flib.flows': 'simple.cfg',
+        #'flib.test' : 'test.cfg'
+    #},
+    include_package_data=False,
     install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
     keywords=['git','flow','shell','local','remote','commandline'],
     long_description=read('README'),
