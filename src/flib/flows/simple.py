@@ -17,11 +17,15 @@ master = config.flow.master
 ft = prefix_funcs(config.flow.feature)
 #rl = prefix_funcs(config.flow.release)
 
+def assert_feature(name):
+    if not ft.hasit(name):
+        raise RuntimeError("Branch %r is not a feature branch." % (name,))
+    return name
+
 def get_feature(query=None):
     if query is None:
-        query = repo.current_branch()
-        assert ft.hasit(query)
-    return repo.get_branch(query)
+        return assert_feature(repo.current_branch())
+    return assert_feature(repo.get_branch(query))
 
 @expose(docargs=True)
 def feature(ftargs):
@@ -31,9 +35,9 @@ def feature(ftargs):
         feature NAME
         feature [ -l | --list [ -r | --remote | -a | --all ]]
         feature [ -n | --new ] NAME
-        feature [ -u | --update ] NAME
+        feature [ -u | --update ] [NAME]
         feature [ -c | --continued ] [NAME]
-        feature [ -f | --finish ] NAME
+        feature [ -f | --finish ] [NAME]
 
     Options:
         -l, --list        List feature branches.
@@ -81,8 +85,7 @@ def feature(ftargs):
         return continued_feature(feature)
 
     elif ftargs.finish:
-        result = update_feature(feature)
-        return finish_feature(feature, result)
+        return finish_feature(feature, update_feature(feature))
 
     else:
         repo.git('checkout', feature)
@@ -107,7 +110,14 @@ def finish_feature(feature, update_result):
     repo.git('branch', '-d', feature)
 
 def continued_feature(feature):
-    log.info('Sry, not yet impl. ' + feature)
+    restore = repo.current_branch()
+    log.info('Merge into %s.' % master)
+    repo.git('checkout', master)
+    repo.git('merge', feature)
+    log.info('Clean up %s.' % feature)
+    repo.git('branch', '-d', feature)
+    log.info('Back to %s.' % restore)
+    repo.git('checkout', restore)
 
 
 @expose
