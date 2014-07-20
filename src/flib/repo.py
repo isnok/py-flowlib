@@ -140,11 +140,11 @@ class GitRepository(Directory):
 
     def _branches(self, local=True, remote=False):
         result = []
+        if not local and not remote:
+            return result
+        brancharg = '-a' if local and remote else '-l' if local else '-r'
         current = None
-        branchargs = [] if not local else ['-l']
-        if remote:
-            branchargs.append('-r')
-        for line in self.git("branch", *branchargs).stdout.split('\n'):
+        for line in self.git("branch", brancharg).stdout.split('\n'):
             if line.startswith('* '):
                 log.debug(line)
                 line = line[2:]
