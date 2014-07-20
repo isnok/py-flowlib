@@ -124,7 +124,8 @@ if command is None:
 arguments = args['ARGUMENTS']
 
 if command in cmd_reg:
-    result = cmd_reg[command](*arguments)
+    cmd_func, cmd_doc = cmd_reg[command]
+    result = cmd_func(*arguments)
     if result:
         log.info("Command resulted:")
         log.info(result)

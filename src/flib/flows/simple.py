@@ -117,7 +117,7 @@ def feature(ftargs):
         repo.git('checkout', feature)
 
 # handy dandy super-lazy shortcut
-expose('f')(feature)
+expose('f', "Shorthand for feature.")(feature)
 
 def new_feature(feature):
     log.info('Will create %r in %s.' % (feature, repo))

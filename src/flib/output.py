@@ -95,8 +95,7 @@ def list_commands(cmd_dct):
     logger = configure_logger('list_commands')
     logger.info("Available commands:")
     for cmd in sorted(cmd_dct):
-        func = cmd_dct[cmd]
-        doc = func.__doc__
+        func, doc = cmd_dct[cmd]
         if doc is not None and not args.verbose:
             doc = doc.split('\n')[0]
         if args.nofmt:
