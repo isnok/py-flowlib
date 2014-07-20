@@ -135,7 +135,7 @@ def update_feature(feature):
     repo.git('merge', master)
 
 def finish_feature(feature, update_result):
-    log.info('Merge into %s.' % master)
+    log.info('Merge %s into %s.' % (feature, master))
     repo.git('checkout', master)
     repo.git('merge', feature)
     log.info('Clean up %s.' % feature)
@@ -143,7 +143,7 @@ def finish_feature(feature, update_result):
 
 @branch_restoring
 def continued_feature(feature):
-    log.info('Merge into %s.' % master)
+    log.info('Merge %s into %s.' % (feature, master))
     repo.git('checkout', master)
     repo.git('merge', feature)
 
