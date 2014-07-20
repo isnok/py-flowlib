@@ -114,8 +114,6 @@ def continued_feature(feature):
     log.info('Merge into %s.' % master)
     repo.git('checkout', master)
     repo.git('merge', feature)
-    log.info('Clean up %s.' % feature)
-    repo.git('branch', '-d', feature)
     log.info('Back to %s.' % restore)
     repo.git('checkout', restore)
 
