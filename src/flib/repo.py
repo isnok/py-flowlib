@@ -157,16 +157,24 @@ class GitRepository(Directory):
     def current_branch(self):
         return self._branches()[1]
 
-    def get_branches(self, filter_thing=None):
+    def get_branches(self, filter_thing=None, local=True, remote=False):
         '''Return all branches that match the filter criteria.'''
+        _branches = self._branches()
+
+        branches = []
+        if local:
+            branches.extend(_branches[0])
+        if remote:
+            branches.extend(_branches[1])
+
         if filter_thing is None:
-            return self.local_branches()
+            return branches
         elif hasattr(filter_thing, 'hasit'):
-            return filter(filter_thing.hasit, self.local_branches())
+            return filter(filter_thing.hasit, branches)
         elif hasattr(filter_thing, 'hasone'):
-            return filter(filter_thing.hasone, self.local_branches())
+            return filter(filter_thing.hasone, branches)
         elif isfunction(filter_thing):
-            return filter(filter_thing, self.local_branches())
+            return filter(filter_thing, branches)
 
     def get_branch(self, part, on_many='abort'):
         '''convenience method for commandline input'''

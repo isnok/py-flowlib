@@ -23,7 +23,7 @@ def feature(ftargs):
 
     Usage:
         feature NAME
-        feature [ -l | --list ]
+        feature [ -l | --list [ -r | --remote | -a | --all ]]
         feature [ -n | --new ] NAME
         feature [ -u | --update ] NAME
         feature [ -c | --continued ] NAME
@@ -31,6 +31,8 @@ def feature(ftargs):
 
     Options:
         -l, --list        List feature branches.
+        -r, --remote      Only list remote branches.
+        -a, --all         list local and remote branches.
         -n, --new         Create a new feature.
         -u, --update      Update a feature.
         -c, --continued   A feature was continued.
@@ -40,8 +42,23 @@ def feature(ftargs):
     name = ftargs.NAME
 
     if ftargs.list:
-        log.info("Locally checked out feature branches:")
-        for feature in repo.get_branches(ft):
+        if ftargs.all:
+            log.info("All feature branches:")
+            get_local = get_remote = True
+        elif ftargs.remote:
+            log.info("Remote feature branches:")
+            get_local = False
+            get_remote = True
+        else:
+            log.info("Local feature branches:")
+            get_local = True
+            get_remote = False
+
+        for feature in repo.get_branches(
+                filter_thing=ft,
+                local=get_local,
+                remote=get_remote,
+            ):
             log.info(" * %s" % feature)
         return
 
