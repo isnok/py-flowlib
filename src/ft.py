@@ -2,14 +2,15 @@
 '''flowtool - code flow manager
 
 Usage:
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-P <path>] [-D <dirs>] [-G <gits>] [-C <cmds>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
-    flowtool.py [-hdr] [-c <cfg>] [--nofmt] [-v...] [--list|-l]
+    flowtool.py [-hdrt] [-c <cfg>] [--nofmt] [-v...] [-n] [-H <host>] [-P <path>] [-D <dirs>] [-G <gits>] [-C <cmds>] [-o <file>]... [COMMAND] [ARGUMENTS ...]
+    flowtool.py [-hdrt] [-c <cfg>] [--nofmt] [-v...] [--list|-l]
 
 Options:
     -h, --help              print this help
     -c, --config <cfg>      use configuration file [default: flow.cfg]
     -r, --recurse           recurse up searching for a config
     -l, --list              list available commands
+    -t, --test              script debugging argument
     -d, --debug             print debug information
     -o, --output <file>     write a log to <file>
     -v, --verbose           control how much is said about commands
