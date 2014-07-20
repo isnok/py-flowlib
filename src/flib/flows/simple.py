@@ -17,6 +17,12 @@ master = config.flow.master
 ft = prefix_funcs(config.flow.feature)
 #rl = prefix_funcs(config.flow.release)
 
+def get_feature(query=None):
+    if query is None:
+        query = repo.current_branch()
+        assert ft.hasit(query)
+    return repo.get_branch(query)
+
 @expose(docargs=True)
 def feature(ftargs):
     '''Manage feature branches.
@@ -26,7 +32,7 @@ def feature(ftargs):
         feature [ -l | --list [ -r | --remote | -a | --all ]]
         feature [ -n | --new ] NAME
         feature [ -u | --update ] NAME
-        feature [ -c | --continued ] NAME
+        feature [ -c | --continued ] [NAME]
         feature [ -f | --finish ] NAME
 
     Options:
@@ -66,7 +72,7 @@ def feature(ftargs):
         feature = ft.makeit(name)
         return new_feature(feature)
 
-    feature = repo.get_branch(name)
+    feature = get_feature(name)
 
     if ftargs['--update']:
         return update_feature(feature)
@@ -101,7 +107,7 @@ def finish_feature(feature, update_result):
     repo.git('branch', '-d', feature)
 
 def continued_feature(feature):
-    log.info('Sry, not yet impl. ;-p')
+    log.info('Sry, not yet impl. ' + feature)
 
 
 @expose
