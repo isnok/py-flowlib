@@ -3,6 +3,11 @@ from collections import namedtuple
 
 ShellResult = namedtuple("ShellResult", ['cmdline', 'cwd', 'stdout', 'stderr', 'exit_code'])
 
+def get_list(arg):
+    if isinstance(arg, list):
+        return arg
+    else:
+        return [arg]
 
 def repr_if(thing):
     string = str(thing)

@@ -82,16 +82,13 @@ log.debug("Config:")
 log.debug(config)
 
 from importlib import import_module
+from flib import get_list
 
 if 'flowtool' in config and 'modules' in config.flowtool:
     config['import_deferred'] = []
-    if isinstance(config.flowtool.modules, list):
-        for mod in config.flowtool.modules:
-            log.debug("Flow module: %s" % mod)
-            import_module(mod)
-    else:
-        log.debug("Flow module: %s" % config.flowtool.modules)
-        import_module(config.flowtool.modules)
+    for mod in get_list(config.flowtool.modules):
+        log.debug("Flow module: %s" % mod)
+        import_module(mod)
     deferred = config.pop('import_deferred')
     for func, fn_args, fn_kwd in deferred:
         log.debug("deferred func: %s %s %s" % (func.__name__, fn_args, fn_kwd))
