@@ -157,9 +157,11 @@ class GitRepository(Directory):
     def current_branch(self):
         return self._branches()[1]
 
-    def get_branches(self, filter_thing):
+    def get_branches(self, filter_thing=None):
         '''Return all branches that match the filter criteria.'''
-        if hasattr(filter_thing, 'hasit'):
+        if filter_thing is None:
+            return self.local_branches()
+        elif hasattr(filter_thing, 'hasit'):
             return filter(filter_thing.hasit, self.local_branches())
         elif hasattr(filter_thing, 'hasone'):
             return filter(filter_thing.hasone, self.local_branches())

@@ -90,3 +90,11 @@ def rputget():
 
     ok_get = rhost.get('/tmp/ft.py', 'tmp')
     nok_get = rhost.get('/tmp/xxx', 'tmp')
+
+@expose
+def get_branch(nam):
+    '''get_branch test'''
+    from flib.repo import GitRepository
+    from flib.local import LocalHost
+    repo = GitRepository(LocalHost(), '.')
+    log.info(repo.get_branch(nam))
