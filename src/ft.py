@@ -55,28 +55,35 @@ if invalid:
 else:
     del invalid
 
-config_found = False
-if args.config.startswith('/') or not args.recurse:
-    config_found = os.path.isfile(args.config)
-    config = flib.env.parse_config(args.config, update=True)
-else:
+def find_cfg(query):
     curdir = os.path.abspath(os.curdir)
     olddir = None
     while curdir != olddir:
         log.debug('recursing: %s' % curdir)
-        here = os.sep.join((curdir, args.config))
+        here = os.sep.join((curdir, query))
         if os.path.isfile(here):
-            config = flib.env.parse_config(here, update=True)
+            config = here
             break
         olddir = curdir
         curdir = os.path.dirname(curdir)
     else:
+        return False, None, None
+    return True, curdir, config
+
+config_found = False
+if args.config.startswith('/') or not args.recurse:
+    config_found = os.path.isfile(args.config)
+    config_file = args.config
+else:
+    config_found, curdir, config_file = find_cfg(args.config)
+    if not config_found:
         log.error('Error: No flowfile found here or in parent directories.')
         sys.exit(1)
-    config_found = True
     args['recurse_dir'] = curdir
     sys.path.append(curdir)
     log.debug("flowfile found here (added to pythonpath): %s" % os.path.abspath(curdir))
+
+config = flib.env.parse_config(config_file, update=True)
 
 log.debug("Config:")
 log.debug(config)
