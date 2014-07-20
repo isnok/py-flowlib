@@ -12,10 +12,7 @@ repo = configured.path_obj(git=True)
 log.debug(config)
 
 master = config.flow.master
-#develop = config.flow.develop
-
 ft = prefix_funcs(config.flow.feature)
-#rl = prefix_funcs(config.flow.release)
 
 def assert_feature(name):
     if not ft.hasit(name):
