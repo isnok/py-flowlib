@@ -138,10 +138,13 @@ class GitRepository(Directory):
                 assert not_there in ('warn', 'create')
                 log.warn('Warning: %s is not a repository.' % (self,))
 
-    def _branches(self):
+    def _branches(self, local=True, remote=False):
         result = []
         current = None
-        for line in self.git("branch", "-l").stdout.split('\n'):
+        branchargs = [] if not local else ['-l']
+        if remote:
+            branchargs.append('-r')
+        for line in self.git("branch", *branchargs).stdout.split('\n'):
             if line.startswith('* '):
                 log.debug(line)
                 line = line[2:]
@@ -162,19 +165,31 @@ class GitRepository(Directory):
         _branches = self._branches()
 
         branches = []
-        if local:
-            branches.extend(_branches[0])
-        if remote:
-            branches.extend(_branches[1])
+        if local and remote:
+            branches = self._branches(local=True, remote=True)[0]
+        elif local:
+            branches = self._branches()[0]
+        elif remote:
+            branches = self._branches(local=False, remote=True)[0]
+
+        log.debug(branches)
 
         if filter_thing is None:
             return branches
-        elif hasattr(filter_thing, 'hasit'):
-            return filter(filter_thing.hasit, branches)
-        elif hasattr(filter_thing, 'hasone'):
-            return filter(filter_thing.hasone, branches)
         elif isfunction(filter_thing):
             return filter(filter_thing, branches)
+        elif isinstance(filter_thing, str):
+            return [ b for b in branches if filter_thing in b ]
+        elif remote:
+            if hasattr(filter_thing, 'init'):
+                return filter(filter_thing.init, branches)
+            elif hasattr(filter_thing, 'inone'):
+                return filter(filter_thing.inone, branches)
+        else:
+            if hasattr(filter_thing, 'hasit'):
+                return filter(filter_thing.hasit, branches)
+            elif hasattr(filter_thing, 'hasone'):
+                return filter(filter_thing.hasone, branches)
 
     def get_branch(self, part, on_many='abort'):
         '''convenience method for commandline input'''
