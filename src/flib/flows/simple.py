@@ -6,10 +6,21 @@ from flib import configured
 from flib import abort
 
 log = configure_logger('simple_flow')
+log.debug(config)
 
 repo = configured.path_obj(git=True)
-
-log.debug(config)
+from functools import wraps
+def branch_restoring(func):
+    '''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
+    @wraps(func)
+    def wrapped(*args, **kw):
+        stored = repo.current_branch()
+        log.info('Remembering %s.' % stored)
+        result = func(*args, **kw)
+        log.info('Back to %s.' % stored)
+        repo.git('checkout', stored)
+        return result
+    return wrapped
 
 master = config.flow.master
 ft = prefix_funcs(config.flow.feature)
@@ -106,16 +117,15 @@ def finish_feature(feature, update_result):
     log.info('Clean up %s.' % feature)
     repo.git('branch', '-d', feature)
 
+@branch_restoring
 def continued_feature(feature):
-    restore = repo.current_branch()
     log.info('Merge into %s.' % master)
     repo.git('checkout', master)
     repo.git('merge', feature)
-    log.info('Back to %s.' % restore)
-    repo.git('checkout', restore)
 
 
 @expose
+@branch_restoring
 def remaster():
     '''Update all branches that are based on master.'''
     branches = repo.local_branches()
