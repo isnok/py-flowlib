@@ -9,6 +9,7 @@ log = configure_logger('simple_flow')
 log.debug(config)
 
 repo = configured.path_obj(git=True)
+
 from functools import wraps
 def branch_restoring(func):
     '''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
@@ -27,13 +28,16 @@ ft = prefix_funcs(config.flow.feature)
 
 def assert_feature(name):
     if not ft.hasit(name):
-        raise RuntimeError("Branch %r is not a feature branch." % (name,))
+        abort(log, "Branch %r is not a feature branch." % (name,))
     return name
 
 def get_feature(query=None):
     if query is None:
         return assert_feature(repo.current_branch())
-    return assert_feature(repo.get_branch(query))
+    branch = repo.get_branch(query)
+    if branch is None:
+        abort(log, "Branch not found: %s" % (query,))
+    return assert_feature(branch)
 
 @expose(docargs=True)
 def feature(ftargs):
@@ -85,6 +89,10 @@ def feature(ftargs):
         return new_feature(feature)
 
     feature = get_feature(name)
+    if feature is None:
+        return
+    else:
+        print feature
 
     if ftargs['--update']:
         return update_feature(feature)
@@ -98,6 +106,8 @@ def feature(ftargs):
     else:
         repo.git('checkout', feature)
 
+# handy dandy super-lazy shortcut
+expose('f')(feature)
 
 def new_feature(feature):
     log.info('Will create %r in %s.' % (feature, repo))
