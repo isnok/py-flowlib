@@ -50,6 +50,7 @@ def feature(ftargs):
         feature [ -u | --update ] [NAME]
         feature [ -c | --continued ] [NAME]
         feature [ -f | --finish ] [NAME]
+        feature [ -i | --info ] [ORIGIN]
 
     Options:
         -l, --list        List feature branches.
@@ -59,6 +60,12 @@ def feature(ftargs):
         -u, --update      Update a feature.
         -c, --continued   A feature was continued.
         -f, --finish      Finish a feature.
+        -i, --info        Compare features to origin.
+
+    Arguments:
+        NAME        (Partial) name of a branch.
+        ORIGIN      The origin to sync with. [default: origin]
+
     '''
     log.debug(ftargs)
     name = ftargs.NAME
@@ -88,6 +95,9 @@ def feature(ftargs):
         feature = ft.makeit(name)
         return new_feature(feature)
 
+    elif ftargs.info:
+        return info_features(ftargs.ORIGIN or 'origin')
+
     feature = get_feature(name)
     if feature is None:
         return
@@ -114,6 +124,10 @@ def new_feature(feature):
     repo.git('checkout', master)
     repo.git('checkout', '-b', feature)
     log.info('Enjoy %s.' % feature)
+
+def info_features(origin):
+    log.info("Fetching %s." % origin)
+    repo.git('fetch', origin)
 
 def update_feature(feature):
     log.info('Update %s.' % feature)
