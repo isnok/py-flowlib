@@ -212,7 +212,6 @@ class GitRepository(Directory):
         '''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
         @wraps(func)
         def wrapped(*args, **kw):
-            print "hoi"
             stored = self.current_branch()
             log.info('Remembering %s.' % stored)
             result = func(*args, **kw)
