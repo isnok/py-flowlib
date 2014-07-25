@@ -9,22 +9,8 @@ log = configure_logger('git_basics')
 
 repo = configured.path_obj(git=True)
 
-#from functools import wraps
-#def branch_restoring(func):
-    #'''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
-    #@wraps(func)
-    #def wrapped(*args, **kw):
-        #stored = repo.current_branch()
-        #log.info('Remembering %s.' % stored)
-        #result = func(*args, **kw)
-        #log.info('Back to %s.' % stored)
-        #repo.git('checkout', stored)
-        #return result
-    #return wrapped
-
-
-#@repo.branch_restoring
 @expose(docargs=True)
+@repo.branch_restoring
 def co(coargs):
     '''Check out stuff.
 
