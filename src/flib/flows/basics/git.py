@@ -10,7 +10,6 @@ log = configure_logger('git_basics')
 repo = configured.path_obj(git=True)
 
 @expose(docargs=True)
-@repo.branch_restoring
 def co(coargs):
     '''Check out stuff.
 
@@ -34,38 +33,34 @@ def co(coargs):
 
     repo.git('checkout', something)
 
-# handy dandy super-lazy shortcut
-#expose('f', "Shorthand for feature.")(feature)
 
-#def new_feature(feature):
-    #log.info('Will create %r in %s.' % (feature, repo))
-    #repo.git('checkout', master)
-    #repo.git('checkout', '-b', feature)
-    #log.info('Enjoy %s.' % feature)
+from fabric.contrib.console import confirm
 
-#def update_feature(feature):
-    #log.info('Update %s.' % feature)
-    #repo.git('checkout', feature)
-    #repo.git('merge', master)
+@expose(docargs=True)
+def ci(ciargs):
+    '''Check in stuff.
 
-#def finish_feature(feature, update_result):
-    #log.info('Merge %s into %s.' % (feature, master))
-    #repo.git('checkout', master)
-    #repo.git('merge', feature)
-    #log.info('Clean up %s.' % feature)
-    #repo.git('branch', '-d', feature)
+    Usage:
+        ci [-ay] WORDS...
 
-#@branch_restoring
-#def continued_feature(feature):
-    #log.info('Merge %s into %s.' % (feature, master))
-    #repo.git('checkout', master)
-    #repo.git('merge', feature)
+    Options:
+        -a, --all    Add everything before committing.
+        -y, --yes    Don't ask. Commit!
 
-#def info_feature(feature):
-    #log.info("Collecting info on %s." % feature)
-    #for remote in repo.remotes():
-        #log.info("Fetching %s." % remote)
-        #repo.git('fetch', remote)
-    #for branch in repo.get_branches(ft, local=False, remote=True):
-        #if feature in branch:
-            #log.info("Feature found on remote: %s" % branch)
+    Arguments:
+        WORDS        Commit message.
+
+    '''
+    log.debug(ciargs)
+
+    ci_msg = ' '.join(ciargs.WORDS)
+    if not ci_msg:
+        abort(log, "No message." % ciargs.WORDS)
+
+    if ciargs.all:
+        repo.git('add', '-A')
+
+    if not ciargs.yes:
+        do_commit = confirm('Commit to branch %s?' % repo.current_branch(), default=False)
+
+    repo.git('commit', '-m', ci_msg)

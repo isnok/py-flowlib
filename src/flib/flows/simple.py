@@ -10,19 +10,6 @@ log.debug(config)
 
 repo = configured.path_obj(git=True)
 
-from functools import wraps
-def branch_restoring(func):
-    '''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
-    @wraps(func)
-    def wrapped(*args, **kw):
-        stored = repo.current_branch()
-        log.info('Remembering %s.' % stored)
-        result = func(*args, **kw)
-        log.info('Back to %s.' % stored)
-        repo.git('checkout', stored)
-        return result
-    return wrapped
-
 master = config.flow.master
 ft = prefix_funcs(config.flow.feature)
 
@@ -137,7 +124,7 @@ def finish_feature(feature, update_result):
     log.info('Clean up %s.' % feature)
     repo.git('branch', '-d', feature)
 
-@branch_restoring
+@repo.branch_restoring
 def continued_feature(feature):
     log.info('Merge %s into %s.' % (feature, master))
     repo.git('checkout', master)
@@ -152,7 +139,7 @@ def info_feature(feature):
         if feature in branch:
             log.info("Feature found on remote: %s" % branch)
 
-@branch_restoring
+@repo.branch_restoring
 def remaster():
     '''Update all branches that are based on master.'''
     branches = repo.local_branches()
