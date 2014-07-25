@@ -147,7 +147,7 @@ def info_feature(feature):
         repo.git('fetch', remote)
     for branch in repo.get_branches(ft, local=False, remote=True):
         if feature in branch:
-            log.info("Remote feature: %s" % branch)
+            log.info("Feature found on remote: %s" % branch)
 
 
 
