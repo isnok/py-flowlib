@@ -1,4 +1,5 @@
 from inspect import isfunction
+from functools import wraps
 from flib.output import configure_logger
 from flib.env import args, config
 from flib import lst2cmd
@@ -207,6 +208,18 @@ class GitRepository(Directory):
     def remotes(self):
         return self.git('remote').stdout.split()
 
+    def branch_restoring(self, func):
+        '''decorator for (sub-)commands to restore repo.current_branch() after operation.'''
+        @wraps(func)
+        def wrapped(*args, **kw):
+            print "hoi"
+            stored = self.current_branch()
+            log.info('Remembering %s.' % stored)
+            result = func(*args, **kw)
+            log.info('Back to %s.' % stored)
+            self.git('checkout', stored)
+            return result
+        return wrapped
 
 class Branch(str):
 
