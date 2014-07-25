@@ -45,7 +45,7 @@ log.debug("cwd (added to pythonpath): %s" % os.path.abspath(os.curdir))
 log.debug("Args:")
 log.debug(args)
 
-from flib import abort
+from flib.aux import abort
 invalid = args.invalidate({
     '--dirs': DIR_MODES,
     '--gits': GIT_MODES,
@@ -56,21 +56,7 @@ if invalid:
 else:
     del invalid
 
-def find_cfg(query):
-    curdir = os.path.abspath(os.curdir)
-    olddir = None
-    while curdir != olddir:
-        log.debug('recursing: %s' % curdir)
-        here = os.sep.join((curdir, query))
-        if os.path.isfile(here):
-            config = here
-            break
-        olddir = curdir
-        curdir = os.path.dirname(curdir)
-    else:
-        return False, None, None
-    return True, curdir, config
-
+from flib.aux import find_cfg
 config_found = False
 if args.config.startswith('/') or not args.recurse:
     config_found = os.path.isfile(args.config)

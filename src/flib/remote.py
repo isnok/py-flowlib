@@ -5,7 +5,7 @@ from fabric import api
 from functools import wraps
 from flib.env import args as global_args
 from flib import ShellResult
-from flib import check_result
+from flib.aux import check_result
 from flib.output import configure_logger
 log = configure_logger('remotehost')
 

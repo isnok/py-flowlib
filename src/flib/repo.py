@@ -1,8 +1,8 @@
 from inspect import isfunction
 from flib.output import configure_logger
 from flib.env import args, config
-from flib import abort, lst2cmd
-from flib import abort
+from flib import lst2cmd
+from flib.aux import abort
 
 log = configure_logger('objmappers')
 

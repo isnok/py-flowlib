@@ -1,7 +1,7 @@
 from flib.cmd import expose
 from flib.env import args, config
 from flib.output import configure_logger
-from flib import abort
+from flib.aux import abort
 from fabric.contrib.console import confirm
 
 log = configure_logger('default_cmds')

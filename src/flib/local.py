@@ -3,9 +3,9 @@ import socket
 from flib.host import Host
 from flib import lst2cmd
 from flib import ok_sh
-from flib import abort
-from flib import check_result
 from flib import ShellResult
+from flib.aux import check_result
+from flib.aux import abort
 from flib.env import args as global_args
 from flib.output import configure_logger
 log = configure_logger('localhost')

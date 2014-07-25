@@ -3,7 +3,7 @@ from flib.flow import prefix_funcs
 from flib.env import args, config
 from flib.output import configure_logger
 from flib import configured
-from flib import abort
+from flib.aux import abort
 
 log = configure_logger('simple_flow')
 log.debug(config)
