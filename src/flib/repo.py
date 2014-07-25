@@ -25,7 +25,7 @@ class Directory(object):
     #@property
     #def host(self, host):
         #if isinstance(host, str):
-            #if host 
+            #if host
 
     def check_exists(self, path=None):
         if path is None:
@@ -203,6 +203,10 @@ class GitRepository(Directory):
 
     def bake_branch(self, name):
         return Branch(self, name)
+
+    def remotes(self):
+        return self.git('remote').stdout.split()
+
 
 class Branch(str):
 

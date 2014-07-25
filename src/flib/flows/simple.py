@@ -50,7 +50,7 @@ def feature(ftargs):
         feature [ -u | --update ] [NAME]
         feature [ -c | --continued ] [NAME]
         feature [ -f | --finish ] [NAME]
-        feature [ -i | --info ] [ORIGIN]
+        feature [ -i | --info ] [NAME]
 
     Options:
         -l, --list        List feature branches.
@@ -60,11 +60,10 @@ def feature(ftargs):
         -u, --update      Update a feature.
         -c, --continued   A feature was continued.
         -f, --finish      Finish a feature.
-        -i, --info        Compare features to origin.
+        -i, --info        Compare feature to remotes.
 
     Arguments:
         NAME        (Partial) name of a branch.
-        ORIGIN      The origin to sync with. [default: origin]
 
     '''
     log.debug(ftargs)
@@ -95,14 +94,9 @@ def feature(ftargs):
         feature = ft.makeit(name)
         return new_feature(feature)
 
-    elif ftargs.info:
-        return info_features(ftargs.ORIGIN or 'origin')
-
     feature = get_feature(name)
     if feature is None:
         return
-    else:
-        print feature
 
     if ftargs['--update']:
         return update_feature(feature)
@@ -112,6 +106,9 @@ def feature(ftargs):
 
     elif ftargs.finish:
         return finish_feature(feature, update_feature(feature))
+
+    elif ftargs.info:
+        return info_feature(feature)
 
     else:
         repo.git('checkout', feature)
@@ -124,10 +121,6 @@ def new_feature(feature):
     repo.git('checkout', master)
     repo.git('checkout', '-b', feature)
     log.info('Enjoy %s.' % feature)
-
-def info_features(origin):
-    log.info("Fetching %s." % origin)
-    repo.git('fetch', origin)
 
 def update_feature(feature):
     log.info('Update %s.' % feature)
@@ -146,6 +139,17 @@ def continued_feature(feature):
     log.info('Merge %s into %s.' % (feature, master))
     repo.git('checkout', master)
     repo.git('merge', feature)
+
+def info_feature(feature):
+    log.info("Collecting info on %s." % feature)
+    for remote in repo.remotes():
+        log.info("Fetching %s." % remote)
+        repo.git('fetch', remote)
+    for branch in repo.get_branches(ft, local=False, remote=True):
+        if feature in branch:
+            log.info("Remote feature: %s" % branch)
+
+
 
 
 @expose
