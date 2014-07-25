@@ -47,7 +47,7 @@ def feature(ftargs):
         feature NAME
         feature [ -l | --list [ -r | --remote | -a | --all ]]
         feature [ -n | --new ] NAME
-        feature [ -u | --update ] [NAME]
+        feature [ -u | --update ] [NAME | -a]
         feature [ -c | --continued ] [NAME]
         feature [ -f | --finish ] [NAME]
         feature [ -i | --info ] [NAME]
@@ -99,7 +99,10 @@ def feature(ftargs):
         return
 
     if ftargs['--update']:
-        return update_feature(feature)
+        if ftargs.all:
+            return remaster()
+        else:
+            return update_feature(feature)
 
     elif ftargs.continued:
         return continued_feature(feature)
@@ -149,10 +152,6 @@ def info_feature(feature):
         if feature in branch:
             log.info("Feature found on remote: %s" % branch)
 
-
-
-
-@expose
 @branch_restoring
 def remaster():
     '''Update all branches that are based on master.'''
