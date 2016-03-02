@@ -3,6 +3,14 @@ flowtoolkit
 
 Some functionality to execute stuff here and there.
 
+Development will continue
+-------------------------
+
+Thanks to my new employer (Zalando SE) i will be able to continue developing
+this tool(-kit) as open source software. The first round of development is
+scheduled to March 4th, so you can expect movement here soon.
+
+
 what's in the box?
 ------------------
 
@@ -42,4 +50,8 @@ Simple git flow
 ---------------
 
 The simple git flow is the first example to look at, if you are considering to use this kit.
+It is distributed with the the python package (`src/flib/flows/simple.cfg`).
+To use it, specify it with the `-c` argument or copy it to `flow.cfg` in the directory
+where you launch the tool or copy it to `flow.cfg` in any parent directory and use the `-r`
+command line option.
 
