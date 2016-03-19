@@ -2,6 +2,7 @@ import os
 import git
 import stat
 import click
+import shutil
 from flowtool.style import echo, colors
 
 # from flowtool.style import debug
@@ -82,3 +83,44 @@ def status():
         else:
             color = echo.white
         color('found hook:', info)
+
+
+def install_hook(name, repo):
+    package_dir = os.path.dirname(__file__)
+    script = os.sep.join([
+        package_dir, 'scripts', 'generic-hook-runner.sh',
+    ])
+    hook_file = os.path.join(repo.git_dir, 'hooks', name)
+    hook_dir = hook_file + '.d'
+
+    def install():
+        echo.white('installing', os.path.basename(script), 'as', name)
+        shutil.copyfile(script, hook_file)
+        if not os.path.exists(hook_dir):
+            os.mkdir(hook_dir)
+
+    if not os.path.exists(hook_file):
+        install()
+    else:
+        message = 'The hook %r is already installed. Replace it?' % name
+        confirmed = click.confirm(colors.bold(message), default=True)
+        if confirmed:
+            backup = hook_file + '.old'
+            echo.white('storing backup to', os.path.basename(backup))
+            if os.path.exists(backup):
+                os.unlink(backup)
+            os.link(hook_file, backup)
+            os.unlink(hook_file)
+            shutil.copyfile(script, hook_file)
+            install()
+
+
+@click.command()
+def install():
+    """ Install the hook-runner-script. """
+
+    repo = git.Repo(search_parent_directories=True)
+    echo.white('git repository:', repo.git_dir)
+
+    for name in hook_specs:
+        install_hook(name, repo)

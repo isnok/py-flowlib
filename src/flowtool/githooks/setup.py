@@ -32,6 +32,11 @@ setup_args.update(
     data_files=[
         ('', [README]),
     ],
+    package_data={
+        'flowtool_githooks': [
+            'scripts/generic-hook-runner.sh',
+        ],
+    },
     zip_safe=False,
 )
 
@@ -50,6 +55,7 @@ setup_args.update(
     entry_points={
         'flowtool_commands': [
             'hooks = flowtool_githooks.manager:status',
+            'install-hooks = flowtool_githooks.manager:install',
         ],
     },
 )
