@@ -6,43 +6,69 @@ from setuptools import find_packages
 
 import os
 
-def relname(*args):
-    return os.path.join(os.path.dirname(__file__), *args)
-
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
-def read(fname):
-    with open(relname(fname)) as f:
+def read_file(name):
+    with open(name) as f:
         return f.read()
 
-flowcfgs = ['simple.cfg', 'test.cfg']
 
-README = 'README.md'
+# General Info
 
-setup(
+setup_args = dict(
     name='flowlib',
-    version='0.6.6.10',
+    version='0.7.0.1',
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
-    scripts=['ft.py'],
-    packages=find_packages(),
+)
+
+
+# Data Files
+
+README = 'README.md'
+setup_args.update(
+    long_description=read_file(README),
     data_files=[
         ('', README),
-        ('flib/flows', 'simple.cfg'),
-        ('flib/test', 'test.cfg'),
     ],
-    #package_data={
-        #'flib.flows': 'simple.cfg',
-        #'flib.test' : 'test.cfg'
-    #},
-    include_package_data=False,
-    install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
+    zip_safe=False,
+)
+
+
+# Requirements
+
+requirements = read_file('requirements.txt').split(),
+setup_args.update(
+    install_requires=requirements,
+)
+
+
+# Entry Points
+
+setup_args.update(
+    entry_points={
+        'console_scripts': [
+            'flowtool = flowtool.main:flowtool_main_group',
+            'ft = flowtool.main:flowtool_main_group',
+        ],
+        'flowtool_main_extensions': [
+            'stage = flowtool.stages:stage_option',
+        ],
+        'flowtool_main_extension_handlers': [
+            'stage = flowtool.stages:stage_option_handler',
+        ],
+        'flowtool_commands': [
+            'test = flowtool.test:tryout',
+        ],
+    },
+)
+
+
+# Techincal Details
+
+setup_args.update(
     keywords=['git','flow','shell','local','remote','commandline'],
-    long_description=read(README),
+    long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -59,4 +85,6 @@ setup(
         "Operating System :: Unix",
         "Environment :: Console",
     ],
-    )
+)
+
+setup(**setup_args)
