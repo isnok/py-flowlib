@@ -15,29 +15,29 @@ HOOK_SIGNATURES = [
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
 
-def getconfig_simple(repo):
-    dump = repo.git.config('--list')
-    config = {}
-    for line in dump.split('\n'):
-        key, value = line.split('=', 1)
-        config[key] = value
-    return config
+# def getconfig_simple(repo):
+    # dump = repo.git.config('--list')
+    # config = {}
+    # for line in dump.split('\n'):
+        # key, value = line.split('=', 1)
+        # config[key] = value
+    # return config
 
-ConfigHook = namedtuple('ConfigHook', ['name', 'active', 'key', 'value'])
+# ConfigHook = namedtuple('ConfigHook', ['name', 'active', 'key', 'value'])
 
-def gather_config_hooks(repo):
-    cfg = getconfig_simple(repo)
-    found = []
-    for key in [k for k in cfg if k.startswith('hooks.')]:
-        echo.yellow('configured hook:', key)
-        info = ConfigHook(
-            name=key[6:],
-            active=True,
-            key=key,
-            value=cfg[key],
-        )
-        found.append(info)
-    return found
+# def gather_config_hooks(repo):
+    # cfg = getconfig_simple(repo)
+    # found = []
+    # for key in [k for k in cfg if k.startswith('hooks.')]:
+        # echo.yellow('configured hook:', key)
+        # info = ConfigHook(
+            # name=key[6:],
+            # active=True,
+            # key=key,
+            # value=cfg[key],
+        # )
+        # found.append(info)
+    # return found
 
 FileHook = namedtuple('FileHook', ['name', 'active', 'file'])
 
@@ -61,10 +61,11 @@ def gather_file_hooks(repo):
 
 def gather_hooks(repo):
     """ Gather information on active git hooks. """
+
     echo.white('Collecting information on installed hooks...')
-    config_hooks = gather_config_hooks(repo)
+    # config_hooks = gather_config_hooks(repo)
     file_hooks = gather_file_hooks(repo)
-    return config_hooks, file_hooks
+    return file_hooks
 
 @click.command()
 def status():
@@ -73,9 +74,9 @@ def status():
     repo = git.Repo(search_parent_directories=True)
     echo.white('git repository:', repo.git_dir)
 
-    config_hooks, file_hooks = gather_hooks(repo)
+    file_hooks = gather_hooks(repo)
 
-    for info in config_hooks + file_hooks:
+    for info in file_hooks:
         if info.active:
             color = echo.green
         else:
