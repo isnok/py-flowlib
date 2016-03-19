@@ -26,10 +26,12 @@ Default behaviour settings:
 
 Invoking flowtool without any arguments dumps the config.
 '''
+
 DIR_MODES = ['abort', 'create', 'warn', 'ignore']
 GIT_MODES = ['abort', 'create', 'warn', 'ignore', 'init']
 CMD_MODES = ['abort', 'warn', 'ignore']
-doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES, CMD_MODES)])
+
+__doc__ = doc = __doc__.format(*["|".join(x) for x in (DIR_MODES, GIT_MODES, CMD_MODES)])
 
 import os, sys
 cmd_name = sys.argv[0]

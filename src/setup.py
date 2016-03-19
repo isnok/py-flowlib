@@ -14,21 +14,24 @@ def relname(*args):
 # README file and 2) it's easier to type in the README file than to put a raw
 # string in below ...
 def read(fname):
-    return open(relname(fname)).read()
+    with open(relname(fname)) as f:
+        return f.read()
 
 flowcfgs = ['simple.cfg', 'test.cfg']
 
+README = 'README.md'
+
 setup(
     name='flowlib',
-    version='0.6.6.9c',
+    version='0.6.6.10',
     description='Build your own git flow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
     scripts=['ft.py'],
-    packages=find_packages(), #['flib', 'flib.flows'],
+    packages=find_packages(),
     data_files=[
-        ('', ['README']),
+        ('', README),
         ('flib/flows', 'simple.cfg'),
         ('flib/test', 'test.cfg'),
     ],
@@ -39,7 +42,7 @@ setup(
     include_package_data=False,
     install_requires=['Fabric', 'configobj', 'docopt', 'sh'],
     keywords=['git','flow','shell','local','remote','commandline'],
-    long_description=read('README'),
+    long_description=read(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
         "Development Status :: 3 - Alpha",

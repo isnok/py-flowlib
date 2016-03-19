@@ -1,6 +1,4 @@
 venv/*
-*.pyc
+*.py[cod]
 __pycache__
-.*.swp
-.*.swo
-src/build
+.*.sw[op]
