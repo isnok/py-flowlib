@@ -1,6 +1,6 @@
 import click
 
-from flowtool_colors.termcolors import colors
+from flowtool.style import colors
 
 @click.command()
 def tryout():
@@ -8,7 +8,7 @@ def tryout():
     message = ' '.join([
         colors.blue('This'),
         colors.green('message'),
-        colors.purple('is'),
+        colors.magenta('is'),
         colors.yellow('colored!'),
         colors.white(':-)'),
     ])

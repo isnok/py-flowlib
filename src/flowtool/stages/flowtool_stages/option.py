@@ -1,10 +1,16 @@
 import click
 
-stage_opt = click.option(
-    '-s', '--stage',
-    type=str, default='default',
+from flowtool.main import debug_msg
+
+def option_handler(value):
+    debug_msg('stage-config: %s' % value)
+
+click_option = click.option(
+    '-s', '--stage', type=str, default='default',
     help="stage / environment name",
 )
 
-def stage_opt_handler(stage):
-    click.echo('stage-config: %s' % stage)
+stage_option = (
+    click_option,
+    option_handler,
+)

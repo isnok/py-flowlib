@@ -48,11 +48,8 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
-        'flowtool_main_extensions': [
-            'stage = flowtool_stages.option:stage_opt',
-        ],
-        'flowtool_main_extension_handlers': [
-            'stage = flowtool_stages.option:stage_opt_handler',
+        'flowtool_option_extensions': [
+            'stage = flowtool_stages.option:stage_option',
         ],
     },
 )

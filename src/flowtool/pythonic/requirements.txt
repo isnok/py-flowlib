@@ -1,3 +1,2 @@
 click
 flowtool-core
-flowtool-colors
