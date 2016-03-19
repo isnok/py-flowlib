@@ -2,19 +2,9 @@ import os
 import fnmatch
 import click
 import shutil
-from flowtool.style import echo, colors, debug
+from flowtool.style import echo, colors
 
-@click.command()
-def tryout():
-    """ Command description. """
-    message = ' '.join([
-        colors.blue('This'),
-        colors.green('message'),
-        colors.magenta('is'),
-        colors.yellow('colored!'),
-        colors.white(':-)'),
-    ])
-    click.echo(message)
+# from flowtool.style import debug
 
 cleaning_config = {
     'dirnames': [
@@ -27,6 +17,7 @@ cleaning_config = {
         '*.py[cod]',
     ],
 }
+
 
 def filter_fn(names, patterns):
     filtered = []
@@ -66,6 +57,7 @@ def confirm_clean(files_to_delete, dirs_to_remove):
     )
     return confirmed
 
+
 @click.command()
 @click.argument('directory', type=click.Path(exists=True), default=os.curdir)
 def clean(directory):
@@ -88,4 +80,3 @@ def clean(directory):
             shutil.rmtree(dirname)
 
     echo.white('Done.')
-

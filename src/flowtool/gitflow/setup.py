@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-python',
+    name='flowtool-gitflow',
     version='0.7.1',
-    description='Shortcuts for python devs.',
+    description='Shortcuts for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -49,7 +49,7 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'py-clean = flowtool_python.clean:clean',
+            'co = flowtool_gitflow.basic:checkout_branch',
         ],
     },
 )
