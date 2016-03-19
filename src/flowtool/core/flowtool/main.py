@@ -15,6 +15,9 @@ def flowtool_main_group(debug, **kwd):
     """ flowtool - a{t,dd} your service.
 
         This is the main command group of flowtool.
+        It's subcommands all come from compatible modules,
+        that provide compatible click commands via the flowtool_commands
+        entrypoint group.
     """
     style.DEBUG_OUTPUT = debug
 
