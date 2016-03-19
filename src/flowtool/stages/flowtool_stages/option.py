@@ -1,9 +1,9 @@
 import click
 
 stage_option = click.option(
-    '-e', '--environment',
+    '-s', '--stage',
     type=str, default='default',
-    help="Environment's name",
+    help="stage / environment name",
 )
 
 def stage_option_handler(stage):

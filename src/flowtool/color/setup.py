@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowlib',
-    version='0.7.0.1',
-    description='Build your own git flow!',
+    name='flowtool-colors',
+    version='0.7.1',
+    description='Color your custom workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -27,9 +27,10 @@ setup_args = dict(
 
 README = 'README.md'
 setup_args.update(
+    packages=find_packages(),
     long_description=read_file(README),
     data_files=[
-        ('', README),
+        ('', [README]),
     ],
     zip_safe=False,
 )
@@ -47,18 +48,11 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
-        'console_scripts': [
-            'flowtool = flowtool.main:flowtool_main_group',
-            'ft = flowtool.main:flowtool_main_group',
-        ],
         'flowtool_main_extensions': [
-            'stage = flowtool.stages:stage_option',
+            'colors = flowtool_colors.option:color_option',
         ],
         'flowtool_main_extension_handlers': [
-            'stage = flowtool.stages:stage_option_handler',
-        ],
-        'flowtool_commands': [
-            'test = flowtool.test:tryout',
+            'colors = flowtool_colors.option:color_option_handler',
         ],
     },
 )

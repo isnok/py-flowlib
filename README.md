@@ -1,1 +1,3 @@
-src/README.md
+# flowtool
+
+An extensible workflow management command.

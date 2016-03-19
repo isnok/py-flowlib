@@ -4,12 +4,9 @@ import click
 from pkg_resources import iter_entry_points
 from pkg_resources import load_entry_point
 
-setup_handlers = {
-    'verbose': lambda x: click.echo('verbose: %s' % x),
-}
+setup_handlers = {}
 
 @click.group()
-@click.option('-v', '--verbose', is_flag=True)
 def flowtool_main_group(**kwd):
     """ flowtool - a{t,dd} your service.
 

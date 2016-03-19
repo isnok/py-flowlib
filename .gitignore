@@ -2,3 +2,6 @@ venv/*
 *.py[cod]
 __pycache__
 .*.sw[op]
+*.egg-info
+dist
+build
