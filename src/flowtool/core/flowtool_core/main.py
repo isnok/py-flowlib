@@ -14,26 +14,26 @@ def flowtool_main_group(**kwd):
     """
     for option, value in kwd.items():
         if option in setup_handlers:
+            click.echo('main-group-setup: %s = %s' % (option, value))
             setup_handlers[option](value)
         else:
             click.echo('main-group-setup: unhandled option: %s = %s' % (option, value))
 
 
 
-def add_main_group_options(*names):
+def add_main_group_options():
     global flowtool_main_group
-    for name in names:
-        for entry_point in iter_entry_points(name):
-            option = entry_point.load()
-            flowtool_main_group = option(flowtool_main_group)
-            dist = entry_point.dist
-            handler = load_entry_point(dist, name, entry_point.name)
-            setup_handlers[entry_point.name] = handler
-            print setup_handlers
+    for entry_point in iter_entry_points('flowtool_main_extensions'):
+        option = entry_point.load()
+        flowtool_main_group = option(flowtool_main_group)
+        handler = load_entry_point(
+            entry_point.dist,
+            'flowtool_main_extension_handlers',
+            entry_point.name
+        )
+        setup_handlers[entry_point.name] = handler
 
-add_main_group_options(
-    'flowtool_main_extensions',
-)
+add_main_group_options()
 
 
 

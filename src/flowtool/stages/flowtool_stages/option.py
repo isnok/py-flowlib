@@ -1,10 +1,10 @@
 import click
 
-stage_option = click.option(
+stage_opt = click.option(
     '-s', '--stage',
     type=str, default='default',
     help="stage / environment name",
 )
 
-def stage_option_handler(stage):
+def stage_opt_handler(stage):
     click.echo('stage-config: %s' % stage)

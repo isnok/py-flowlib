@@ -15,7 +15,7 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-stages',
-    version='0.7.0.2',
+    version='0.7.1',
     description='Manage different environments.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -49,10 +49,10 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_main_extensions': [
-            'stage = flowtool_stages.option:stage_option',
+            'stage = flowtool_stages.option:stage_opt',
         ],
         'flowtool_main_extension_handlers': [
-            'stage = flowtool_stages.option:stage_option_handler',
+            'stage = flowtool_stages.option:stage_opt_handler',
         ],
         'flowtool_commands': [
             'test = flowtool_stages.test:tryout',
