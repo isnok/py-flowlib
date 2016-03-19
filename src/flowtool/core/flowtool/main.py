@@ -5,16 +5,7 @@ from pkg_resources import load_entry_point
 
 import click
 
-from style import colors
-
-DEBUG_OUTPUT = None
-
-def debug_msg(message, **kwd):
-    global DEBUG_OUTPUT
-    if DEBUG_OUTPUT:
-        message = colors.cyan(message)
-        click.echo(message, **kwd)
-
+import style
 
 extension_handlers = {}
 
@@ -25,16 +16,15 @@ def flowtool_main_group(debug, **kwd):
 
         This is the main command group of flowtool.
     """
-    global DEBUG_OUTPUT
-    DEBUG_OUTPUT = debug
+    style.DEBUG_OUTPUT = debug
 
-    debug_msg('Options: {}'.format(kwd))
+    style.debug.cyan('Options:', kwd)
     for option, value in kwd.items():
         if option in extension_handlers:
-            debug_msg('main-group-setup: %s = %s' % (option, value))
+            style.debug.cyan('main-group-setup: %s = %s' % (option, value))
             extension_handlers[option](value)
         else:
-            debug_msg('main-group-setup: unhandled option: %s = %s' % (option, value))
+            style.debug.cyan('main-group-setup: unhandled option: %s = %s' % (option, value))
 
 
 def add_main_group_options():

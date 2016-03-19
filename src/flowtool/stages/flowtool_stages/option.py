@@ -1,9 +1,9 @@
 import click
 
-from flowtool.main import debug_msg
+from flowtool.style import debug
 
 def option_handler(value):
-    debug_msg('stage-config: %s' % value)
+    debug.cyan('stage-config: %s' % value)
 
 click_option = click.option(
     '-s', '--stage', type=str, default='default',

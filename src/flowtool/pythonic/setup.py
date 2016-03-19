@@ -49,7 +49,8 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'test = flowtool_python.test:tryout',
+            'colors = flowtool_python.test:tryout',
+            'py-clean = flowtool_python.test:clean',
         ],
     },
 )
