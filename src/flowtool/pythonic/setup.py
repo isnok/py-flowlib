@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-stages',
+    name='flowtool-python',
     version='0.7.1',
-    description='Manage different environments.',
+    description='Shortcuts for python devs.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -48,11 +48,8 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
-        'flowtool_main_extensions': [
-            'stage = flowtool_stages.option:stage_opt',
-        ],
-        'flowtool_main_extension_handlers': [
-            'stage = flowtool_stages.option:stage_opt_handler',
+        'flowtool_commands': [
+            'test = flowtool_python.test:tryout',
         ],
     },
 )
