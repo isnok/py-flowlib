@@ -46,6 +46,14 @@ def is_executable(filename):
     mode = os.stat(filename).st_mode
     return bool(mode & stat.S_IXUSR)
 
+def make_executable(filename):
+    mode = os.stat(filename).st_mode
+    os.chmod(filename, mode | stat.S_IEXEC)
+
+def make_not_executable(filename):
+    mode = os.stat(filename).st_mode
+    os.chmod(filename, mode | ~stat.S_IEXEC)
+
 def gather_file_hooks(repo):
     hook_dir = os.path.join(repo.git_dir, 'hooks')
     files = os.listdir(hook_dir)
@@ -69,8 +77,14 @@ def gather_hooks(repo):
     return file_hooks
 
 @click.command()
-def status():
+@click.option(
+    '-i', '--install', is_flag=True, help='Install hooks in current repo.'
+)
+def status(install=None):
     """ Show the status of your local git hooks. """
+
+    if install:
+        install_hooks()
 
     repo = git.Repo(search_parent_directories=True)
     echo.white('git repository:', repo.git_dir)
@@ -96,6 +110,7 @@ def install_hook(name, repo):
     def install():
         echo.white('installing', os.path.basename(script), 'as', name)
         shutil.copyfile(script, hook_file)
+        make_executable(hook_file)
         if not os.path.exists(hook_dir):
             os.mkdir(hook_dir)
 
@@ -111,12 +126,10 @@ def install_hook(name, repo):
                 os.unlink(backup)
             os.link(hook_file, backup)
             os.unlink(hook_file)
-            shutil.copyfile(script, hook_file)
             install()
 
 
-@click.command()
-def install():
+def install_hooks():
     """ Install the hook-runner-script. """
 
     repo = git.Repo(search_parent_directories=True)
@@ -124,3 +137,5 @@ def install():
 
     for name in hook_specs:
         install_hook(name, repo)
+
+

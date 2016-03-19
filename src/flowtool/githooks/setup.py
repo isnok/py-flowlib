@@ -55,7 +55,6 @@ setup_args.update(
     entry_points={
         'flowtool_commands': [
             'hooks = flowtool_githooks.manager:status',
-            'install-hooks = flowtool_githooks.manager:install',
         ],
     },
 )
