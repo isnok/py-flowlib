@@ -40,7 +40,7 @@ def pytest_setup(cmd=None):
     """ Setup function for pytest hook(s). (Unused) """
 
 
-MAX_FAILS = 5
+MAX_FAILS = 1
 
 def pytest_hook(*args, **kwd):
     """ Run pytest in discovered directories. """
@@ -48,9 +48,9 @@ def pytest_hook(*args, **kwd):
     hook_return = 0
     fails = 0
     locations = list(find_configs(repo))
-    echo.bold('Will run pytest in these %d dir(s):' % len(locations), locations)
+    echo.bold('Will run pytest in %d dir(s).' % len(locations))
     for loc in locations:
-        echo.bold(loc)
+        echo.bold('->', loc)
         returncode = run_pytest()
         if returncode:
             fails += 1

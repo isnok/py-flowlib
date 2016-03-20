@@ -185,8 +185,8 @@ def config_hooks():
     file_hooks = gather_hooks(repo)
     # status(repo, file_hooks)
 
-    echo.bold(colors.blue('=== Hook Components On / Off ==='))
-    toggle_scripts(file_hooks[hook_idx], repo)
+    # echo.bold(colors.blue('=== Hook Components On / Off ==='))
+    # toggle_scripts(file_hooks[hook_idx], repo)
 
 
 @click.command()
@@ -270,37 +270,37 @@ def toggle_hook(info, repo):
             ):
             activate_hook(info)
 
-def toggle_scripts(info, repo):
-    """ Toggle scripts on and off. """
+# def toggle_scripts(info, repo):
+    # """ Toggle scripts on and off. """
 
-    if not info.runner_dir:
-        echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
-        return
+    # if not info.runner_dir:
+        # echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
+        # return
 
-    scripts = sorted(os.listdir(info.runner_dir))
-    done = False
-    while not done:
-        echo.white('Current settings (%s):' % info.name)
-        for index, script in enumerate(scripts):
-            fname = os.sep.join([info.runner_dir, script])
-            active = is_executable(fname)
-            status = 'activated' if active else 'deactived'
-            color = echo.cyan if active else echo.yellow
-            color('%4d - toggle %s (%s)' % (index, script, status))
+    # scripts = sorted(os.listdir(info.runner_dir))
+    # done = False
+    # while not done:
+        # echo.white('Current settings (%s):' % info.name)
+        # for index, script in enumerate(scripts):
+            # fname = os.sep.join([info.runner_dir, script])
+            # active = is_executable(fname)
+            # status = 'activated' if active else 'deactived'
+            # color = echo.cyan if active else echo.yellow
+            # color('%4d - toggle %s (%s)' % (index, script, status))
 
-        echo.white('%4d - done' % (len(scripts)))
-        answer = click.prompt(
-            colors.white('Choose action'),
-            type=int,
-        )
-        if answer in range(len(scripts)):
-            script = os.sep.join([info.runner_dir, scripts[answer]])
-            toggle_executable(script)
-        elif answer == len(scripts):
-            echo.magenta('Bye.')
-            return
-        else:
-            echo.yellow('Invalid index.')
+        # echo.white('%4d - done' % (len(scripts)))
+        # answer = click.prompt(
+            # colors.white('Choose action'),
+            # type=int,
+        # )
+        # if answer in range(len(scripts)):
+            # script = os.sep.join([info.runner_dir, scripts[answer]])
+            # toggle_executable(script)
+        # elif answer == len(scripts):
+            # echo.magenta('Bye.')
+            # return
+        # else:
+            # echo.yellow('Invalid index.')
 
 
 from pkg_resources import iter_entry_points
@@ -373,7 +373,7 @@ def select_scripts(info):
                 info.runner_dir,
                 os.path.basename(arg),
             ])
-            shutil.copyfile(arg, dest)
+            os.symlink(arg, dest)
             echo.green('Added %s.' % arg)
             setup = [e.load() for e in available.values() if os.path.basename(arg) == e.name].pop()
             setup('install')

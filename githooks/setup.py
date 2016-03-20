@@ -11,7 +11,7 @@ import os
 
 setup_args = dict(
     name='flowtool-githooks',
-    version='0.7.9',
+    version='0.7.11',
     description='Automating tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',

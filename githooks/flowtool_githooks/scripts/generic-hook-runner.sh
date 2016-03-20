@@ -61,7 +61,7 @@ run_hooks () {
     GIT_DIR="$(git rev-parse --git-dir)"
     HOOK_DIR="${GIT_DIR}/hooks/${HOOK_NAME}.d"
     mkdir -p "$HOOK_DIR"
-    HOOKS=$(find "$HOOK_DIR" -type f -executable | sort -nr)
+    HOOKS=$(find "$HOOK_DIR" -executable | sort -nr)
     for hook in $HOOKS; do
         run_hook "$hook" "$@"
         ret=$?

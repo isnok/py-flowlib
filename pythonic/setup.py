@@ -11,7 +11,7 @@ import os
 
 setup_args = dict(
     name='flowtool-python',
-    version='0.7.9',
+    version='0.7.10',
     description='Shortcuts for python devs.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
