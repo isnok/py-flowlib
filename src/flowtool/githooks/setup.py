@@ -54,7 +54,14 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'hooks = flowtool_githooks.manager:status',
+            'hooks = flowtool_githooks.manager:hooks',
+            'test = flowtool_githooks.manager:test',
+        ],
+        'console_scripts': [
+            '_flowtool_githooks.demo = flowtool_githooks.hooks:demo',
+        ],
+        'flowtool_githooks.pre_commit': [
+            '_flowtool_githooks.demo = flowtool_githooks.hooks:demo_setup',
         ],
     },
 )

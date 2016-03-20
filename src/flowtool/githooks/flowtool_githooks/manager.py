@@ -4,8 +4,8 @@ import stat
 import click
 import shutil
 from flowtool.style import echo, colors
+from flowtool.style import debug
 
-# from flowtool.style import debug
 from collections import namedtuple
 
 HookSignature = namedtuple('HookSignature', ['name', 'args'])
@@ -15,6 +15,12 @@ HOOK_SIGNATURES = [
     HookSignature('commit-msg', ('message_file',)),
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
+
+import filecmp
+
+RUNNER = os.sep.join([
+    os.path.dirname(__file__), 'scripts', 'generic-hook-runner.sh'
+])
 
 # def getconfig_simple(repo):
     # dump = repo.git.config('--list')
@@ -40,7 +46,7 @@ hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
         # found.append(info)
     # return found
 
-FileHook = namedtuple('FileHook', ['name', 'active', 'file'])
+FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner'])
 
 def is_executable(filename):
     mode = os.stat(filename).st_mode
@@ -48,11 +54,16 @@ def is_executable(filename):
 
 def make_executable(filename):
     mode = os.stat(filename).st_mode
-    os.chmod(filename, mode | stat.S_IEXEC)
+    all_exec = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    os.chmod(filename, mode | all_exec)
 
 def make_not_executable(filename):
     mode = os.stat(filename).st_mode
-    os.chmod(filename, mode | ~stat.S_IEXEC)
+    not_exec = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
+    os.chmod(filename, mode & not_exec)
+
+def runner_dir(info):
+    return info.file + '.d'
 
 def gather_file_hooks(repo):
     hook_dir = os.path.join(repo.git_dir, 'hooks')
@@ -60,10 +71,12 @@ def gather_file_hooks(repo):
     hooks = [os.path.join(hook_dir,f) for f in files if f in hook_specs]
     found = []
     for filename in hooks:
+        is_runner = filecmp.cmp(filename, RUNNER)
         info = FileHook(
             name=os.path.basename(filename),
             active=is_executable(filename),
             file=filename,
+            is_runner=is_runner,
         )
         found.append(info)
     return found
@@ -80,39 +93,47 @@ def gather_hooks(repo):
 @click.option(
     '-i', '--install', is_flag=True, help='Install hooks in current repo.'
 )
-def status(install=None):
-    """ Show the status of your local git hooks. """
-
-    if install:
-        install_hooks()
+def hooks(install=None):
+    """ Manage your local git hooks. """
 
     repo = git.Repo(search_parent_directories=True)
-    echo.white('git repository:', repo.git_dir)
 
     file_hooks = gather_hooks(repo)
 
+    if install:
+        return install_hooks(file_hooks)
+
+    echo.bold('git hooks status (%s):\n' % repo.git_dir)
     for info in file_hooks:
-        if info.active:
-            color = echo.green
+
+        if info.is_runner:
+            effect = echo.bold
         else:
-            color = echo.white
-        color('found hook:', info)
+            effect = click.echo
 
+        if info.active:
+            color = colors.green
+        else:
+            color = colors.white
 
-def install_hook(name, repo):
-    package_dir = os.path.dirname(__file__)
-    script = os.sep.join([
-        package_dir, 'scripts', 'generic-hook-runner.sh',
-    ])
+        effect(color(str(info)))
+
+        if os.path.isdir(runner_dir(info)):
+            for script in os.listdir(runner_dir(info)):
+                fname = os.sep.join([runner_dir(info), script])
+                color = 'green' if is_executable(fname) else None
+                click.echo('  - %s' % script, color=color)
+
+def install_hook(info, repo):
+    name = info.name
     hook_file = os.path.join(repo.git_dir, 'hooks', name)
-    hook_dir = hook_file + '.d'
 
     def install():
-        echo.white('installing', os.path.basename(script), 'as', name)
-        shutil.copyfile(script, hook_file)
+        echo.white('installing', os.path.basename(RUNNER), 'as', name)
+        shutil.copyfile(RUNNER, hook_file)
         make_executable(hook_file)
-        if not os.path.exists(hook_dir):
-            os.mkdir(hook_dir)
+        if not os.path.exists(runner_dir(info)):
+            os.mkdir(runner_dir(info))
 
     if not os.path.exists(hook_file):
         install()
@@ -129,13 +150,34 @@ def install_hook(name, repo):
             install()
 
 
-def install_hooks():
+def install_hooks(file_hooks):
     """ Install the hook-runner-script. """
 
     repo = git.Repo(search_parent_directories=True)
     echo.white('git repository:', repo.git_dir)
 
-    for name in hook_specs:
-        install_hook(name, repo)
+    for info in file_hooks:
+        if info.is_runner:
+            echo.white('up to date:', info)
+        else:
+            install_hook(info, repo)
+
+from pkg_resources import iter_entry_points
+import sys
+
+def find_entry_scripts(hook_name):
+    group = 'flowtool_githooks.' + hook_name.replace('-', '_')
+    scripts = set(e.name for e in iter_entry_points(group))
+
+    bindir = os.path.dirname(str(sys.executable))
+    binscripts = scripts.intersection(os.listdir(bindir))
+    entrypoint_scripts = sorted(os.sep.join([bindir, s]) for s in binscripts)
+    debug.bold('scripts for %r:' % hook_name, entrypoint_scripts)
+
+    return entrypoint_scripts
 
 
+@click.command()
+# @click.argument('filename', type=click.Path())
+def test(filename=None):
+    find_entry_scripts('pre-commit')
