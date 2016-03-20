@@ -104,12 +104,12 @@ def gather_hooks(repo):
     '-m', '--maintain', is_flag=True, help='Toggle hooks on and off.'
 )
 @click.option(
-    '-t', '--tune', is_flag=True, help='Fine tune installed hooks.'
+    '-t', '--toggle', is_flag=True, help='Fine tune installed hooks.'
 )
 @click.option(
-    '-a', '--add', is_flag=True, help='Add scripts to hooks.'
+    '-a', '--add', is_flag=True, help='Add/remove scripts to/from hooks.'
 )
-def hooks(install=None, maintain=None, tune=None, add=None):
+def hooks(install=None, maintain=None, toggle=None, add=None):
     """ maintain your local git hooks. """
 
     repo = git.Repo(search_parent_directories=True)
@@ -145,14 +145,14 @@ def hooks(install=None, maintain=None, tune=None, add=None):
     if maintain:
         click.echo()
         maintain_hooks(file_hooks, repo)
-        if tune:
+        if toggle:
             file_hooks = gather_hooks(repo)
 
     if add:
         add_scripts(file_hooks, repo)
 
-    if tune:
-        tune_hooks(file_hooks, repo)
+    if toggle:
+        toggle_hooks(file_hooks, repo)
 
 
 
@@ -238,7 +238,7 @@ def maintain_hook(info, repo):
             ):
             activate_hook(info)
 
-def tune_hooks(file_hooks, repo):
+def toggle_hooks(file_hooks, repo):
     """ Toggle scripts on and off. """
 
     index = None
