@@ -11,7 +11,7 @@ import os
 
 setup_args = dict(
     name='flowtool-python',
-    version='0.7.6',
+    version='0.7.8',
     description='Shortcuts for python devs.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -34,6 +34,8 @@ setup_args.update(
         'flowtool-base',
         'flowtool-githooks',
         'gitpython',
+        'pylint',
+        'pytest',
     ],
 )
 
@@ -46,13 +48,16 @@ setup_args.update(
             'pythonic-clean = flowtool_python.clean:clean',
         ],
         'console_scripts': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_minimal',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_minimal',
+            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest:pytest_hook',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest:pytest_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest:pytest_setup',
         ],
     },
 )

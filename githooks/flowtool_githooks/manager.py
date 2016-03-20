@@ -126,7 +126,7 @@ def status(repo, file_hooks):
         click.echo(hook_line.format(info=info, number=number+1))
 
         plugin_hooks = (os.path.basename(f) for f in find_entry_scripts(info.name))
-        echo.white('Available:', colors.cyan(', '.join(plugin_hooks)))
+        echo.white('Available:', colors.cyan(', '.join(sorted(plugin_hooks))))
 
         if info.runner_dir:
             scripts = sorted(os.listdir(info.runner_dir))
