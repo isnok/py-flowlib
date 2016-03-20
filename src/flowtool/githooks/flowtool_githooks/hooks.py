@@ -1,19 +1,19 @@
+import sys
 import click
-from flowtool.style import echo
+from flowtool.style import echo, colors
 
-pre_commit_hook = click.command
-
-@pre_commit_hook()
 def demo(*args, **kwd):
-    echo.bold('Hey, this works!', args, kwd)
-
+    echo.bold('demo-hook: Hey, this works!', args, kwd)
 
 def demo_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """
-    echo.bold('setup-command: %r' % cmd)
+    echo.bold('demo-hook-setup: %r' % cmd)
 
+def demo_fail(*args, **kwd):
+    echo.red('demo-fail: OaaH, this will crash!', args, kwd)
+    raise 42
 
-@click.command()
-# @click.argument('filename', type=click.Path())
-def test(filename=None):
-    echo.magenta('Lalala')
+def demo_fail_setup(cmd=None):
+    """ Micro setup.py imitation to set up configs or so. """
+    echo.bold('demo-fail-setup: setup %r' % cmd)
+

@@ -285,11 +285,14 @@ import sys
 
 def find_entry_scripts(hook_name):
     group = 'flowtool_githooks.' + hook_name.replace('-', '_')
-    scripts = set(e.name for e in iter_entry_points(group))
+    scripts = list(iter_entry_points(group))
 
     bindir = os.path.dirname(str(sys.executable))
-    binscripts = scripts.intersection(os.listdir(bindir))
-    entrypoint_scripts = sorted(os.sep.join([bindir, s]) for s in binscripts)
+    binscripts = sorted(set(e.name for e in scripts).intersection(os.listdir(bindir)))
+    entrypoint_scripts = {
+        os.sep.join([bindir, s]): [e for e in scripts if e.name == s].pop()
+        for s in binscripts
+    }
     debug.bold('scripts for %r:' % hook_name, entrypoint_scripts)
 
     return entrypoint_scripts
@@ -311,7 +314,7 @@ def add_scripts(file_hooks, repo):
         echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
         return
 
-    available = sorted(find_entry_scripts(info.name))
+    available = find_entry_scripts(info.name)
     while True:
         added = sorted(os.listdir(info.runner_dir))
         debug.cyan(info.name, added, available)
@@ -322,7 +325,7 @@ def add_scripts(file_hooks, repo):
             choices.append(('remove_script', script))
             echo.cyan('%4d - %s' % (len(choices), script))
 
-        addable = [s for s in available if not os.path.basename(s) in added]
+        addable = sorted(s for s in available if not os.path.basename(s) in added)
         if not addable:
             echo.white('no more scripts to add automatically.')
         else:
@@ -358,6 +361,8 @@ def add_scripts(file_hooks, repo):
             ])
             shutil.copyfile(arg, dest)
             echo.green('Added %s.' % arg)
+            setup = [e.load() for e in available.values() if os.path.basename(arg) == e.name].pop()
+            setup('install')
             if click.confirm('Also activate?', default=True):
                 make_executable(dest)
                 echo.cyan('Activated %s.' % arg)
