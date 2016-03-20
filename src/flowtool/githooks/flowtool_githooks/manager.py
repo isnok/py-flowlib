@@ -124,23 +124,37 @@ def hooks(install=None, maintain=None, toggle=None, add=None):
     for number, info in enumerate(file_hooks):
 
         if info.is_runner:
-            effect = echo.bold
+            effect = colors.bold
         else:
-            effect = click.echo
+            effect = colors.white
 
         if info.active:
             color = colors.green
         else:
             color = colors.white
 
-        hook_line = '\n== [{number}] = {info.name} = enabled:{info.active:d} = uptodate:{info.is_runner:d} == {info.file}'
-        effect(color(hook_line.format(info=info, number=number)))
+        hook_line = ' '.join([
+            '\n==',
+            colors.bold(colors.yellow('[{number}]')),
+            '=',
+            color(effect('{info.name}')),
+            '=',
+            color('enabled:{info.active:d}'),
+            '=',
+            effect('uptodate:{info.is_runner:d}'),
+            '==',
+            colors.magenta('{info.file}'),
+        ])
+        click.echo(hook_line.format(info=info, number=number))
 
         plugin_hooks = (os.path.basename(f) for f in find_entry_scripts(info.name))
-        echo.white('Plugin hooks:', colors.green(', '.join(plugin_hooks)))
+        echo.white('Available:', colors.cyan(', '.join(plugin_hooks)))
 
         if info.runner_dir:
-            for script in sorted(os.listdir(info.runner_dir)):
+            scripts = sorted(os.listdir(info.runner_dir))
+            if scripts:
+                echo.white('Installed:')
+            for script in scripts:
                 fname = os.sep.join([info.runner_dir, script])
                 color = echo.green if is_executable(fname) else echo.white
                 color('  - %s' % script, color=color)

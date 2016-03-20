@@ -52,13 +52,13 @@ setup_args.update(
             'py-clean = flowtool_python.clean:clean',
         ],
         'console_scripts': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_minimal',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
         ],
     },
 )

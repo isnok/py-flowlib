@@ -11,7 +11,7 @@ def demo_setup(cmd=None):
 
 def demo_fail(*args, **kwd):
     echo.red('demo-fail: OaaH, this will crash!', args, kwd)
-    raise 42
+    raise RuntimeError(42)
 
 def demo_fail_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """

@@ -1,2 +1,5 @@
 click
 flowtool-core
+flowtool-githooks
+pylint
+gitpython
