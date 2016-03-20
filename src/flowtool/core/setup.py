@@ -15,7 +15,7 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-core',
-    version='0.7.1',
+    version='0.7.2',
     description='Manage your workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',

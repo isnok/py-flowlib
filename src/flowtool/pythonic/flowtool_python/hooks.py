@@ -4,10 +4,10 @@ import git
 import click
 import fnmatch
 from flowtool.style import echo, colors
+from flowtool.execute import run_command
 from flowtool.style import debug
 from pylint.lint import Run
 
-from execute import run_command
 
 def minimal_config_name(repo):
     return os.sep.join([
@@ -107,6 +107,7 @@ def discover_lint_files(repo):
     return result
 
 from pylint.epylint import py_run
+MAX_FAILS = 5
 
 def pylint_minimal(*args, **kwd):
     """ Run pylint with a minimal config. """
@@ -120,12 +121,14 @@ def pylint_minimal(*args, **kwd):
         'files using',
         os.path.basename(cfg),
     )
+    fails = 0
     returncode = 0
     with click.progressbar(check_these) as bar:
         for filename in bar:
             pylint_args = ('--errors-only', '--rcfile=%s' % cfg, filename)
             result = capture_pylint(*pylint_args)
             if result.stdout or result.stderr:
+                fails += 1
                 returncode |= result.returncode
                 msg_fname = filename.replace(os.getcwd(), '')
                 echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
@@ -133,6 +136,8 @@ def pylint_minimal(*args, **kwd):
                     echo.red(result.stderr)
                 if result.stdout:
                     echo.white(result.stdout)
+                if fails >= MAX_FAILS:
+                    sys.exit(returncode)
     sys.exit(returncode)
             # echo.cyan(filename.replace(repo_root, ''))
         # Run(['--rcfile=%s' % cfg] + check_these, exit=True)

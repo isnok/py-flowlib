@@ -15,7 +15,7 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-gitflow',
-    version='0.7.1',
+    version='0.7.2',
     description='Shortcuts for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -50,6 +50,8 @@ setup_args.update(
     entry_points={
         'flowtool_commands': [
             'co = flowtool_gitflow.basic:checkout_branch',
+            'feature = flowtool_gitflow.feature:main',
+            'ci = flowtool_gitflow.feature:commit',
         ],
     },
 )

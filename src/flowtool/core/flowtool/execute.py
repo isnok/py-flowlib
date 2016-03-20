@@ -1,6 +1,8 @@
-#!/usr/bin/env python3
+''' Functions for command execution.
 
-''' Commonly used functions for python3 command execution. '''
+    Developed for python3, but it looks (?)
+    as if they work just as good with python2.
+'''
 
 print_all_executions = False
 
@@ -61,7 +63,8 @@ def main():
     print_all_executions = True
     for cmd in ('ls -l', 'ping -c 2 -w 1 8.8.8.8', 'git explode'):
         result = run_command(cmd, debug=True)
-        # print(pformat_completed(result))
+        if False:
+            print(pformat_completed(result))
 
 if __name__ == '__main__':
     main()
