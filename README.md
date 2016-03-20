@@ -47,3 +47,6 @@ to your `.bashrc` or hook it up in `/etc/` somewhere.
 Most likely `flowtool` will have a convenience installer
 package that we all can use one day.
 
+## Todo
+
+* Add more features!

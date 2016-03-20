@@ -9,7 +9,7 @@ from flowtool_githooks.manager import hook_specs
 @click.command()
 @click.argument('name', nargs=-1)
 @click.option('-y', '--yes', is_flag=True, help='Answer yes to all questions.')
-def run_hook(yes=None, name=()):
+def wipe_hooks(yes=None, name=()):
     """ Remove git hooks and scripts. """
     name = ''.join(name)
     chosen = [h for h in hook_specs if name.lower() in h]
@@ -27,24 +27,25 @@ def run_hook(yes=None, name=()):
         hook_dir = hook_file + '.d'
 
         echo.white(
-            colors.underline('Removing'),
+            colors.yellow('Removing'),
             colors.bold(hook_name),
             colors.white('->'),
             colors.yellow(hook_file),
             spec.args
         )
 
-        if yes or click.confirm('Delete this hook?'):
-            os.unlink(hook_file)
-            echo.cyan('Removed', hook_name, 'hook script.')
-        else:
-            echo.cyan(hook_name, 'was preserved.')
+        if os.path.isfile(hook_file):
+            if yes or click.confirm('Delete this hook?'):
+                os.unlink(hook_file)
+                echo.cyan('Removed', hook_name, 'hook script.')
+            else:
+                echo.cyan(hook_name, 'was preserved.')
 
 
         if os.path.isdir(hook_dir):
             echo.yellow('->', os.listdir(hook_dir))
             if yes or click.confirm('Delete hook folder recursively?'):
-                os.unlink(hook_file)
+                shutil.rmtree(hook_dir)
                 echo.cyan('Removed', hook_name, 'hook dir.')
             else:
                 echo.cyan(hook_name, 'scripts were preserved.')

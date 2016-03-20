@@ -47,6 +47,7 @@ setup_args.update(
             'githooks-config = flowtool_githooks.manager:config_hooks',
             'githooks-status = flowtool_githooks.manager:show_status',
             'run-githook = flowtool_githooks.runner:run_hook',
+            'wipe-githooks = flowtool_githooks.uninstall:wipe_hooks',
         ],
     },
 )
