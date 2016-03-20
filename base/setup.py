@@ -4,18 +4,21 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from functools import partial
+
 import os
 
-def read_file(name):
-    with open(name) as f:
-        return f.read()
+abspath = partial(os.path.join, os.path.dirname(__file__))
 
+def read_file(name):
+    with open(abspath(name)) as f:
+        return f.read()
 
 # General Info
 
 setup_args = dict(
     name='flowtool-base',
-    version='0.7.5',
+    version='0.7.11',
     description='Start managing your workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -27,15 +30,17 @@ setup_args = dict(
 
 setup_args.update(
     packages=find_packages(),
-    zip_safe=False,
+    data_files=[
+        ('', ['README']),
+    ],
+    include_package_data=False,
 )
 
 
 # Requirements
 
-requirements = read_file('requirements.txt').split(),
 setup_args.update(
-    install_requires=requirements,
+    install_requires=['click'],
 )
 
 
@@ -59,6 +64,7 @@ setup_args.update(
 setup_args.update(
     keywords=['git', 'flow', 'commandline', 'development'],
     platforms=['Debian/GNU Linux'],
+    long_description=read_file('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         #"License :: OSI Approved :: BSD License",

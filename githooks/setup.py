@@ -6,16 +6,12 @@ from setuptools import find_packages
 
 import os
 
-def read_file(name):
-    with open(name) as f:
-        return f.read()
-
 
 # General Info
 
 setup_args = dict(
     name='flowtool-githooks',
-    version='0.7.4',
+    version='0.7.8',
     description='Automating tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -25,13 +21,8 @@ setup_args = dict(
 
 # Data Files
 
-README = 'README.md'
 setup_args.update(
     packages=find_packages(),
-    long_description=read_file(README),
-    data_files=[
-        ('', [README]),
-    ],
     package_data={
         'flowtool_githooks': [
             'scripts/generic-hook-runner.sh',
@@ -43,9 +34,8 @@ setup_args.update(
 
 # Requirements
 
-requirements = read_file('requirements.txt').split(),
 setup_args.update(
-    install_requires=requirements,
+    install_requires=['click', 'flowtool-base', 'gitpython'],
 )
 
 
@@ -66,7 +56,6 @@ setup_args.update(
 
 setup_args.update(
     keywords=['git','flow','local','commandline'],
-    long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
         "Development Status :: 3 - Alpha",
