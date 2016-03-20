@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-python',
+    name='flowtool-githooks-demo',
     version='0.7.2',
-    description='Shortcuts for python devs.',
+    description='Trivial demo tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -48,17 +48,17 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
-        'flowtool_commands': [
-            'py-clean = flowtool_python.clean:clean',
-        ],
         'console_scripts': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint',
+            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo',
+            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint_setup',
+            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
+            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_python.pylint = flowtool_python.hooks:pylint_setup',
+            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
+            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
         ],
     },
 )

@@ -136,9 +136,6 @@ def hooks(install=None, maintain=None, toggle=None, add=None):
         hook_line = '\n== [{number}] = {info.name} = enabled:{info.active:d} = uptodate:{info.is_runner:d} == {info.file}'
         effect(color(hook_line.format(info=info, number=number)))
 
-        plugin_hooks = (os.path.basename(f) for f in find_entry_scripts(info.name))
-        echo.white('Plugin hooks:', colors.green(', '.join(plugin_hooks)))
-
         if info.runner_dir:
             for script in sorted(os.listdir(info.runner_dir)):
                 fname = os.sep.join([info.runner_dir, script])
@@ -318,7 +315,6 @@ def add_scripts(file_hooks, repo):
         return
 
     available = find_entry_scripts(info.name)
-
     while True:
         added = sorted(os.listdir(info.runner_dir))
         debug.cyan(info.name, added, available)

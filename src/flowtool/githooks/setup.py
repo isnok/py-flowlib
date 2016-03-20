@@ -57,18 +57,6 @@ setup_args.update(
             'hooks = flowtool_githooks.manager:hooks',
             'test = flowtool_githooks.manager:test',
         ],
-        'console_scripts': [
-            '_flowtool_githooks.demo = flowtool_githooks.hooks:demo',
-            '_flowtool_githooks.demo_fail = flowtool_githooks.hooks:demo_fail',
-        ],
-        'flowtool_githooks.pre_commit': [
-            '_flowtool_githooks.demo = flowtool_githooks.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks.hooks:demo_fail_setup',
-        ],
-        'flowtool_githooks.commit_msg': [
-            '_flowtool_githooks.demo = flowtool_githooks.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks.hooks:demo_fail_setup',
-        ],
     },
 )
 
