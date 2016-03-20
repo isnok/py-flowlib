@@ -10,10 +10,10 @@ import pytest
 
 def run_pytest(*args):
     """ Run pytest and return its exit status. """
-    errno = pytest.main((
+    errno = pytest.main([
         '--doctest-modules',
         '--ignore=setup.py',
-        ) + args
+        ] + list(args)
     )
     return errno
 
