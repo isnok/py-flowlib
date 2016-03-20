@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-core',
-    version='0.7.2',
-    description='Manage your workflow!',
+    name='flowtool-base',
+    version='0.7.4',
+    description='Start managing your workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -52,6 +52,9 @@ setup_args.update(
             'flowtool = flowtool.main:flowtool_main_group',
             'ft = flowtool.main:flowtool_main_group',
         ],
+        'flowtool_commands': [
+            'info = flowtool.info:show_info',
+        ],
     },
 )
 
@@ -59,7 +62,7 @@ setup_args.update(
 # Techincal Details
 
 setup_args.update(
-    keywords=['git','flow','shell','local','remote','commandline'],
+    keywords=['git', 'flow', 'commandline', 'development'],
     long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[

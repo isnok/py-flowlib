@@ -5,7 +5,7 @@ from pkg_resources import load_entry_point
 
 import click
 
-import style
+from flowtool import style
 
 extension_handlers = {}
 
