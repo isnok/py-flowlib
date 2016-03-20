@@ -143,6 +143,15 @@ def status(repo, file_hooks):
                     color = echo.white
                 color('  - %s' % script, color=color)
 
+@click.command()
+@click.argument('directory', type=click.Path(), default=os.getcwd())
+def show_status(directory):
+    """ Show git hook status summary. """
+    repo = git.Repo(search_parent_directories=True)
+    file_hooks = gather_hooks(repo)
+    status(repo, file_hooks)
+
+
 def choose_hook(file_hooks):
     """ Choose one hook from the status list. """
     answer = None
@@ -154,15 +163,13 @@ def choose_hook(file_hooks):
         )
     return answer - 1
 
+
 @click.command()
 @click.option(
     '-i', '--install', is_flag=True, help='Install runner script in current repo.'
 )
-@click.option(
-    '-c', '--configure', is_flag=True, help='Interactively configure a hook.'
-)
-def hooks(install=None, configure=None):
-    """ View and manage your local git hooks. """
+def config_hooks(install=None):
+    """ Interactively configure a hook. """
 
     repo = git.Repo(search_parent_directories=True)
 
@@ -174,24 +181,22 @@ def hooks(install=None, configure=None):
 
     status(repo, file_hooks)
 
-    if configure:
+    hook_idx = choose_hook(file_hooks)
 
-        hook_idx = choose_hook(file_hooks)
+    echo.bold(colors.blue('=== Hook On / Off ==='))
+    toggle_hook(file_hooks[hook_idx], repo)
 
-        echo.bold(colors.blue('=== Hook On / Off ==='))
-        toggle_hook(file_hooks[hook_idx], repo)
+    file_hooks = gather_hooks(repo)
+    # status(repo, file_hooks)
 
-        file_hooks = gather_hooks(repo)
-        # status(repo, file_hooks)
+    echo.bold(colors.blue('=== Hook Components ==='))
+    select_scripts(file_hooks[hook_idx])
 
-        echo.bold(colors.blue('=== Hook Components ==='))
-        select_scripts(file_hooks[hook_idx])
+    file_hooks = gather_hooks(repo)
+    # status(repo, file_hooks)
 
-        file_hooks = gather_hooks(repo)
-        # status(repo, file_hooks)
-
-        echo.bold(colors.blue('=== Hook Components On / Off ==='))
-        toggle_scripts(file_hooks[hook_idx], repo)
+    echo.bold(colors.blue('=== Hook Components On / Off ==='))
+    toggle_scripts(file_hooks[hook_idx], repo)
 
 
 def install_hooks(repo):
@@ -388,8 +393,3 @@ def select_scripts(info):
             return
         else:
             echo.yellow('Invalid action.')
-
-@click.command()
-# @click.argument('filename', type=click.Path())
-def test(filename=None):
-    echo.bold(find_entry_scripts('pre-commit'))

@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-gitflow',
-    version='0.7.2',
-    description='Shortcuts for git users.',
+    name='flowtool-base',
+    version='0.7.4',
+    description='Start managing your workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -48,10 +48,12 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
+        'console_scripts': [
+            'flowtool = flowtool.main:flowtool_main_group',
+            'ft = flowtool.main:flowtool_main_group',
+        ],
         'flowtool_commands': [
-            'co = flowtool_gitflow.basic:checkout_branch',
-            'feature = flowtool_gitflow.feature:main',
-            'ci = flowtool_gitflow.feature:commit',
+            'runtime-info = flowtool.info:show_info',
         ],
     },
 )
@@ -60,7 +62,7 @@ setup_args.update(
 # Techincal Details
 
 setup_args.update(
-    keywords=['git','flow','shell','local','remote','commandline'],
+    keywords=['git', 'flow', 'commandline', 'development'],
     long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
@@ -68,6 +70,7 @@ setup_args.update(
         #"License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
         "Topic :: System :: Software Distribution",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",

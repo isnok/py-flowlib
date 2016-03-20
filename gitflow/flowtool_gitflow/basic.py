@@ -8,7 +8,7 @@ from flowtool.style import echo, colors
 @click.command()
 @click.argument('pattern', default='')
 def checkout_branch(pattern):
-    """ Check out branches via substrings of their names. """
+    """ Check out branches via substrings. """
 
     repo = git.Repo(search_parent_directories=True)
     possible = [b for b in repo.branches if pattern in b.name]

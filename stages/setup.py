@@ -15,7 +15,7 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-stages',
-    version='0.7.1',
+    version='0.7.3',
     description='Manage different environments.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -58,7 +58,7 @@ setup_args.update(
 # Techincal Details
 
 setup_args.update(
-    keywords=['git','flow','shell','local','remote','commandline'],
+    keywords=['git','flow','local','remote','commandline'],
     long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
@@ -66,6 +66,7 @@ setup_args.update(
         #"License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
         "Topic :: System :: Software Distribution",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",

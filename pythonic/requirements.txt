@@ -1,5 +1,5 @@
 click
-flowtool-core
+flowtool-base
 flowtool-githooks
 pylint
 gitpython

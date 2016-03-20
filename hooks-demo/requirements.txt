@@ -1,4 +1,4 @@
 click
 gitpython
-flowtool-core
+flowtool-base
 flowtool-githooks

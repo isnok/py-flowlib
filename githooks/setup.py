@@ -15,7 +15,7 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-githooks',
-    version='0.7.2',
+    version='0.7.4',
     description='Automating tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -54,8 +54,8 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'hooks = flowtool_githooks.manager:hooks',
-            'test = flowtool_githooks.manager:test',
+            'githooks-config = flowtool_githooks.manager:config_hooks',
+            'githooks-status = flowtool_githooks.manager:show_status',
         ],
     },
 )
@@ -64,7 +64,7 @@ setup_args.update(
 # Techincal Details
 
 setup_args.update(
-    keywords=['git','flow','shell','local','remote','commandline'],
+    keywords=['git','flow','local','commandline'],
     long_description=read_file(README),
     platforms=['Debian/GNU Linux'],
     classifiers=[
@@ -72,6 +72,7 @@ setup_args.update(
         #"License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
         "Topic :: System :: Software Distribution",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",

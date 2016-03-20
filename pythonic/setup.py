@@ -14,9 +14,9 @@ def read_file(name):
 # General Info
 
 setup_args = dict(
-    name='flowtool-githooks-demo',
-    version='0.7.2',
-    description='Trivial demo tasks for git users.',
+    name='flowtool-python',
+    version='0.7.4',
+    description='Shortcuts for python devs.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
@@ -48,17 +48,17 @@ setup_args.update(
 
 setup_args.update(
     entry_points={
+        'flowtool_commands': [
+            'pythonic-clean = flowtool_python.clean:clean',
+        ],
         'console_scripts': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_minimal',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+            '_flowtool_python.pylint_minimal = flowtool_python.hooks:pylint_setup',
         ],
     },
 )
@@ -75,6 +75,7 @@ setup_args.update(
         #"License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
         "Topic :: System :: Software Distribution",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
