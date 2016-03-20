@@ -45,7 +45,8 @@ def commit(message=()):
         abort("Please give a commit message.")
 
     if not is_feature(current_branch.name):
-        abort("Your branch '{}' does not look like the kind of branch this script supports.".format(branch.name))
+        tmpl = "Your branch '{}' does not look like the kind of branch this script supports."
+        abort(tmpl.format(current_branch.name))
 
     # ticket = '-'.join(branch[8:].split('-')[:2])
     # commit_message = '{} - {}'.format(ticket, message)

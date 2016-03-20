@@ -113,6 +113,8 @@ def pylint_minimal(*args, **kwd):
     """ Run pylint with a minimal config. """
     repo = git.Repo(search_parent_directories=True)
     cfg = minimal_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
     check_these = discover_lint_files(repo)
     echo.bold(
         'pylint-minimal-hook:',
@@ -125,7 +127,12 @@ def pylint_minimal(*args, **kwd):
     returncode = 0
     with click.progressbar(check_these) as bar:
         for filename in bar:
-            pylint_args = ('--errors-only', '--rcfile=%s' % cfg, filename)
+            pylint_args = (
+                '--errors-only',
+                '--rcfile=%s' % cfg,
+                "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
+                filename,
+            )
             result = capture_pylint(*pylint_args)
             if result.stdout or result.stderr:
                 fails += 1
@@ -137,7 +144,7 @@ def pylint_minimal(*args, **kwd):
                 if result.stdout:
                     echo.white(result.stdout)
                 if fails >= MAX_FAILS:
-                    sys.exit(returncode)
+                    sys.exit(returncode or MAX_FAILS)
     sys.exit(returncode)
             # echo.cyan(filename.replace(repo_root, ''))
         # Run(['--rcfile=%s' % cfg] + check_these, exit=True)
