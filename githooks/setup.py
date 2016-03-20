@@ -56,6 +56,7 @@ setup_args.update(
         'flowtool_commands': [
             'githooks-config = flowtool_githooks.manager:config_hooks',
             'githooks-status = flowtool_githooks.manager:show_status',
+            'run-githook = flowtool_githooks.runner:run_hook',
         ],
     },
 )
