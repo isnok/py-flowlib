@@ -165,22 +165,12 @@ def choose_hook(file_hooks):
 
 
 @click.command()
-@click.option(
-    '-i', '--install', is_flag=True, help='Install runner script in current repo.'
-)
-def config_hooks(install=None):
+def config_hooks():
     """ Interactively configure a hook. """
 
     repo = git.Repo(search_parent_directories=True)
-
     file_hooks = gather_hooks(repo)
-
-    if install:
-        install_hooks(repo)
-        file_hooks = gather_hooks(repo)
-
     status(repo, file_hooks)
-
     hook_idx = choose_hook(file_hooks)
 
     echo.bold(colors.blue('=== Hook On / Off ==='))
@@ -199,9 +189,11 @@ def config_hooks(install=None):
     toggle_scripts(file_hooks[hook_idx], repo)
 
 
-def install_hooks(repo):
-    """ Install the hook-runner-script. """
+@click.command()
+def install_hooks():
+    """ Install the hook runner script. """
 
+    repo = git.Repo(search_parent_directories=True)
     echo.white('git repository:', repo.git_dir)
 
     FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])

@@ -11,7 +11,7 @@ import os
 
 setup_args = dict(
     name='flowtool-githooks',
-    version='0.7.8',
+    version='0.7.9',
     description='Automating tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -35,7 +35,12 @@ setup_args.update(
 # Requirements
 
 setup_args.update(
-    install_requires=['click', 'flowtool-base', 'gitpython'],
+    install_requires=[
+        'click',
+        'flowtool-base',
+        'gitpython',
+        'pylint',
+    ],
 )
 
 
@@ -44,10 +49,11 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
+            'githooks-install = flowtool_githooks.manager:install_hooks',
             'githooks-config = flowtool_githooks.manager:config_hooks',
             'githooks-status = flowtool_githooks.manager:show_status',
+            'githooks-wipe = flowtool_githooks.uninstall:wipe_hooks',
             'run-githook = flowtool_githooks.runner:run_hook',
-            'wipe-githooks = flowtool_githooks.uninstall:wipe_hooks',
         ],
     },
 )
