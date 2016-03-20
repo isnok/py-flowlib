@@ -96,29 +96,7 @@ def gather_hooks(repo):
     file_hooks = gather_file_hooks(repo)
     return file_hooks
 
-@click.command()
-@click.option(
-    '-i', '--install', is_flag=True, help='Install runner script in current repo.'
-)
-@click.option(
-    '-m', '--maintain', is_flag=True, help='Toggle hooks on and off.'
-)
-@click.option(
-    '-t', '--toggle', is_flag=True, help='Fine tune installed hooks.'
-)
-@click.option(
-    '-a', '--add', is_flag=True, help='Add/remove scripts to/from hooks.'
-)
-def hooks(install=None, maintain=None, toggle=None, add=None):
-    """ maintain your local git hooks. """
-
-    repo = git.Repo(search_parent_directories=True)
-
-    file_hooks = gather_hooks(repo)
-
-    if install:
-        install_hooks(file_hooks, repo)
-        file_hooks = gather_hooks(repo)
+def status(repo, file_hooks):
 
     echo.bold('git hooks status (%s):' % repo.git_dir)
     for number, info in enumerate(file_hooks):
@@ -145,7 +123,7 @@ def hooks(install=None, maintain=None, toggle=None, add=None):
             '==',
             colors.magenta('{info.file}'),
         ])
-        click.echo(hook_line.format(info=info, number=number))
+        click.echo(hook_line.format(info=info, number=number+1))
 
         plugin_hooks = (os.path.basename(f) for f in find_entry_scripts(info.name))
         echo.white('Available:', colors.cyan(', '.join(plugin_hooks)))
@@ -153,33 +131,85 @@ def hooks(install=None, maintain=None, toggle=None, add=None):
         if info.runner_dir:
             scripts = sorted(os.listdir(info.runner_dir))
             if scripts:
-                echo.white('Installed:')
+                if info.active:
+                    echo.white('Installed:')
+                else:
+                    echo.white('Installed, but disabled:')
             for script in scripts:
                 fname = os.sep.join([info.runner_dir, script])
-                color = echo.green if is_executable(fname) else echo.white
+                if info.active and is_executable(fname):
+                    color = echo.green
+                else:
+                    color = echo.white
                 color('  - %s' % script, color=color)
 
-    if maintain:
-        click.echo()
-        maintain_hooks(file_hooks, repo)
-        if toggle:
-            file_hooks = gather_hooks(repo)
+def choose_hook(file_hooks):
+    """ Choose one hook from the status list. """
+    answer = None
+    while not answer in range(1, 1+len(file_hooks)):
+        if answer is not None:
+            echo.yellow('Out of range.')
+        answer = click.prompt(
+            colors.bold('Configure which git-hook? [enter number]'), type=int
+        )
+    return answer - 1
 
-    if add:
-        add_scripts(file_hooks, repo)
+@click.command()
+@click.option(
+    '-i', '--install', is_flag=True, help='Install runner script in current repo.'
+)
+@click.option(
+    '-c', '--configure', is_flag=True, help='Interactively configure a hook.'
+)
+def hooks(install=None, configure=None):
+    """ View and manage your local git hooks. """
 
-    if toggle:
-        toggle_hooks(file_hooks, repo)
+    repo = git.Repo(search_parent_directories=True)
+
+    file_hooks = gather_hooks(repo)
+
+    if install:
+        install_hooks(repo)
+        file_hooks = gather_hooks(repo)
+
+    status(repo, file_hooks)
+
+    if configure:
+
+        hook_idx = choose_hook(file_hooks)
+
+        echo.bold(colors.blue('=== Hook On / Off ==='))
+        toggle_hook(file_hooks[hook_idx], repo)
+
+        file_hooks = gather_hooks(repo)
+        # status(repo, file_hooks)
+
+        echo.bold(colors.blue('=== Hook Components ==='))
+        select_scripts(file_hooks[hook_idx])
+
+        file_hooks = gather_hooks(repo)
+        # status(repo, file_hooks)
+
+        echo.bold(colors.blue('=== Hook Components On / Off ==='))
+        toggle_scripts(file_hooks[hook_idx], repo)
 
 
-
-
-def install_hooks(file_hooks, repo):
+def install_hooks(repo):
     """ Install the hook-runner-script. """
 
     echo.white('git repository:', repo.git_dir)
 
-    for info in file_hooks:
+    FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
+    hook_dir = os.path.join(repo.git_dir, 'hooks')
+    for name in hook_specs:
+        filename = os.sep.join([hook_dir, name])
+        info = FileHook(
+            name=name,
+            active=False,
+            file=filename,
+            is_runner=False,
+            runner_dir=filename+'.d',
+        )
         if info.is_runner:
             echo.white('up to date:', info)
         else:
@@ -212,18 +242,6 @@ def install_hook(info, repo):
 
 
 
-def maintain_hooks(file_hooks, repo):
-    """ Toggle hooks on and off. """
-
-    index = None
-    while not index in range(len(file_hooks)):
-        if index is not None:
-            echo.yellow('Out of range.')
-        index = click.prompt(
-            colors.bold('Maintain which git-hook? [enter number]'), type=int
-        )
-    maintain_hook(file_hooks[index], repo)
-
 def activate_hook(info):
     """ Activate hook """
     make_executable(info.file)
@@ -234,7 +252,7 @@ def deactivate_hook(info):
     make_not_executable(info.file)
     echo.yellow('Deactivated %s.' % info.name)
 
-def maintain_hook(info, repo):
+def toggle_hook(info, repo):
     """ Toggle 'whole' git hooks. """
 
     if not info.is_runner and click.confirm(
@@ -245,7 +263,7 @@ def maintain_hook(info, repo):
     if info.active:
         if click.confirm(
                 colors.white('%s is active. Deactivate?' % info.name),
-                default=True
+                default=False,
             ):
             deactivate_hook(info)
     else:
@@ -255,18 +273,9 @@ def maintain_hook(info, repo):
             ):
             activate_hook(info)
 
-def toggle_hooks(file_hooks, repo):
+def toggle_scripts(info, repo):
     """ Toggle scripts on and off. """
 
-    index = None
-    while not index in range(len(file_hooks)):
-        if index is not None:
-            echo.yellow('Out of range.')
-        index = click.prompt(
-            colors.bold('Tune which git-hook? [enter number]'), type=int
-        )
-
-    info = file_hooks[index]
     if not info.runner_dir:
         echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
         return
@@ -282,7 +291,7 @@ def toggle_hooks(file_hooks, repo):
             color = echo.cyan if active else echo.yellow
             color('%4d - toggle %s (%s)' % (index, script, status))
 
-        echo.white('%4d - exit' % (index+1))
+        echo.white('%4d - done' % (len(scripts)))
         answer = click.prompt(
             colors.white('Choose action'),
             type=int,
@@ -292,7 +301,7 @@ def toggle_hooks(file_hooks, repo):
             toggle_executable(script)
         elif answer == len(scripts):
             echo.magenta('Bye.')
-            sys.exit()
+            return
         else:
             echo.yellow('Invalid index.')
 
@@ -315,18 +324,9 @@ def find_entry_scripts(hook_name):
     return entrypoint_scripts
 
 
-def add_scripts(file_hooks, repo):
+def select_scripts(info):
     """ Add scripts to git hooks. """
 
-    index = None
-    while not index in range(len(file_hooks)):
-        if index is not None:
-            echo.yellow('Out of range.')
-        index = click.prompt(
-            colors.bold('Add to which git-hook? [enter number]'), type=int
-        )
-
-    info = file_hooks[index]
     if not info.runner_dir:
         echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
         return
@@ -349,13 +349,12 @@ def add_scripts(file_hooks, repo):
         else:
             echo.white('%d of %d available scripts can be added:' % (len(addable), len(available)))
             for script in addable:
-                index += 1
                 choices.append(('add_script', script))
                 echo.yellow('%4d + %s' % (len(choices), os.path.basename(script)))
 
         echo.white()
-        choices.append(('quit', colors.blue('Bye.')))
-        echo.white('%4d - exit' % (len(choices)))
+        choices.append(('quit', colors.blue('Done.')))
+        echo.white('%4d - done' % (len(choices)))
         answer = click.prompt(
             colors.white('Choose action'),
             type=int,
@@ -386,7 +385,7 @@ def add_scripts(file_hooks, repo):
                 echo.cyan('Activated %s.' % arg)
         elif action == 'quit':
             click.echo(arg)
-            sys.exit()
+            return
         else:
             echo.yellow('Invalid action.')
 
