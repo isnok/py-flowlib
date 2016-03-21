@@ -6,6 +6,12 @@ from setuptools import find_packages
 
 import versioneer
 
+versioneer.VCS = 'git'
+versioneer.versionfile_source = 'flowtool/_version.py'
+versioneer.versionfile_build = 'flowtool/_version.py'
+versioneer.tag_prefix = 'flowtool-base-' # tags are like flowtool-base-1.2.0
+versioneer.parentdir_prefix = 'flowtool-base-' # dirname like 'flowtool-base-1.2.0'
+
 from functools import partial
 
 import os
@@ -50,6 +56,9 @@ setup_args.update(
 
 setup_args.update(
     install_requires=['click'],
+    dependency_links=[
+        'https://github.com/mcbridejc/python-versioneer',
+    ], # ^ not really, i know. but i wanted a reference
 )
 
 
