@@ -4,6 +4,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
+import versioneer
+
 from functools import partial
 
 import os
@@ -18,11 +20,18 @@ def read_file(name):
 
 setup_args = dict(
     name='flowtool-base',
-    version='0.7.11',
     description='Start managing your workflow!',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
+)
+
+
+# versioneer
+
+setup_args.update(
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
 )
 
 
