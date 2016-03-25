@@ -1,6 +1,6 @@
-import git
 import click
 from flowtool.style import echo, colors
+from flowtool_git.common import local_repo
 
 # from flowtool.style import debug
 
@@ -10,7 +10,7 @@ from flowtool.style import echo, colors
 def checkout_branch(pattern):
     """ Check out branches via substrings. """
 
-    repo = git.Repo(search_parent_directories=True)
+    repo = local_repo()
     possible = [b for b in repo.branches if pattern in b.name]
 
     def checkout(branch):

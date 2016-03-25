@@ -1,3 +1,2 @@
 click
-flowtool-base
-gitpython
+flowtool-git

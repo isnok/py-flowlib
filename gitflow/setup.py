@@ -10,7 +10,7 @@ import os
 
 setup_args = dict(
     name='flowtool-gitflow',
-    version='0.7.7',
+    version='0.7.8',
     description='Shortcuts for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -31,8 +31,7 @@ setup_args.update(
 setup_args.update(
     install_requires=[
         'click',
-        'flowtool-base',
-        'gitpython',
+        'flowtool-git',
     ],
 )
 

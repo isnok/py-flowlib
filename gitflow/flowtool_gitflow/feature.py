@@ -4,8 +4,8 @@
 import re
 import sys
 import click
-import git
 from flowtool.style import colors, echo
+from flowtool_git.common import local_repo
 
 def is_feature(name):
     return name.startswith('feature/')
@@ -35,7 +35,7 @@ def main():
 @click.argument('message', nargs=-1)
 def commit(message=()):
     """ Commit on feature branches. """
-    repo = git.Repo(search_parent_directories=True)
+    repo = local_repo()
     current_branch = repo.active_branch
     echo.white('Message:', ' '.join(message))
     echo.white('Active branch:', current_branch.name)
@@ -72,5 +72,5 @@ def commit(message=()):
         # result = run_command(commit_command)
         # print(result.stdout)
 
-# if __name__ == '__main__':
-    # main()
+if __name__ == '__main__':
+    main()
