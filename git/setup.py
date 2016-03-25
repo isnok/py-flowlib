@@ -10,7 +10,7 @@ import os
 
 setup_args = dict(
     name='flowtool-git',
-    version='0.7.1',
+    version='0.7.2',
     description='flowtool library of git related commands.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
@@ -40,13 +40,13 @@ setup_args.update(
 # Entry Points
 
 setup_args.update(
-    entry_points={
-        'flowtool_commands': [
-            'co = flowtool_gitflow.basic:checkout_branch',
-            'feature = flowtool_gitflow.feature:main',
-            'ci = flowtool_gitflow.feature:commit',
-        ],
-    },
+    #entry_points={
+        #'flowtool_commands': [
+            #'co = flowtool_gitflow.basic:checkout_branch',
+            #'feature = flowtool_gitflow.feature:main',
+            #'ci = flowtool_gitflow.feature:commit',
+        #],
+    #},
 )
 
 
