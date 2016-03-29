@@ -20,7 +20,7 @@ exec(template)
 
 from pprint import pformat
 
-def render_template():
+def render_static_file():
     global VERSION_INFO
     return template.format(pformat(VERSION_INFO))
 
@@ -158,55 +158,67 @@ def get_tags_matching(prefix=''):
     return distances
 
 
-def get_nearest_tag(distances):
-    return sorted(distances, key=distances.__getitem__)[0]
+def gather_vcs_info(prefix):
+    distances = get_tags_matching(prefix)
+    latest_tag = sorted(distances, key=distances.__getitem__)[0]
 
-def gather_vcs_info(tag, prefix):
     vcs_info = dict(
-        latest_tag=tag,
-        latest_tag_version=tag[len(prefix):],
-        latest_tag_commit=get_commit(tag),
+        prefix=prefix,
+        prefix_tag_distances=distances,
+        latest_tag=latest_tag,
+        latest_tag_version=latest_tag[len(prefix):],
+        latest_tag_commit=get_commit(latest_tag),
         commit=get_commit('HEAD'),
         dirt=git_is_dirty(),
     )
     return vcs_info
 
-def assemble_vcs_version(info, distances):
-    vcs_version = info['latest_tag_version']
-    tag = info['latest_tag']
-    distance = distances[tag]
-    if distance:
-        commit = info['latest_tag_commit'][:8]
-        vcs_version += '+%s.git:%s' % (distance, commit)
-
-    if git_is_dirty():
-        vcs_version += '.dirty'
-
-    return vcs_version
-
 prefix = setup_cfg.get('versioning', 'tag_prefix')
-
-distances = get_tags_matching(prefix)
-latest_tag = get_nearest_tag(distances)
-
-vcs_info = gather_vcs_info(latest_tag, prefix)
+vcs_info = gather_vcs_info(prefix)
 
 VERSION_INFO.update(
-    vcs_version=assemble_vcs_version(vcs_info, distances),
     vcs_info=vcs_info,
     tag_version=parse_pep440(vcs_info['latest_tag_version']),
 )
 
-def assemble_version(version_info):
-    """ Assemble the version from the now available, relevant information. """
-    # kiss-scheme: just use the tag-version, but add -SNAPSHOT if git is dirty
+#print(pformat(VERSION_INFO))
+
+
+### customizable versioning schemes
+
+def vcs_versioning(version_info):
+    """ Just use the information from the vcs, and format it nicely. """
+
+    vcs_info = version_info['vcs_info']
+    tag = vcs_info['latest_tag']
+    distance = vcs_info['prefix_tag_distances'][tag]
+
+    vcs_version = vcs_info['latest_tag_version']
+
+    if distance:
+        commit = vcs_info['latest_tag_commit'][:8]
+        vcs_version += '+%s.git:%s' % (distance, commit)
+
+    if vcs_info['dirt']:
+        vcs_version += '.dirty'
+
+    return vcs_version
+
+def snapshot_versioning(version_info):
+    """ Just use the pep440-validated tag-version and add -SNAPSHOT if git is dirty """
+
     version = version_info['tag_version']['version']
     if version_info['vcs_info']['dirt']:
         version += '-SNAPSHOT'
+
     return version
+
+assemble_version = vcs_versioning
+#assemble_version = snapshot_versioning
+
+###
+
 
 VERSION_INFO['version'] = assemble_version(VERSION_INFO)
 
-print(VERSION_INFO)
-
-print(render_template())
+print(render_static_file())
