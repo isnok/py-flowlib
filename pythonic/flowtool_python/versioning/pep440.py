@@ -35,18 +35,21 @@ def parse_pep440(version_string):
     parsed = match.group
     result = dict(
         version=version_string,
-        release=parsed('release')
+    )
+    release = parsed('release')
+    result.update(
+        release=tuple(int(v) for v in release.split('.')),
     )
 
     if parsed('pre_stage'):
-        pre_ver = '0' if not parsed('pre_ver') else parsed('pre_ver')
-        result['pre_release'] = parsed('pre_stage') + pre_ver
+        pre_ver = 0 if not parsed('pre_ver') else int(parsed('pre_ver'))
+        result['pre_release'] = (parsed('pre_stage'), pre_ver)
 
     if parsed('post'):
-        result['post_release'] = '0' if not parsed('post') else parsed('post')
+        result['post_release'] = 0 if not parsed('post') else int(parsed('post'))
 
     if parsed('dev'):
-        result['dev_release'] = '0' if not parsed('dev') else parsed('dev')
+        result['dev_release'] = 0 if not parsed('dev') else int(parsed('dev'))
 
     if parsed('epoch'):
         result['epoch'] = parsed('epoch')
@@ -57,13 +60,13 @@ def parse_pep440(version_string):
 
 
 def normalize_pep440(**kwd):
-    normalized = kwd['release']
+    normalized = '.'.join(map(str, kwd['release']))
     if 'pre_release' in kwd:
-        normalized += kwd['pre_release']
+        normalized += '%s%s' % kwd['pre_release']
     if 'post_release' in kwd:
-        normalized += '.post' + kwd['post_release']
+        normalized += '.post' + str(kwd['post_release'])
     if 'dev_release' in kwd:
-        normalized += '.dev' + kwd['dev_release']
+        normalized += '.dev' + str(kwd['dev_release'])
     if 'epoch' in kwd:
         normalized = '{}!{}'.format(kwd['epoch'], normalized)
     return normalized

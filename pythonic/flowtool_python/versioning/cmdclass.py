@@ -1,39 +1,62 @@
-""" Sourced and inspired by https://github.com/warner/python-versioneer.
+""" Inspired by https://github.com/warner/python-versioneer. """
+import os
+from os.path import join, exists, isfile, isdir, dirname
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
 
-    This file is (or was) a template, into which the version will be
-    (or was) inserted.
-"""
+def find_parent_containing(name, path=None, check='exists'):
+    """ Return the nearest directory in the parent dirs of path,
+        that contains name, or None if no such parent dir exists.
+        The check can be customized/chosen from exists, isfile
+        and isdir.
+    """
 
-VERSION_FULL = dict(
-)
+    current = os.getcwd() if path is None else path
 
-def get_config_from_root(root):
+    if check == 'exists':
+        check = exists
+    elif check in ('isfile', 'file'):
+        check = isfile
+    elif check in ('isdir', 'dir'):
+        check = isdir
+
+    while not check(join(current, name)):
+        old = current
+        current = dirname(current)
+        if old == current:
+            break
+    else:
+        return current
+
+def read_config(*filenames):
     """Read the project setup.cfg file to determine Versioneer config."""
     # This might raise EnvironmentError (if setup.cfg is missing), or
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at
     # the top of versioneer.py for instructions on writing your setup.cfg .
-    setup_cfg = os.path.join(root, "setup.cfg")
-    parser = configparser.SafeConfigParser()
-    with open(setup_cfg, "r") as f:
-        parser.readfp(f)
-    VCS = parser.get("versioneer", "VCS")  # mandatory
+    parser = configparser.ConfigParser()
+    parser.read(filenames)
+    return parser
 
-    def get(parser, name):
-        if parser.has_option("versioneer", name):
-            return parser.get("versioneer", name)
-        return None
-    cfg = VersioneerConfig()
-    cfg.VCS = VCS
-    cfg.style = get(parser, "style") or ""
-    cfg.versionfile_source = get(parser, "versionfile_source")
-    cfg.versionfile_build = get(parser, "versionfile_build")
-    cfg.tag_prefix = get(parser, "tag_prefix")
-    if cfg.tag_prefix in ("''", '""'):
-        cfg.tag_prefix = ""
-    cfg.parentdir_prefix = get(parser, "parentdir_prefix")
-    cfg.verbose = get(parser, "verbose")
-    return cfg
+setup_cfg = join(
+    find_parent_containing('setup.cfg', check=isfile),
+    'setup.cfg',
+)
+parser = read_config(setup_cfg)
+configured_versionfile = parser.get('versioning', 'source_versionfile')
+
+print(configured_versionfile)
+
+def deploy_versionfile(to_file):
+    versionfile = join(dirname(__file__), 'version.py')
+    with open(versionfile, 'r') as f_in, open(to_file, 'w') as f_out:
+        f_out.write(f_in.read())
+
+deploy_versionfile(configured_versionfile)
+
+
 
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
