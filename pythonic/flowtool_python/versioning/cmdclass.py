@@ -138,7 +138,7 @@ class cmd_build_py(_build_py):
         #def run(self):
             #root = get_root()
             #cfg = get_config_from_root(root)
-            #versions = get_versions()
+            #versions = get_version()
             #target_versionfile = cfg.versionfile_source
             #print("UPDATING %s" % target_versionfile)
             #write_to_version_file(target_versionfile, versions)
@@ -165,24 +165,18 @@ else:
 
 class cmd_sdist(_sdist):
     def run(self):
-        versions = get_versions()
-        self._versioneer_generated_versions = versions
-        # unless we update this, the command will keep using the old
-        # version
-        self.distribution.metadata.version = versions["version"]
+        self.distribution.metadata.version = get_version()
         return _sdist.run(self)
 
     def make_release_tree(self, base_dir, files):
-        root = get_root()
-        cfg = get_config_from_root(root)
         _sdist.make_release_tree(self, base_dir, files)
         # now locate _version.py in the new base_dir directory
         # (remembering that it may be a hardlink) and replace it with an
         # updated value
-        target_versionfile = os.path.join(base_dir, cfg.versionfile_source)
-        print("UPDATING %s" % target_versionfile)
-        write_to_version_file(target_versionfile,
-                                self._versioneer_generated_versions)
+        target_versionfile = os.path.join(base_dir, build_versionfile())
+        print("== Rendering: %s" % target_versionfile)
+        with open(target_versionfile, 'w') as fh:
+            fh.write(version_in_git.render_static_file())
 
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
