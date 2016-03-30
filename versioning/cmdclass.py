@@ -83,11 +83,9 @@ def build_versionfile():
 #print(build_versionfile())
 
 def install_versionfile(to_file):
-    import flowtool_python.versioning
-    versionfile = join(
-        dirname(flowtool_python.versioning.__file__),
-        'version.py'
-    )
+    import flowtool_versioning.version
+    versionfile = flowtool_versioning.version.__file__
+
     with open(versionfile, 'r') as f_in, open(to_file, 'w') as f_out:
         f_out.write(f_in.read())
 
