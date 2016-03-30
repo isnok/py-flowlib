@@ -28,13 +28,29 @@ import os
 from os.path import join, dirname, isfile
 import configparser
 
+
+def find_source_directory():
+    """ Find a directory in the source tree. """
+
+    if not os.path.islink(__file__):
+        return dirname(__file__)
+
+    link_target = os.readlink(__file__)
+    if link_target.startswith(os.sep):
+        return link_target
+    else:
+        return os.path.join(
+            dirname(__file__),
+            link_target,
+        )
+
 def get_setup_cfg():
     """ Return the nearest directory in the parent dirs,
         that contains a setup.cfg, or None if no such
         parent dir exists.
     """
 
-    current = os.getcwd()
+    current = find_source_directory()
 
     while not isfile(join(current, 'setup.cfg')):
         old = current
@@ -221,4 +237,4 @@ assemble_version = vcs_versioning
 
 VERSION_INFO['version'] = assemble_version(VERSION_INFO)
 
-print(render_static_file())
+#print(render_static_file())
