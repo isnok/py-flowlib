@@ -98,7 +98,7 @@ def render_versionfile():
 import sys
 from distutils.core import Command
 
-class cmd_version(Command):
+class cmd_version_info(Command):
     description = "show versioning configuration and current project version"
     user_options = []
     boolean_options = []
@@ -113,6 +113,21 @@ class cmd_version(Command):
         from pprint import pformat
         print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
+
+class cmd_versioning_update(Command):
+    description = "show versioning configuration and current project version"
+    user_options = []
+    boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from pprint import pformat
+        print('== Updating file:\n%s' % source_versionfile)
         install_versionfile(source_versionfile)
 
 
@@ -183,7 +198,8 @@ class cmd_sdist(_sdist):
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
     cmds = dict(
-        version=cmd_version,
+        version_info=cmd_version_info,
+        versioning_update=cmd_versioning_update,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
     )
