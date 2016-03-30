@@ -4,13 +4,16 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from versioning import get_cmdclass, get_version
+
 import os
 
 # General Info
 
 setup_args = dict(
     name='flowtool-gitflow',
-    version='0.7.8',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='Shortcuts for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
