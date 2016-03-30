@@ -126,8 +126,8 @@ class cmd_build_py(_build_py):
         _build_py.run(self)
         # now locate _version.py in the new build/ directory and replace
         # it with an updated value
-        deploy_to= build_versionfile()
-        print("Deploying %s" % deploy_to)
+        deploy_to = build_versionfile()
+        print("== Deploying %s" % deploy_to)
         deploy_versionfile(deploy_to)
 
 
@@ -175,6 +175,7 @@ class cmd_sdist(_sdist):
         # updated value
         target_versionfile = os.path.join(base_dir, build_versionfile())
         print("== Rendering: %s" % target_versionfile)
+        os.unlink(target_versionfile)
         with open(target_versionfile, 'w') as fh:
             fh.write(version_in_git.render_static_file())
 
