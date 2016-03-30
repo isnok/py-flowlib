@@ -4,6 +4,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from versioning import get_cmdclass, get_version
+
 import os
 
 
@@ -11,7 +13,8 @@ import os
 
 setup_args = dict(
     name='flowtool-githooks',
-    version='0.7.12',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='Automating tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
