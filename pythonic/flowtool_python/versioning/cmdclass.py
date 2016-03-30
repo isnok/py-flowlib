@@ -1,6 +1,6 @@
 """ Inspired by https://github.com/warner/python-versioneer. """
 import os
-from os.path import join, exists, isfile, isdir, dirname
+from os.path import join, exists, isfile, isdir, dirname, basename
 try:
     import configparser
 except:
@@ -126,9 +126,9 @@ class cmd_build_py(_build_py):
         _build_py.run(self)
         # now locate _version.py in the new build/ directory and replace
         # it with an updated value
-        deploy_to = build_versionfile()
-        print("== Deploying %s" % deploy_to)
-        deploy_versionfile(deploy_to)
+        #deploy_to = build_versionfile()
+        #print("== Deploying %s" % deploy_to)
+        #deploy_versionfile(deploy_to)
 
 
 #if "cx_Freeze" in sys.modules:  # cx_freeze enabled?
@@ -170,6 +170,7 @@ class cmd_sdist(_sdist):
 
     def make_release_tree(self, base_dir, files):
         _sdist.make_release_tree(self, base_dir, files)
+        os.link(__file__, join(base_dir, basename(__file__)))
         # now locate _version.py in the new base_dir directory
         # (remembering that it may be a hardlink) and replace it with an
         # updated value
