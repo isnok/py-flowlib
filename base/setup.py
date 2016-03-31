@@ -4,13 +4,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-import versioneer
-
-versioneer.VCS = 'git'
-versioneer.versionfile_source = 'flowtool/_version.py'
-versioneer.versionfile_build = 'flowtool/_version.py'
-versioneer.tag_prefix = 'flowtool-base-' # tags are like flowtool-base-1.2.0
-versioneer.parentdir_prefix = 'flowtool-base-' # dirname like 'flowtool-base-1.2.0'
+import versioning
 
 from functools import partial
 
@@ -33,11 +27,11 @@ setup_args = dict(
 )
 
 
-# versioneer
+# versioneering
 
 setup_args.update(
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=versioning.get_version(),
+    cmdclass=versioning.get_cmdclass(),
 )
 
 

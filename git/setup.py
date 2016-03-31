@@ -4,13 +4,16 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from versioning import get_cmdclass, get_version
+
 import os
 
 # General Info
 
 setup_args = dict(
     name='flowtool-git',
-    version='0.7.2',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='flowtool library of git related commands.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',

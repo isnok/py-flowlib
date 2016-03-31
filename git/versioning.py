@@ -75,8 +75,7 @@ version_in_git = import_file('versions', source_versionfile)
 if version_in_git:
     get_version = version_in_git.get_version
 else:
-    print("== Warning: source_versionfile %s could not be imported. (no tags found?)" % source_versionfile)
-    get_version = lambda: 'versionfile_not_installed'
+    get_version = lambda: 'versionfile not installed yet'
 
 def build_versionfile():
     if parser.has_option('versioning', 'build_versionfile'):
