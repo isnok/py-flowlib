@@ -155,11 +155,12 @@ class cmd_version_bump(Command):
 
     def run(self):
         from pprint import pformat
-        print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         vcs_info = version_in_git.VERSION_INFO['vcs_info']
         tag_info = bump_version(vcs_info['tag_version'])
+        print('== Current Version:\n%s' % pformat(tag_info))
         tag = vcs_info['prefix'] + render_bumped(**tag_info)
         print('== Tagging: %s' % tag)
+        os.system('git tag ' + tag)
 
 class cmd_versioning_update(Command):
     description = "show versioning configuration and current project version"
