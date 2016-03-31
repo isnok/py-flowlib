@@ -188,13 +188,17 @@ def gather_vcs_info(prefix):
         dirt=git_is_dirty(),
     )
 
-    if distances:
-        latest_tag = sorted(distances, key=distances.__getitem__)[0]
-        vcs_info.update(
-            latest_tag=latest_tag,
-            latest_tag_version=latest_tag[len(prefix):],
-            latest_tag_commit=get_commit(latest_tag),
-        )
+    if not distances:
+        return vcs_info
+
+    latest_tag = sorted(distances, key=distances.__getitem__)[0]
+    vcs_info.update(
+        latest_tag=latest_tag,
+        latest_tag_version=latest_tag[len(prefix):],
+        latest_tag_commit=get_commit(latest_tag),
+        tag_version=parse_pep440(vcs_info['latest_tag_version']),
+    )
+
     return vcs_info
 
 prefix = setup_cfg.get('versioning', 'tag_prefix')
@@ -202,7 +206,6 @@ vcs_info = gather_vcs_info(prefix)
 
 VERSION_INFO.update(
     vcs_info=vcs_info,
-    tag_version=parse_pep440(vcs_info['latest_tag_version']),
 )
 
 #print(pformat(VERSION_INFO))

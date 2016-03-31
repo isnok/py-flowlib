@@ -21,7 +21,7 @@ def vcs_versioning(version_info):
 def snapshot_versioning(version_info):
     """ Just use the pep440-validated tag-version and add -SNAPSHOT if git is dirty """
 
-    version = version_info['tag_version']['version']
+    version = version_info['vcs_info']['tag_version']['version']
     if version_info['vcs_info']['dirt']:
         version += '-SNAPSHOT'
 
