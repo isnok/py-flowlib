@@ -13,7 +13,7 @@ VERSION_INFO = {}
 
 def get_version():
     global VERSION_INFO
-    return VERSION_INFO.get('version', 'no_version')
+    return VERSION_INFO.get('version', '$Format:%H$')
 '''
 
 exec(template)
@@ -26,7 +26,11 @@ def render_static_file():
 
 import os
 from os.path import join, dirname, isfile
-import configparser
+
+try:
+    from configparser import ConfigParser
+except:
+    from ConfigParser import ConfigParser
 
 
 def find_source_directory():
@@ -62,7 +66,7 @@ def get_setup_cfg():
     else:
         # loop was left without a break,
         # so there was a file with the name
-        parser = configparser.ConfigParser()
+        parser = ConfigParser()
         parser.read(join(current, 'setup.cfg'))
         return parser
 
@@ -176,17 +180,21 @@ def get_tags_matching(prefix=''):
 
 def gather_vcs_info(prefix):
     distances = get_tags_matching(prefix)
-    latest_tag = sorted(distances, key=distances.__getitem__)[0]
 
     vcs_info = dict(
         prefix=prefix,
         prefix_tag_distances=distances,
-        latest_tag=latest_tag,
-        latest_tag_version=latest_tag[len(prefix):],
-        latest_tag_commit=get_commit(latest_tag),
         commit=get_commit('HEAD'),
         dirt=git_is_dirty(),
     )
+
+    if distances:
+        latest_tag = sorted(distances, key=distances.__getitem__)[0]
+        vcs_info.update(
+            latest_tag=latest_tag,
+            latest_tag_version=latest_tag[len(prefix):],
+            latest_tag_commit=get_commit(latest_tag),
+        )
     return vcs_info
 
 prefix = setup_cfg.get('versioning', 'tag_prefix')
