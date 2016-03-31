@@ -192,11 +192,12 @@ def gather_vcs_info(prefix):
         return vcs_info
 
     latest_tag = sorted(distances, key=distances.__getitem__)[0]
+    tag_version = latest_tag[len(prefix):]
     vcs_info.update(
         latest_tag=latest_tag,
-        latest_tag_version=latest_tag[len(prefix):],
+        latest_tag_version=tag_version,
         latest_tag_commit=get_commit(latest_tag),
-        tag_version=parse_pep440(vcs_info['latest_tag_version']),
+        tag_version=parse_pep440(tag_version),
     )
 
     return vcs_info
