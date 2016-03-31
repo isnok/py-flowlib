@@ -217,6 +217,10 @@ def vcs_versioning(version_info):
     """ Just use the information from the vcs, and format it nicely. """
 
     vcs_info = version_info['vcs_info']
+
+    if not 'latest_tag' in vcs_info:
+        return
+
     tag = vcs_info['latest_tag']
     distance = vcs_info['prefix_tag_distances'][tag]
 
@@ -234,7 +238,10 @@ def vcs_versioning(version_info):
 def snapshot_versioning(version_info):
     """ Just use the pep440-validated tag-version and add -SNAPSHOT if git is dirty """
 
-    version = version_info['tag_version']['version']
+    if not 'tag_version' in version_info['vcs_info']:
+        return
+
+    version = version_info['vcs_info']['tag_version']['version']
     if version_info['vcs_info']['dirt']:
         version += '-SNAPSHOT'
 
@@ -245,7 +252,7 @@ assemble_version = vcs_versioning
 
 ###
 
+version = assemble_version(VERSION_INFO)
 
-VERSION_INFO['version'] = assemble_version(VERSION_INFO)
-
-#print(render_static_file())
+if version:
+    VERSION_INFO['version'] = version
