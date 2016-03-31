@@ -1,6 +1,6 @@
 import sys
 import click
-from flowtool.stlye import colors, echo
+from flowtool.style import colors, echo
 from functools import wraps
 from collections import namedtuple
 
