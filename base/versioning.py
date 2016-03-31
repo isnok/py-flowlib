@@ -116,6 +116,51 @@ class cmd_version_info(Command):
         print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
 
+def bump_version(info):
+    if 'dev_release' in info:
+        info['dev_release'] += 1
+    elif 'post_release' in info:
+        info['post_release'] += 1
+    elif 'pre_release' in info:
+        stage, number = info['pre_release']
+        info['pre_release'] = (stage, number + 1)
+    else:
+        segments = info['release']
+        info['release'] = segments[:-1] + (segments[-1] + 1,)
+    return info
+
+
+def render_bumped(**kwd):
+    normalized = '.'.join(map(str, kwd['release']))
+    if 'pre_release' in kwd:
+        normalized += '%s%s' % kwd['pre_release']
+    if 'post_release' in kwd:
+        normalized += '.post' + str(kwd['post_release'])
+    if 'dev_release' in kwd:
+        normalized += '.dev' + str(kwd['dev_release'])
+    if 'epoch' in kwd:
+        normalized = '{}!{}'.format(kwd['epoch'], normalized)
+    return normalized
+
+class cmd_version_bump(Command):
+    description = "bump the (pep440) version by adding one to the smallest version component"
+    user_options = []
+    boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from pprint import pformat
+        print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
+        vcs_info = version_in_git.VERSION_INFO['vcs_info']
+        tag_info = bump_version(vcs_info['tag_version'])
+        tag = vcs_info['prefix'] + render_bumped(**tag_info)
+        print('== Tagging: %s' % tag)
+
 class cmd_versioning_update(Command):
     description = "show versioning configuration and current project version"
     user_options = []
@@ -200,8 +245,9 @@ class cmd_sdist(_sdist):
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
     cmds = dict(
-        version_info=cmd_version_info,
-        versioning_update=cmd_versioning_update,
+        version=cmd_version_info,
+        #versioning_update=cmd_versioning_update,
+        bump=cmd_version_bump,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
     )
