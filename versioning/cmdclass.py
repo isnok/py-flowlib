@@ -243,6 +243,17 @@ class cmd_sdist(_sdist):
         with open(target_versionfile, 'w') as fh:
             fh.write(version_in_git.render_static_file())
 
+from distutils.command.upload import upload as _upload
+
+class cmd_upload(_upload):
+
+    def run(self):
+        print("=== git push")
+        os.system('git push')
+        print("=== pushing tags also")
+        os.system('git push --tags')
+        return _upload.run(self)
+
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
     cmds = dict(
@@ -251,5 +262,6 @@ def get_cmdclass():
         bump=cmd_version_bump,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
+        upload=cmd_upload,
     )
     return cmds

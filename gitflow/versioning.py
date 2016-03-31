@@ -2,9 +2,9 @@
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
 try:
-    import configparser
+    from configparser import ConfigParser
 except:
-    import ConfigParser as configparser
+    from ConfigParser import ConfigParser
 
 def find_parent_containing(name, path=None, check='exists'):
     """ Return the nearest directory in the parent dirs of path,
@@ -36,7 +36,7 @@ def read_config(*filenames):
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at
     # the top of versioneer.py for instructions on writing your setup.cfg .
-    parser = configparser.ConfigParser()
+    parser = ConfigParser()
     parser.read(filenames)
     return parser
 
@@ -75,6 +75,7 @@ version_in_git = import_file('versions', source_versionfile)
 if version_in_git:
     get_version = version_in_git.get_version
 else:
+    print("== Warning: source_versionfile %s could not be imported. (no tags found?)" % source_versionfile)
     get_version = lambda: 'versionfile_not_installed'
 
 def build_versionfile():
@@ -114,6 +115,52 @@ class cmd_version_info(Command):
         from pprint import pformat
         print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
+
+def bump_version(info):
+    if 'dev_release' in info:
+        info['dev_release'] += 1
+    elif 'post_release' in info:
+        info['post_release'] += 1
+    elif 'pre_release' in info:
+        stage, number = info['pre_release']
+        info['pre_release'] = (stage, number + 1)
+    else:
+        segments = info['release']
+        info['release'] = segments[:-1] + (segments[-1] + 1,)
+    return info
+
+
+def render_bumped(**kwd):
+    normalized = '.'.join(map(str, kwd['release']))
+    if 'pre_release' in kwd:
+        normalized += '%s%s' % kwd['pre_release']
+    if 'post_release' in kwd:
+        normalized += '.post' + str(kwd['post_release'])
+    if 'dev_release' in kwd:
+        normalized += '.dev' + str(kwd['dev_release'])
+    if 'epoch' in kwd:
+        normalized = '{}!{}'.format(kwd['epoch'], normalized)
+    return normalized
+
+class cmd_version_bump(Command):
+    description = "bump the (pep440) version by adding one to the smallest version component"
+    user_options = []
+    boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from pprint import pformat
+        vcs_info = version_in_git.VERSION_INFO['vcs_info']
+        tag_info = bump_version(vcs_info['tag_version'])
+        print('== Current Version:\n%s' % pformat(tag_info))
+        tag = vcs_info['prefix'] + render_bumped(**tag_info)
+        print('== Tagging: %s' % tag)
+        os.system('git tag ' + tag)
 
 class cmd_versioning_update(Command):
     description = "show versioning configuration and current project version"
@@ -196,12 +243,25 @@ class cmd_sdist(_sdist):
         with open(target_versionfile, 'w') as fh:
             fh.write(version_in_git.render_static_file())
 
+from distutils.command.upload import upload as _upload
+
+class cmd_upload(_upload):
+
+    def run(self):
+        print("=== git push")
+        os.system('git push')
+        print("=== pushing tags also")
+        os.system('git push --tags')
+        return _upload.run(self)
+
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
     cmds = dict(
-        version_info=cmd_version_info,
-        versioning_update=cmd_versioning_update,
+        version=cmd_version_info,
+        #versioning_update=cmd_versioning_update,
+        bump=cmd_version_bump,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
+        upload=cmd_upload,
     )
     return cmds
