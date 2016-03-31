@@ -13,7 +13,7 @@ VERSION_INFO = {}
 
 def get_version():
     global VERSION_INFO
-    return VERSION_INFO.get('version', '$Format:%H$')
+    return VERSION_INFO.get('version', '$Format:%d %H$')
 '''
 
 exec(template)

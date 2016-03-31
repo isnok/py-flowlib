@@ -67,4 +67,5 @@ def main():
             print(pformat_completed(result))
 
 if __name__ == '__main__':
-    main()
+    import click
+    click.command()(main)()
