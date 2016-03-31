@@ -2,9 +2,9 @@
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
 try:
-    import configparser
+    from configparser import ConfigParser
 except:
-    import ConfigParser as configparser
+    from ConfigParser import ConfigParser
 
 def find_parent_containing(name, path=None, check='exists'):
     """ Return the nearest directory in the parent dirs of path,
@@ -36,7 +36,7 @@ def read_config(*filenames):
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at
     # the top of versioneer.py for instructions on writing your setup.cfg .
-    parser = configparser.ConfigParser()
+    parser = ConfigParser()
     parser.read(filenames)
     return parser
 
@@ -75,7 +75,8 @@ version_in_git = import_file('versions', source_versionfile)
 if version_in_git:
     get_version = version_in_git.get_version
 else:
-    get_version = lambda: 'versionfile not installed yet'
+    print("== Warning: source_versionfile %s could not be imported. (no tags found?)" % source_versionfile)
+    get_version = lambda: 'versionfile_not_installed'
 
 def build_versionfile():
     if parser.has_option('versioning', 'build_versionfile'):
