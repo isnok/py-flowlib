@@ -12,6 +12,11 @@ source_versionfile={detected_location}
 tag_prefix=my-project-
 '''
 
+INIT_PY_SNIPPET = '''
+from _version import get_version
+__version__ = get_version()
+'''
+
 GITATTRIBUTES_ADDON = '''
 # creates a pseudo-version if exported via 'git archive'
 {} export-subst
@@ -57,6 +62,9 @@ def init_versioning(path=os.getcwd()):
         versionfile = None
         if chosen is not None:
             versionfile = os.path.join(chosen, '_version.py')
+            init_py = os.path.join(chosen, '__init__.py')
+            if not check_file(init_py, '__version__') and click.confirm('Update __init__.py?'):
+                append_to_file(init_py, INIT_PY_SNIPPET)
 
     if versionfile is None and click.confirm('Enter versionfile manually?', default=True):
         versionfile = click.prompt('Deploy versionfile to')
