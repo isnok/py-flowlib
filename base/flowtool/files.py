@@ -56,6 +56,8 @@ def find_subdirs_containing(name, path=None, check='exists', not_found=None):
 
 def check_file(path, for_content):
     """ Might be inefficient on large files. """
+    if not isfile(path):
+        return False
     with open(path, 'r') as f:
         return for_content in f.read()
 
