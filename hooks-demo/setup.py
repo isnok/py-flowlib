@@ -6,12 +6,14 @@ from setuptools import find_packages
 
 import os
 
+from versioning import get_version, get_cmdclass
 
 # General Info
 
 setup_args = dict(
     name='flowtool-githooks-demo',
-    version='0.7.4',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='Trivial demo tasks for git users.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
