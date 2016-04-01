@@ -41,6 +41,7 @@ setup_args.update(
         'flowtool-githooks-demo',
         'flowtool-python',
         'flowtool-stages',
+        'flowtool-versioning',
     ],
     dependency_links=(),
 )
