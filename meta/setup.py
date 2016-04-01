@@ -4,6 +4,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from versioning import get_version, get_cmdclass
+
 import os
 
 
@@ -11,10 +13,11 @@ import os
 
 setup_args = dict(
     name='flowtool-all',
-    version='0.7.6',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='Start managing everything!',
     author='Konstantin Martini',
-    author_email='k@zalando.de',
+    author_email='k@tuxcode.org',
     url='https://github.com/isnok/py-flowlib',
 )
 
@@ -39,9 +42,7 @@ setup_args.update(
         'flowtool-python',
         'flowtool-stages',
     ],
-    dependency_links=(
-        # 'https://github.com/isnok/py-flowlib#egg=flowtool-base-0.7.4&subdirectory=base',
-    )
+    dependency_links=(),
 )
 
 # Techincal Details

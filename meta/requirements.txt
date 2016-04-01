@@ -1,4 +1,8 @@
 click
 colorama
 flowtool-base
+flowtool-git
 flowtool-gitflow
+flowtool-python
+flowtool-stages
+flowtool-versioning
