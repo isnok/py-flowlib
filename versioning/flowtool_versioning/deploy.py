@@ -3,7 +3,7 @@ import click
 from flowtool.style import colors, echo
 from flowtool.files import find_parent_containing, find_subdirs_containing, check_file, append_to_file
 from flowtool.ui import ask_choice
-from flowtool_git.common import local_repo
+#from flowtool_git.common import local_repo
 
 DEFAULT_VERSION_CONFIG = '''
 [versioning]
