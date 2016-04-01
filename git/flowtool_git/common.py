@@ -41,3 +41,20 @@ def local_repo(or_exit=True):
 
 def local_git_command(*args, **kwd):
     return local_repo(*args, **kwd).git
+
+
+ParsedGitStatusLine = namedtuple('ParsedGitStatusLine', ['on_index', 'untracked', 'filename'])
+
+def short_status(*args):
+    '--untracked-files=no'
+    short_listing = local_git_command().status('--short', *args)
+    result = []
+    for line in short_listing.split('\n'):
+        result.append(
+            ParsedGitStatusLine(
+                on_index=line[0],
+                untracked=line[1],
+                filename=line[3:],
+            )
+        )
+    return result
