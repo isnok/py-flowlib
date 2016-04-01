@@ -9,7 +9,7 @@ DEFAULT_VERSION_CONFIG = '''
 [versioning]
 source_versionfile={detected_location}
 #build_versionfile={guessed_location}
-tag_prefix=my-project-
+tag_prefix={tag_prefix}
 '''
 
 INIT_PY_SNIPPET = '''
@@ -92,15 +92,17 @@ def init_versioning(path=os.getcwd()):
             default=True):
             version_config = DEFAULT_VERSION_CONFIG
             if versionfile:
+                source_versionfile = versionfile[len(setup_dir)+1:]
                 if versionfile.startswith('src/'):
-                    build_versionfile = versionfile[4:]
+                    build_versionfile = source_versionfile[4:]
                 else:
-                    build_versionfile = versionfile
+                    build_versionfile = source_versionfile
                 version_config = version_config.format(
-                    detected_location=versionfile,
+                    detected_location=source_versionfile,
                     guessed_location=build_versionfile,
+                    tag_prefix=click.prompt('Use which tag prefix?')
                 )
-            append_to_file(setup_cfg, version_config)
+                append_to_file(setup_cfg, version_config)
 
 
     from flowtool_versioning.dropins.cmdclass import __file__ as setupextension_source
