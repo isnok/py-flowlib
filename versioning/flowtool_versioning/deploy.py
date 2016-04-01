@@ -93,9 +93,9 @@ def init_versioning(path=os.getcwd()):
             version_config = DEFAULT_VERSION_CONFIG
             if versionfile:
                 if versionfile.startswith('src/'):
-                    guessed_location = versionfile[4:]
+                    build_versionfile = versionfile[4:]
                 else:
-                    guessed_location = versionfile
+                    build_versionfile = versionfile
                 version_config = version_config.format(
                     detected_location=versionfile,
                     guessed_location=build_versionfile,
