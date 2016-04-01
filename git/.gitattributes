@@ -1,1 +1,4 @@
 flowtool/_version.py export-subst
+
+# creates a pseudo-version if exported via 'git archive'
+flowtool_git/_version.py export-subst
