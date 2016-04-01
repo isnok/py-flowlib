@@ -87,8 +87,8 @@ def build_versionfile():
 #print(build_versionfile())
 
 def install_versionfile(to_file):
-    import flowtool_versioning.version
-    versionfile = flowtool_versioning.version.__file__
+    from flowtool_versioning.dropins import version
+    versionfile = version.__file__
 
     with open(versionfile, 'r') as f_in, open(to_file, 'w') as f_out:
         f_out.write(f_in.read())
@@ -262,6 +262,6 @@ def get_cmdclass():
         bump=cmd_version_bump,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
-        upload=cmd_upload,
+        release=cmd_upload,
     )
     return cmds
