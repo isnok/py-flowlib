@@ -63,7 +63,7 @@ def init_versioning(path=os.getcwd()):
         if chosen is not None:
             versionfile = os.path.join(chosen, '_version.py')
             init_py = os.path.join(chosen, '__init__.py')
-            if not check_file(init_py, '__version__') and click.confirm('Update __init__.py?'):
+            if not check_file(init_py, '__version__') and click.confirm('Update __init__.py?', default=True):
                 append_to_file(init_py, INIT_PY_SNIPPET)
 
     if versionfile is None and click.confirm('Enter versionfile manually?', default=True):
