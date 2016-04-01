@@ -45,7 +45,6 @@ setup_cfg = join(
     'setup.cfg',
 )
 parser = read_config(setup_cfg)
-
 source_versionfile = parser.get('versioning', 'source_versionfile')
 
 def import_file(name, path):
