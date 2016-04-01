@@ -7,8 +7,8 @@ from flowtool_git.common import local_repo
 
 DEFAULT_VERSION_CONFIG = '''
 [versioning]
-source_versionfile=src/my_module/_version.py
-#build_versionfile=my_module/_version.py
+source_versionfile={detected_location}
+#build_versionfile={guessed_location}
 tag_prefix=my-project-
 '''
 
@@ -82,7 +82,17 @@ def init_versioning(path=os.getcwd()):
         if click.confirm(
             colors.bold('Shall I add a default [versioning] section to setup.cfg?'),
             default=True):
-            append_to_file(setup_cfg, DEFAULT_VERSION_CONFIG)
+            version_config = DEFAULT_VERSION_CONFIG
+            if versionfile:
+                if versionfile.startswith('src/'):
+                    guessed_location = versionfile[4:]
+                else:
+                    guessed_location = versionfile
+                version_config = version_config.format(
+                    detected_location=versionfile,
+                    guessed_location=build_versionfile,
+                )
+            append_to_file(setup_cfg, version_config)
 
 
     from flowtool_versioning.dropins.cmdclass import __file__ as setupextension_source
