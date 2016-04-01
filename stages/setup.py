@@ -4,6 +4,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from versioning import get_version, get_cmdclass
+
 import os
 
 
@@ -11,7 +13,8 @@ import os
 
 setup_args = dict(
     name='flowtool-stages',
-    version='0.7.4',
+    version=get_version(),
+    cmdclass=get_cmdclass(),
     description='Manage different environments.',
     author='Konstantin Martini',
     author_email='k@tuxcode.org',
