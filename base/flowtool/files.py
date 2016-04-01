@@ -27,6 +27,32 @@ def find_parent_containing(name, path=None, check='exists', not_found=None):
 
     return not_found
 
+def find_subdirs_containing(name, path=None, check='exists', not_found=None):
+
+    current = os.getcwd() if path is None else path
+
+    if check in ('exists', exists):
+        def checklist(loc, dirs, files):
+            return dirs + files
+
+    elif check in ('isfile', 'file', isfile):
+        def checklist(loc, dirs, files):
+            return files
+
+    elif check in ('isdir', 'dir', isdir):
+        def checklist(loc, dirs, files):
+            return dirs
+
+    found = []
+    for step in os.walk(path):
+        if name in checklist(*step):
+            found.append(step[0])
+
+    if found:
+        return found
+    else:
+        return not_found
+
 
 def check_file(path, for_content):
     """ Might be inefficient on large files. """

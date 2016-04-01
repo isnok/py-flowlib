@@ -34,7 +34,7 @@ setup_args.update(
 setup_args.update(
     install_requires=[
         'click',
-        'flowtool-base',
+        'flowtool-git',
     ],
 )
 

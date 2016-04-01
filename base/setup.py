@@ -50,9 +50,7 @@ setup_args.update(
 
 setup_args.update(
     install_requires=['click'],
-    dependency_links=[
-        'https://github.com/mcbridejc/python-versioneer',
-    ], # ^ not really, i know. but i wanted a reference
+    dependency_links=[],
 )
 
 

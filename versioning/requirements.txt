@@ -1,2 +1,2 @@
 click
-flowtool-base
+flowtool-git
