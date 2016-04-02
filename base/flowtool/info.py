@@ -1,15 +1,15 @@
 import sys
+import pip
 import click
 from flowtool.style import colors, echo
 
 from pkg_resources import iter_entry_points
-import pip
 from operator import attrgetter
 
 def get_extensions():
     dists = pip.get_installed_distributions()
     flows = [d for d in dists if d.project_name.startswith('flowtool')]
-    return sorted(flows, key=attrgetter('project_name'))
+    return flows
 
 def get_commands():
     return sorted(iter_entry_points('flowtool_commands'), key=attrgetter('name'))
@@ -24,10 +24,10 @@ def show_info():
     echo.bold()
 
     echo.bold(colors.cyan('flowtool_packages:'))
-    for e in get_extensions():
-        echo.cyan(' - ', e.project_name, colors.white('(%s)' % e.version))
+    for e in sorted(get_extensions(), key=attrgetter('project_name')):
+        echo.white('  -', colors.cyan(e.project_name), '(%s)' % e.version)
 
     echo.bold()
     echo.bold(colors.cyan('installed commands:'))
     for c in get_commands():
-        echo.white(' - ', colors.cyan(c.name), c.dist)
+        echo.white('  -', colors.green(c.name), '(from %s)' % c.dist.project_name)

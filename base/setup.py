@@ -49,7 +49,10 @@ setup_args.update(
 # Requirements
 
 setup_args.update(
-    install_requires=['click'],
+    install_requires=[
+        'click',
+        'pip',
+    ],
     dependency_links=[],
 )
 
@@ -64,6 +67,7 @@ setup_args.update(
         ],
         'flowtool_commands': [
             'self-info = flowtool.info:show_info',
+            'self-update = flowtool.update:update_installed',
         ],
     },
 )
