@@ -22,30 +22,6 @@ RUNNER = os.sep.join([
     os.path.dirname(__file__), 'scripts', 'generic-hook-runner.sh'
 ])
 
-# def getconfig_simple(repo):
-    # dump = repo.git.config('--list')
-    # config = {}
-    # for line in dump.split('\n'):
-        # key, value = line.split('=', 1)
-        # config[key] = value
-    # return config
-
-# ConfigHook = namedtuple('ConfigHook', ['name', 'active', 'key', 'value'])
-
-# def gather_config_hooks(repo):
-    # cfg = getconfig_simple(repo)
-    # found = []
-    # for key in [k for k in cfg if k.startswith('hooks.')]:
-        # echo.yellow('configured hook:', key)
-        # info = ConfigHook(
-            # name=key[6:],
-            # active=True,
-            # key=key,
-            # value=cfg[key],
-        # )
-        # found.append(info)
-    # return found
-
 FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
 
 def gather_file_hooks(repo):
