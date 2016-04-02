@@ -45,6 +45,7 @@ setup_args.update(
     entry_points={
         'flowtool_commands': [
             'versioning-init = flowtool_versioning.deploy:init_versioning',
+            'versioning-release = flowtool_versioning.release:do_release',
         ],
     },
 )
