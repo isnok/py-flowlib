@@ -150,6 +150,8 @@ class cmd_version_bump(Command):
         vcs_info = version_in_git.VERSION_INFO['vcs_info']
         tag_info = bump_version(vcs_info['tag_version'])
         print('== Current Version:\n%s' % pformat(tag_info))
+        if vcs_info['dirt']:
+            raise RuntimeError("Auto bump aborted due to dirty git repository.")
         tag = vcs_info['prefix'] + render_bumped(**tag_info)
         print('== Tagging: %s' % tag)
         os.system('git tag ' + tag)

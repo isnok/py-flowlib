@@ -13,7 +13,7 @@ tag_prefix={tag_prefix}
 '''
 
 INIT_PY_SNIPPET = '''
-from _version import get_version
+from ._version import get_version
 __version__ = get_version()
 '''
 
