@@ -1,10 +1,13 @@
 import os
+import sys
 import click
+
+from collections import namedtuple
+from pkg_resources import iter_entry_points
+
 from flowtool.style import echo, colors
 from flowtool.style import debug
 from flowtool.files import is_executable, make_executable, make_not_executable
-
-from collections import namedtuple
 
 # a reminder/description of what git hooks (can) take as input
 #  - stdin not yet supported, not needed yet

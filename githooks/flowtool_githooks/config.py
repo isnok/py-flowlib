@@ -1,10 +1,12 @@
 import os
 import click
 
+from flowtool.files import make_executable, toggle_executable
 from flowtool.style import echo, colors
 from flowtool.style import debug
+
 from .status import status
-from .manager import gather_hooks, toggle_hook, choose_hook
+from .manager import gather_hooks, toggle_hook, choose_hook, find_entry_scripts
 
 from flowtool_git.common import local_repo
 
