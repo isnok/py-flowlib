@@ -256,4 +256,4 @@ try:
     if version:
         VERSION_INFO['version'] = version
 except:
-    print
+    pass

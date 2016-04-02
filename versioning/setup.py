@@ -46,7 +46,7 @@ setup_args.update(
         'flowtool_commands': [
             'versioning-update = flowtool_versioning.deploy:init_versioning',
             'versioning-release = flowtool_versioning.release:do_release',
-            'versioning-rmtags = flowtool_versioning.release:local_tag_cleanup',
+            'versioning-rmtags = flowtool_versioning.cleanup:local_tag_cleanup',
         ],
     },
 )

@@ -65,10 +65,3 @@ def do_release():
         do_publish(tag)
     else:
         rollback(tag)
-
-@click.command()
-@click.argument('n', type=int, default=0)
-def local_tag_cleanup(n=0):
-    """ Delete all but the last n version tags locally. """
-    echo.bold('N:', n)
-
