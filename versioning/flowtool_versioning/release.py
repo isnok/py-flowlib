@@ -18,12 +18,13 @@ def rollback(tag):
         sys.exit(rollback.returncode)
     echo.cyan('Done:', rollback.stdout.strip())
 
-def do_publish():
+def do_publish(tag):
     published = run_command('./setup.py sdist release')
     if published.returncode:
         echo.bold(colors.red('Failed:'))
         echo.white(published.stdout)
         echo.yellow(published.stderr)
+        rollback(tag)
         sys.exit(published.returncode)
     else:
         echo.bold(colors.green('New release published.'))
@@ -61,6 +62,6 @@ def do_release():
     tag = bump_result.stdout.split('\n')[-2].split()[-1]
     message = colors.bold('Do the release? (tag: %s)' % tag)
     if click.confirm(message):
-        do_publish()
+        do_publish(tag)
     else:
         rollback(tag)
