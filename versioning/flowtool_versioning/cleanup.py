@@ -121,5 +121,4 @@ def local_tag_cleanup(n=3):
     for tag in to_delete:
         echo.yellow('->', tag)
     click.confirm('Delete these tags locally?', abort=True)
-
     echo.green(delete_local_tags(to_delete))
