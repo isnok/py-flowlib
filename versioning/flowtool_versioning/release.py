@@ -36,7 +36,7 @@ def do_release():
         echo.cyan('You have to commit all changes before releasing.')
         sys.exit(1)
 
-    released = not '.git:' in auto_version
+    released = not ('.git:' in auto_version)
     if released:
         echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
         echo.cyan('You are already at a version tag.')
@@ -59,7 +59,7 @@ def do_release():
     if click.confirm(message):
         do_publish()
     else:
-        rollback = run_command(['git', 'tag', '-d', current_tag()])
+        rollback = run_command(['git', 'tag', '-d', tag])
         if rollback.returncode:
             echo.bold(colors.red(rollback))
             sys.exit(rollback.returncode)
