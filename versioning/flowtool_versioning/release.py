@@ -11,8 +11,12 @@ def version_or_exit():
     else:
         return get_version.stdout.strip()
 
-def current_tag():
-    return run_command('git describe --tags').stdout.strip()
+def rollback(tag):
+    rollback = run_command(['git', 'tag', '-d', tag])
+    if rollback.returncode:
+        echo.bold(colors.red(rollback))
+        sys.exit(rollback.returncode)
+    echo.cyan('Done:', rollback.stdout.strip())
 
 def do_publish():
     published = run_command('./setup.py sdist release')
@@ -36,7 +40,7 @@ def do_release():
         echo.cyan('You have to commit all changes before releasing.')
         sys.exit(1)
 
-    released = not '.git:' in auto_version
+    released = not ('.git:' in auto_version)
     if released:
         echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
         echo.cyan('You are already at a version tag.')
@@ -54,13 +58,9 @@ def do_release():
     auto_version = version_or_exit()
     echo.bold('version is now:', colors.green(auto_version))
 
-    tag = current_tag()
+    tag = bump_result.stdout.split('\n')[-2].split()[-1]
     message = colors.bold('Do the release? (tag: %s)' % tag)
     if click.confirm(message):
         do_publish()
     else:
-        rollback = run_command(['git', 'tag', '-d', current_tag()])
-        if rollback.returncode:
-            echo.bold(colors.red(rollback))
-            sys.exit(rollback.returncode)
-        echo.cyan('Done:', rollback.stdout.strip())
+        rollback(tag)
