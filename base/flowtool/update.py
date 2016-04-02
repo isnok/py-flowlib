@@ -21,4 +21,4 @@ def update_installed():
     echo.bold(colors.green(
         ' '.join(['pip', 'install', '--upgrade'] + to_upgrade)
     ))
-    pip.main(['install', '--upgrade'] + to_upgrade)
+    pip.main(['--no-cache-dir', 'install', '--upgrade'] + to_upgrade)
