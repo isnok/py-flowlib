@@ -22,8 +22,8 @@ def do_publish(tag):
     published = run_command('./setup.py sdist release')
     if published.returncode:
         echo.bold(colors.red('Failed:'))
-        echo.white(published.stdout)
         echo.yellow(published.stderr)
+        echo.white(published.stdout)
         rollback(tag)
         sys.exit(published.returncode)
     else:
