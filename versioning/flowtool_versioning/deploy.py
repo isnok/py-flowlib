@@ -5,6 +5,8 @@ from flowtool.files import find_parent_containing, find_subdirs_containing, chec
 from flowtool.ui import ask_choice
 #from flowtool_git.common import local_repo
 
+import filecmp
+
 DEFAULT_VERSION_CONFIG = '''
 [versioning]
 source_versionfile={detected_location}
@@ -70,9 +72,12 @@ def init_versioning(path=os.getcwd()):
         versionfile = click.prompt('Deploy versionfile to')
 
     if versionfile is not None:
-        echo.bold('Updating: %s' % versionfile)
-        with open(versionfile_source, 'r') as src, open(versionfile, 'w') as dest:
-            dest.write(src.read())
+        if os.path.isfile(versionfile) and filecmp.cmp(versionfile, versionfile_source):
+            echo.green('%s is up to date.' % os.path.basename(versionfile))
+        else:
+            echo.bold('Updating: %s' % versionfile)
+            with open(versionfile_source, 'r') as src, open(versionfile, 'w') as dest:
+                dest.write(src.read())
 
     # deploy .gitattributes
     gitattributes = os.path.join(setup_dir, '.gitattributes')
@@ -112,10 +117,13 @@ def init_versioning(path=os.getcwd()):
 
     # deploy versioning.py
     setup_extension = os.path.join(setup_dir, 'versioning.py')
-    echo.bold('Updating: %s' % setup_extension)
-    with open(setupextension_source, 'r') as src, open(setup_extension, 'w') as dest:
-        dest.write(src.read())
-    make_executable(setup_extension)
+    if os.path.isfile(setup_extension) and filecmp.cmp(setup_extension, setupextension_source):
+        echo.green('%s is up to date.' % os.path.basename(setup_extension))
+    else:
+        echo.bold('Updating: %s' % setup_extension)
+        with open(setupextension_source, 'r') as src, open(setup_extension, 'w') as dest:
+            dest.write(src.read())
+        make_executable(setup_extension)
 
     echo.green('Installation / Update complete.')
     echo.cyan('If this is the initial installation, you can now go ahead and add something like:')

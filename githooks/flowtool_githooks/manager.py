@@ -8,11 +8,15 @@ from flowtool.files import is_executable, make_executable, make_not_executable, 
 
 from collections import namedtuple
 
-HookSignature = namedtuple('HookSignature', ['name', 'args'])
+# a reminder/description of what git hooks (can) take as input
+#  - stdin not yet supported, not needed yet
+#  - are there hooks whose stdout is used?
+HookSignature = namedtuple('HookSignature', ['name', 'args', 'stdin'])
 
+#  - this is currently just the hooks i want to focus on first
 HOOK_SIGNATURES = [
-    HookSignature('pre-commit', ()),
-    HookSignature('commit-msg', ('message_file',)),
+    HookSignature('pre-commit', (), False),
+    HookSignature('commit-msg', ('message_file',), False),
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
 
