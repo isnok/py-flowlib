@@ -153,7 +153,8 @@ class cmd_version_bump(Command):
         tag_info = bump_version(vcs_info['tag_version'])
         print('== Current Version:\n%s' % pformat(tag_info))
         if vcs_info['dirt']:
-            raise RuntimeError("Auto bump aborted due to dirty git repository.")
+            print("==> Auto bump aborted due to dirty git repository.")
+            sys.exit(1)
         tag = vcs_info['prefix'] + render_bumped(**tag_info)
         print('== Tagging: %s' % tag)
         os.system('git tag ' + tag)
@@ -250,8 +251,8 @@ class cmd_upload(_upload):
     def run(self):
         if sys.version_info.major == 3:
             return _upload.run(self)
-        else:
-            raise RuntimeError('For backwards compatibility you should only upload packages built with Python 3 to PyPI.')
+        print('==> For backwards compatibility you should only upload packages built with Python 3 to PyPI.')
+        sys.exit(1)
 
 class cmd_release(cmd_upload):
 
