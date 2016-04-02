@@ -70,8 +70,6 @@ def get_setup_cfg():
         parser.read(join(current, 'setup.cfg'))
         return parser
 
-setup_cfg = get_setup_cfg()
-
 
 import subprocess
 def get_stdout(*command):
@@ -202,13 +200,6 @@ def gather_vcs_info(prefix):
 
     return vcs_info
 
-prefix = setup_cfg.get('versioning', 'tag_prefix')
-vcs_info = gather_vcs_info(prefix)
-
-VERSION_INFO.update(
-    vcs_info=vcs_info,
-)
-
 #print(pformat(VERSION_INFO))
 
 
@@ -248,12 +239,21 @@ def snapshot_versioning(version_info):
 
     return version
 
-assemble_version = vcs_versioning
-#assemble_version = snapshot_versioning
 
-###
+try:
+    setup_cfg = get_setup_cfg()
+    prefix = setup_cfg.get('versioning', 'tag_prefix') if setup_cfg else ''
+    vcs_info = gather_vcs_info(prefix)
+    VERSION_INFO.update(
+        vcs_info=vcs_info,
+    )
 
-version = assemble_version(VERSION_INFO)
+    assemble_version = vcs_versioning
+    #assemble_version = snapshot_versioning
 
-if version:
-    VERSION_INFO['version'] = version
+    version = assemble_version(VERSION_INFO)
+
+    if version:
+        VERSION_INFO['version'] = version
+except:
+    print
