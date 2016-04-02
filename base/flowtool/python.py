@@ -1,3 +1,15 @@
+""" Some pythonic helper functions and general purpose cornercutting. """
+
+def contains_any(container, *elems):
+    """ Return the first elem, that is in container. """
+    for elem in elems:
+        if elem in container:
+            return elem
+
+def contains_any_filter(containers, *elems):
+    """ Return those containers that contain at least one elem. """
+    return [c for c in containers if contains_any(c, *elems)]
+
 
 def import_file(name, path):
     """ A compatible way to import a module from its file name. """
