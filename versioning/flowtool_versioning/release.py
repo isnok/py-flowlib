@@ -36,6 +36,12 @@ def do_release():
         echo.cyan('You have to commit all changes before releasing.')
         sys.exit(1)
 
+    released = not '.git:' in auto_version
+    if released:
+        echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
+        echo.cyan('You are already at a version tag.')
+        sys.exit(1)
+
     echo.bold('Tag-Version check passed:', colors.green(auto_version))
     echo.bold('Bumping version... ', nl=False)
 
