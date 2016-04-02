@@ -16,4 +16,3 @@ def demo_fail(*args, **kwd):
 def demo_fail_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """
     echo.bold('demo-fail-setup: setup %r' % cmd)
-
