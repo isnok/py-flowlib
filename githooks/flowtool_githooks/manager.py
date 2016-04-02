@@ -27,7 +27,7 @@ RUNNER = os.sep.join([
     os.path.dirname(__file__), 'scripts', 'generic-hook-runner.sh'
 ])
 
-FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
+InstalledHook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
 
 def find_entry_scripts(hook_name):
     group = 'flowtool_githooks.' + hook_name.replace('-', '_')
@@ -52,7 +52,7 @@ def gather_file_hooks(repo):
     for filename in hooks:
         is_runner = filecmp.cmp(filename, RUNNER)
         runner_dir = filename + '.d'
-        info = FileHook(
+        info = InstalledHook(
             name=os.path.basename(filename),
             active=is_executable(filename),
             file=filename,

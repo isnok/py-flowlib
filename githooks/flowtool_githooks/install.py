@@ -12,6 +12,8 @@ from flowtool_git.common import local_repo
 
 from .manager import hook_specs, RUNNER
 
+import filecmp
+
 @click.command()
 def install_hooks():
     """ Install the hook runner script. """
@@ -19,11 +21,11 @@ def install_hooks():
     repo = local_repo()
     echo.white('git repository:', repo.git_dir)
 
-    FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
+    NewHook = namedtuple('NewHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
     hook_dir = os.path.join(repo.git_dir, 'hooks')
     for name in hook_specs:
         filename = os.sep.join([hook_dir, name])
-        info = FileHook(
+        info = NewHook(
             name=name,
             active=False,
             file=filename,
@@ -48,8 +50,10 @@ def install_hook(info, repo):
 
     if not os.path.exists(hook_file):
         install()
+    elif filecmp.cmp(hook_file, RUNNER):
+        echo.green('Runner already installed as %r.' % name)
     else:
-        message = 'The hook %r is already installed. Replace it?' % name
+        message = 'A file differing from the runner is already installed as %r. Replace it?' % colors.cyan(name)
         confirmed = click.confirm(colors.bold(message), default=True)
         if confirmed:
             backup = hook_file + '.old'
