@@ -45,7 +45,6 @@ setup_cfg = join(
     'setup.cfg',
 )
 parser = read_config(setup_cfg)
-
 source_versionfile = parser.get('versioning', 'source_versionfile')
 
 def import_file(name, path):
@@ -85,13 +84,6 @@ def build_versionfile():
         return source_versionfile
 
 #print(build_versionfile())
-
-def install_versionfile(to_file):
-    from flowtool_versioning.dropins import version
-    versionfile = version.__file__
-
-    with open(versionfile, 'r') as f_in, open(to_file, 'w') as f_out:
-        f_out.write(f_in.read())
 
 
 def render_versionfile():
@@ -162,8 +154,8 @@ class cmd_version_bump(Command):
         print('== Tagging: %s' % tag)
         os.system('git tag ' + tag)
 
-class cmd_versioning_update(Command):
-    description = "show versioning configuration and current project version"
+class cmd_update_versionfile(Command):
+    description = "update the versioning"
     user_options = []
     boolean_options = []
 
@@ -174,9 +166,11 @@ class cmd_versioning_update(Command):
         pass
 
     def run(self):
-        from pprint import pformat
         print('== Updating file:\n%s' % source_versionfile)
-        install_versionfile(source_versionfile)
+        from flowtool_versioning.dropins import version
+        versionfile = version.__file__
+        with open(versionfile, 'r') as f_in, open(source_versionfile, 'w') as f_out:
+            f_out.write(f_in.read())
 
 
 if "setuptools" in sys.modules:
@@ -247,12 +241,25 @@ from distutils.command.upload import upload as _upload
 
 class cmd_upload(_upload):
 
+    description="Do the normal upload, but prevent pushing with Python2."
+
+    def run(self):
+        if sys.version_info.major == 3:
+            return _upload.run(self)
+        else:
+            raise RuntimeError('For backwards compatibility you should only upload packages built with Python 3 to PyPI.')
+
+class cmd_release(cmd_upload):
+
+    description="Do the protected upload, but push git things first"
+
     def run(self):
         print("=== git push")
         os.system('git push')
         print("=== pushing tags also")
         os.system('git push --tags')
-        return _upload.run(self)
+        return cmd_upload.run(self)
+
 
 def get_cmdclass():
     """Return the custom setuptools/distutils subclasses."""
@@ -262,6 +269,7 @@ def get_cmdclass():
         bump=cmd_version_bump,
         build_py=cmd_build_py,
         sdist=cmd_sdist,
-        release=cmd_upload,
+        upload=cmd_upload,
+        release=cmd_release,
     )
     return cmds
