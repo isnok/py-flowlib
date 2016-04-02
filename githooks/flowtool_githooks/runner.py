@@ -3,6 +3,7 @@ import sys
 import click
 import git
 from flowtool.style import colors, echo
+from flowtool_git.common import local_repo
 from flowtool_githooks.manager import hook_specs, is_executable
 
 @click.command()
@@ -19,10 +20,13 @@ def run_hook(name=()):
         sys.exit(1)
 
     hook_name = chosen.pop()
-    git_dir = git.Repo(search_parent_directories=True).git_dir
+    git_dir = local_repo().git_dir
     hook_file = os.sep.join([git_dir, 'hooks', hook_name])
 
-    if not is_executable(hook_file):
+    if not os.path.exists(hook_file):
+        echo.yellow('Hook does not exist:', hook_file)
+        sys.exit(1)
+    elif not is_executable(hook_file):
         echo.yellow('Hook script is not excutable:', hook_file)
         sys.exit(1)
 
