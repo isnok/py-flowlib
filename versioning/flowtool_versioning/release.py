@@ -33,6 +33,10 @@ def do_publish(tag):
 def do_release():
     """ A proposed way to release with versioning. """
 
+    if not sys.version_info.major == 3:
+        echo.bold(colors.yellow('Releases are only compatible with both Python2 and Python3 if done via Python3. Aborting since this is Python2.'))
+        sys.exit(1)
+
     auto_version = version_or_exit()
     dirty = 'dirty' in auto_version
 
