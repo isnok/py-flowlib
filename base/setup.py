@@ -63,7 +63,7 @@ setup_args.update(
             'ft = flowtool.main:flowtool_main_group',
         ],
         'flowtool_commands': [
-            'env-info = flowtool.info:show_info',
+            'self-info = flowtool.info:show_info',
         ],
     },
 )
