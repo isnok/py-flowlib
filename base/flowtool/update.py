@@ -18,7 +18,12 @@ def update_installed(yes=None, identifiers=()):
     if identifiers:
         all_installed = [d.project_name for d in get_extensions()]
         to_upgrade = contains_any_filter(all_installed, *identifiers)
-        yes or click.confirm('Upgrade these packages? ' + colors.cyan(', '.join(to_upgrade)), abort=True)
+        message = 'Upgrade these packages? ' + colors.cyan(', '.join(to_upgrade))
+        yes or click.confirm(
+            message,
+            default=True,
+            abort=True,
+        )
     elif yes:
         to_upgrade = [d.project_name for d in get_extensions()]
     else:
