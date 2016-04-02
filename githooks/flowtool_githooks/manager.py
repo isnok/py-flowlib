@@ -1,10 +1,10 @@
 import os
 import git
-import stat
 import click
 import shutil
 from flowtool.style import echo, colors
 from flowtool.style import debug
+from flowtool.files import is_executable, make_executable, make_not_executable, toggle_executable
 
 from collections import namedtuple
 
@@ -47,28 +47,6 @@ RUNNER = os.sep.join([
     # return found
 
 FileHook = namedtuple('FileHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
-
-def is_executable(filename):
-    mode = os.stat(filename).st_mode
-    return bool(mode & stat.S_IXUSR)
-
-def make_executable(filename):
-    mode = os.stat(filename).st_mode
-    all_exec = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-    os.chmod(filename, mode | all_exec)
-
-def make_not_executable(filename):
-    mode = os.stat(filename).st_mode
-    not_exec = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
-    os.chmod(filename, mode & not_exec)
-
-def toggle_executable(filename):
-    mode = os.stat(filename).st_mode
-    if bool(mode & stat.S_IXUSR):
-        new = mode & ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
-    else:
-        new = mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-    os.chmod(filename, new)
 
 def gather_file_hooks(repo):
     hook_dir = os.path.join(repo.git_dir, 'hooks')

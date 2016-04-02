@@ -1,4 +1,5 @@
 import os
+import stat
 from os.path import exists, isfile, isdir, basename, dirname, join
 
 def find_parent_containing(name, path=None, check='exists', not_found=None):
@@ -112,3 +113,28 @@ def import_file(name, path):
         return imp.load_source(name, path)
     except:
         pass
+
+
+
+def is_executable(filename):
+    mode = os.stat(filename).st_mode
+    return bool(mode & stat.S_IXUSR)
+
+def make_executable(filename):
+    mode = os.stat(filename).st_mode
+    all_exec = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    os.chmod(filename, mode | all_exec)
+
+def make_not_executable(filename):
+    mode = os.stat(filename).st_mode
+    not_exec = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
+    os.chmod(filename, mode & not_exec)
+
+def toggle_executable(filename):
+    mode = os.stat(filename).st_mode
+    if bool(mode & stat.S_IXUSR):
+        new = mode & ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
+    else:
+        new = mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    os.chmod(filename, new)
+

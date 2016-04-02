@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """ Inspired by https://github.com/warner/python-versioneer. """
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
@@ -275,3 +277,10 @@ def get_cmdclass():
         release=cmd_release,
     )
     return cmds
+
+
+def main():
+    print(get_version())
+
+if __name__ == '__main__':
+    main()

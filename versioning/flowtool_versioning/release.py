@@ -19,5 +19,14 @@ def do_release():
 
     echo.bold('Tag-Version check passed:', colors.green(auto_version))
     echo.bold('Bumping version.')
-    echo.white(run_command('./setup.py bump'))
+
+    bump_result = run_command('./setup.py bump')
+    if bump_result.returncode:
+        echo.red(bump_result.stdout)
+        echo.bold(colors.red(bump_result.stderr))
+        sys.exit(bump_result.returncode)
+
+    auto_version = versioning.get_version()
+    echo.bold('Tag-Version now:', colors.green(auto_version))
+
 

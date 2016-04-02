@@ -1,7 +1,7 @@
 import os, sys
 import click
 from flowtool.style import colors, echo
-from flowtool.files import find_parent_containing, find_subdirs_containing, check_file, append_to_file
+from flowtool.files import find_parent_containing, find_subdirs_containing, check_file, append_to_file, make_executable
 from flowtool.ui import ask_choice
 #from flowtool_git.common import local_repo
 
@@ -115,6 +115,7 @@ def init_versioning(path=os.getcwd()):
     echo.bold('Updating: %s' % setup_extension)
     with open(setupextension_source, 'r') as src, open(setup_extension, 'w') as dest:
         dest.write(src.read())
+    make_executable(setup_extension)
 
     echo.green('Installation / Update complete.')
     echo.cyan('If this is the initial installation, you can now go ahead and add something like:')
