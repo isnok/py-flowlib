@@ -2,7 +2,7 @@
 README
 setup.cfg
 setup.py
-versioneer.py
+versioning.py
 flowtool/__init__.py
 flowtool/_version.py
 flowtool/execute.py

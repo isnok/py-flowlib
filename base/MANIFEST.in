@@ -1,2 +1,2 @@
-include versioneer.py
+include versioning.py
 include flowtool/_version.py
