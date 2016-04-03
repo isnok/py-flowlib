@@ -40,6 +40,7 @@ setup_args.update(
         'flowtool-githooks',
         'flowtool-githooks-demo',
         'flowtool-python',
+        'flowtool-releasing',
         'flowtool-stages',
         'flowtool-versioning',
     ],
