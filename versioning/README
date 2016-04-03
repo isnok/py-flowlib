@@ -2,17 +2,32 @@
 
 Automatic versions from git tags.
 
-This addon lets you deploy a small versioning framework
-that integrates with setuptools and probably also distutils.
+This addon lets you deploy a small versioning framework into your python
+project, that integrates well with setuptools and probably also distutils.
 
-To test it out, run `flowtool init-versioning` in a folder
-containing a setup.py that is also under git version control
-and follow the instructions.
+The framework itself has no dependencies but python.
+It is verified-to-work with python 2.7 and 3.4 releases.
 
-Once you have it wired into your `setup.py` and a tag with your
-prefix (can be empty also) exists, you should be able to run:
+To test it out, run one of these commands:
 ```
-./setup.py version  # get current version info
+flowtool versioning-init
+flowtool versioning-update
+```
+in a folder that contains a file named `setup.py`.
+You will then be asked where the versionfile (that contains the version
+information) should be placed, and wether you want to include some default
+snippets into `setup.cfg` and `__init__.py` to configure and use the version
+in your project. It will also create a file named `versioning.py` next to your
+`setup.py` before giving you some information on how to wire things up in
+`setup.py` from there.
+
+Once you have it wired into your `setup.py` (same process as
+`python-versioneer`) and created a tag with your chosen prefix (`setup.cfg`,
+prefix can be empty also) to bootstrap automatic versioning, you should be
+able to run:
+```
+./versioning.py     # outputs the current version
+./setup.py version  # get more detailed current version info
 ./setup.py bump     # create a new tag, with a minorly bumped version
 ./setup.py sdist release  # release is upload and git push + tags
 ```
