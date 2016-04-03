@@ -98,15 +98,12 @@ def pylint_setup(cmd=None):
             fh.write(minimal_config)
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
 
-#IGNORE_RECURSIVE = set([
-    #'.git', 'build', 'dist', 'test', 'tests', 'venv',
-#])
 
-#def find_all_py_files(repo):
+#def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', 'venv'])):
 
     #def ignore_location(loc, dirs, files):
         #inside = loc.split(os.sep)
-        #shall_ignore = IGNORE_RECURSIVE.intersection(inside)
+        #shall_ignore = ignore_dirs.intersection(inside)
         #return bool(shall_ignore)
 
     #result = []
@@ -124,7 +121,6 @@ MAX_FAILS = 5
 
 def discover_lint_files(repo):
     """ Return the list of files to check. """
-    #return find_all_py_files()
     return [f for f in dirty_files() if f.endswith('.py')]
 
 
@@ -165,5 +161,3 @@ def pylint_minimal(*args, **kwd):
                 if fails >= MAX_FAILS:
                     sys.exit(returncode or MAX_FAILS)
     sys.exit(returncode)
-            # echo.cyan(filename.replace(repo_root, ''))
-        # Run(['--rcfile=%s' % cfg] + check_these, exit=True)
