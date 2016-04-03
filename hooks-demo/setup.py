@@ -32,7 +32,10 @@ setup_args.update(
 # Requirements
 
 setup_args.update(
-    install_requires=['flowtool-githooks'],
+    install_requires=[
+        #'flowtool-git',
+        'flowtool-githooks',
+    ],
 )
 
 

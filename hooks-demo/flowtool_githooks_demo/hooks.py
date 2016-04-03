@@ -1,9 +1,10 @@
 import sys
 import click
 from flowtool.style import echo, colors
+from flowtool_git.common import local_repo
 
 def demo(*args, **kwd):
-    echo.bold('demo-hook: Hey, this works!', args, kwd)
+    echo.bold('demo-hook: Hey, this works!', local_repo().git_dir)
 
 def demo_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """
