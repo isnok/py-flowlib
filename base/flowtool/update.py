@@ -9,7 +9,7 @@ from flowtool.python import contains_any_filter
 @click.command()
 @click.option(
     '-y', '--yes', is_flag=True, default=False,
-    help="Update all components without asking"
+    help="Update all components without asking."
 )
 @click.argument('identifiers', nargs=-1)
 def update_installed(yes=None, identifiers=()):
