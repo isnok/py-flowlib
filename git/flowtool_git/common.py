@@ -50,11 +50,12 @@ def short_status(*args):
     short_listing = local_git_command().status('--short', *args)
     result = []
     for line in short_listing.split('\n'):
-        result.append(
-            ParsedGitStatusLine(
-                on_index=line[0],
-                untracked=line[1],
-                filename=line[3:],
+        if line:
+            result.append(
+                ParsedGitStatusLine(
+                    on_index=line[0],
+                    untracked=line[1],
+                    filename=line[3:],
+                )
             )
-        )
     return result
