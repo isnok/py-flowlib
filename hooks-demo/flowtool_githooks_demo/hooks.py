@@ -9,6 +9,7 @@ def demo_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """
     echo.bold('demo-hook-setup: %r' % cmd)
 
+
 def demo_fail(*args, **kwd):
     echo.red('demo-fail: OaaH, this will crash!', args, kwd)
     raise RuntimeError(42)

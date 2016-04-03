@@ -31,12 +31,12 @@ InstalledHook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runne
 
 def find_entry_scripts(hook_name):
     group = 'flowtool_githooks.' + hook_name.replace('-', '_')
-    scripts = list(iter_entry_points(group))
+    scripts = {e.name: e for e in iter_entry_points(group)}
 
     bindir = os.path.dirname(str(sys.executable))
-    binscripts = sorted(set(e.name for e in scripts).intersection(os.listdir(bindir)))
+    binscripts = sorted(set(scripts).intersection(os.listdir(bindir)))
     entrypoint_scripts = {
-        os.sep.join([bindir, s]): [e for e in scripts if e.name == s].pop()
+        os.sep.join([bindir, s]): scripts[s]
         for s in binscripts
     }
     debug.bold('scripts for %r:' % hook_name, entrypoint_scripts)
