@@ -22,8 +22,12 @@ def capture_pylint(*args):
 def get_config_name(repo):
     """ Get the pylint conifguration name either from repo config or make it up. """
 
-    for key, item in getconfig_simple().items():
+    cfg = getconfig_simple()
+    for key, item in cfg.items():
         echo.white(key, colors.cyan(item))
+
+    if 'pylint_minimal' in cfg and 'configfile' in cfg['pylint_minimal']:
+        return cfg['pylint_minimal']['configfile']
 
     return os.sep.join([
         os.path.dirname(repo.git_dir),
