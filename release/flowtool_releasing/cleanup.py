@@ -95,7 +95,7 @@ def get_confed_prefix():
 @click.command()
 @click.argument('n', type=int, default=3)
 def local_tag_cleanup(n=3):
-    """ Delete all but the last n version tags locally. """
+    """ Delete all but the last n version tags. """
 
     prefix = get_confed_prefix()
     if not prefix:
