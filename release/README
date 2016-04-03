@@ -1,20 +1,20 @@
-# flowtool-versioning
+# flowtool-releasing
 
-Automatic versions from git tags.
+An automated workflow for releasing Python Packages to PyPI and github.
 
-This addon lets you deploy a small versioning framework
-that integrates with setuptools and probably also distutils.
+Requires `flowtool-versioning` to be in place, and at least one tag created.
 
-To test it out, run `flowtool init-versioning` in a folder
-containing a setup.py that is also under git version control
-and follow the instructions.
+The release process works as follows:
 
-Once you have it wired into your `setup.py` and a tag with your
-prefix (can be empty also) exists, you should be able to run:
+- check that the repo is clean (and that we are not exactly at a release)
+- bump the version of the project (by creating a new git tag)
+- run `git push` and `git push --tags`
+- release to PyPI (mainly `setup.py sdist upload`)
+
+It add the following commands to `flowtool`:
 ```
-./setup.py version  # get current version info
-./setup.py bump     # create a new tag, with a minorly bumped version
-./setup.py sdist release  # release is upload and git push + tags
+flowtool release-now      # make a release
+flowtool release-cleanup  # clean up older tags on the local repo
 ```
 
 Request more documentation!
