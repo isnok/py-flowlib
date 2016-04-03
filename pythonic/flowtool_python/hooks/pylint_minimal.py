@@ -6,7 +6,7 @@ from flowtool.style import echo, colors
 from flowtool.execute import run_command
 from flowtool.style import debug
 
-from flowtool_git.common import local_repo
+from flowtool_git.common import local_repo, local_git_command
 #from flowtool_git.common import short_status
 from flowtool_git.common import dirty_files
 from flowtool_git.config import getconfig_simple
@@ -23,11 +23,8 @@ def get_config_name(repo):
     """ Get the pylint conifguration name either from repo config or make it up. """
 
     cfg = getconfig_simple()
-    for key, item in cfg.items():
-        echo.white(key, colors.cyan(item))
-
-    if 'pylint_minimal' in cfg and 'configfile' in cfg['pylint_minimal']:
-        return cfg['pylint_minimal']['configfile']
+    if 'pylint-minimal' in cfg and 'configfile' in cfg['pylint-minimal']:
+        return cfg['pylint-minimal']['configfile']
 
     return os.sep.join([
         os.path.dirname(repo.git_dir),
@@ -97,6 +94,7 @@ def pylint_setup(cmd=None):
         with open(config_file, 'w') as fh:
             fh.write(minimal_config)
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
+        local_git_command().config('pylint-minimal.configfile', 'minimal_config')
 
 #IGNORE_RECURSIVE = set([
     #'.git', 'build', 'dist', 'test', 'tests', 'venv',
