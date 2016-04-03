@@ -120,13 +120,13 @@ def find_all_py_files(repo):
     return result
 
 
+MAX_FAILS = 5
+
 def discover_lint_files(repo):
     """ Return the list of files to check. """
-
     #return find_all_py_files()
     return dirty_files()
 
-MAX_FAILS = 5
 
 def pylint_minimal(*args, **kwd):
     """ Run pylint with a minimal config. """
