@@ -9,6 +9,7 @@ from flowtool.style import debug
 
 from flowtool_git.common import local_repo
 from flowtool_git.common import short_status
+from flowtool_git.common import dirty_files
 
 from pylint.lint import Run
 
@@ -121,14 +122,9 @@ def find_all_py_files(repo):
 
 def discover_lint_files(repo):
     """ Return the list of files to check. """
-    #return find_all_py_files()
 
-    to_check = []
-    for line in short_status():
-        if line.on_index != ' ':
-            debug.cyan(line.on_index, '', line.filename)
-            to_check.append(line.filename)
-    return to_check
+    #return find_all_py_files()
+    return dirty_files()
 
 MAX_FAILS = 5
 

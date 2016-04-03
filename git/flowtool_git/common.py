@@ -59,3 +59,11 @@ def short_status(*args):
                 )
             )
     return result
+
+def dirty_files(untracked_files=False):
+    untracked = 'yes' if untracked_files else 'no'
+    dirty = []
+    for line in short_status('--untracked-files=%s' % untracked):
+        if line.on_index != ' ':
+            dirty.append(line.filename)
+    return dirty
