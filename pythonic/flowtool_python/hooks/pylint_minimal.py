@@ -26,10 +26,13 @@ def get_config_name(repo):
     if 'pylint-minimal' in cfg and 'configfile' in cfg['pylint-minimal']:
         return cfg['pylint-minimal']['configfile']
 
-    return os.sep.join([
+    configfile = os.sep.join([
         os.path.dirname(repo.git_dir),
         '.pylint-minimal.cfg'
     ])
+    local_git_command().config('pylint-minimal.configfile', configfile)
+    return configfile
+
 
 minimal_pylint_checks = [
     'access-member-before-definition',
@@ -94,7 +97,6 @@ def pylint_setup(cmd=None):
         with open(config_file, 'w') as fh:
             fh.write(minimal_config)
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
-        local_git_command().config('pylint-minimal.configfile', 'minimal_config')
 
 #IGNORE_RECURSIVE = set([
     #'.git', 'build', 'dist', 'test', 'tests', 'venv',
