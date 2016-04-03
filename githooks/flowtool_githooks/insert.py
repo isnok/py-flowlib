@@ -8,11 +8,27 @@ from flowtool.ui import ask_choice
 from .manager import hook_specs
 
 @click.command()
-@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Use a symlink to install the hook.')
-@click.option('-l', '--link', is_flag=True, help='Use a symlink to install the hook.')
-@click.argument('script')
-def introduce_githook(hook=None, link=None, script=None):
+@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to install.')
+@click.option('-c', '--copy', is_flag=True, help='Copy the hook (default is symlinking).')
+@click.argument('script', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
+def introduce_githook(script, hook=None, copy=None):
     """ Install a file (script) as git hook. """
 
-    echo.bold('Intro:', hook, link, script)
+    if not hook:
+        heading = ['Install', colors.cyan(os.path.basename(script)), 'into which git hook?']
+        hook = ask_choice(
+            heading=' '.join(heading),
+            choices=hook_specs,
+            question='Your choice',
+        )
+
+    echo.white(
+        'Will install',
+        colors.green(script),
+        'as',
+        colors.cyan(hook),
+        'using',
+        colors.yellow('copy' if copy else 'symlink'),
+        'installation method.',
+    )
 
