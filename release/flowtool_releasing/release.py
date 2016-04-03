@@ -3,6 +3,7 @@ import click
 from flowtool.execute import run_command
 from flowtool.style import colors, echo
 
+
 def version_or_exit():
     get_version = run_command('./versioning.py')
     if get_version.returncode:
@@ -11,6 +12,7 @@ def version_or_exit():
     else:
         return get_version.stdout.strip()
 
+
 def rollback(tag):
     rollback = run_command(['git', 'tag', '-d', tag])
     if rollback.returncode:
@@ -18,16 +20,28 @@ def rollback(tag):
         sys.exit(rollback.returncode)
     echo.cyan('Done:', rollback.stdout.strip())
 
-def do_publish(tag):
-    published = run_command('./setup.py sdist release')
+
+def do_release_step(command, tag):
+    echo.cyan('running:', command)
+    published = run_command(command)
     if published.returncode:
         echo.bold(colors.red('Failed:'))
         echo.yellow(published.stderr)
         echo.white(published.stdout)
         rollback(tag)
         sys.exit(published.returncode)
-    else:
-        echo.bold(colors.green('New release published.'))
+
+
+def do_publish(tag):
+    do_release_step('git push', tag)
+    echo.bold(colors.green('Code published.'))
+
+    do_release_step('git push --tags', tag)
+    echo.bold(colors.green('Git tags published.'))
+
+    do_release_step('./setup.py sdist upload', tag)
+    echo.bold(colors.green('New release published on PyPI.'))
+
 
 @click.command()
 def do_release():
