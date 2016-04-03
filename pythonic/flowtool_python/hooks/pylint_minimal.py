@@ -31,6 +31,7 @@ def get_config_name(repo):
         '.pylint-minimal.cfg'
     ])
     local_git_command().config('pylint-minimal.configfile', configfile)
+    echo.cyan('configured pylint-minimal.configfile locally in git')
     return configfile
 
 

@@ -51,6 +51,8 @@ def do_release():
         echo.cyan('You are already at a version tag.')
         sys.exit(1)
 
+    #XXX: Check more? like branch... might move it to gitflow then
+
     echo.bold('Tag-Version check passed:', colors.green(auto_version))
     echo.bold('Bumping version... ', nl=False)
 
