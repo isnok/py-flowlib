@@ -2,15 +2,15 @@ from flowtool.style import colors, echo
 from collections import namedtuple
 from .common import local_git_command
 
-def list_config():
-    return local_git_command().config('--list')
-
-
-def getconfig_simple(repo=None):
-    if repo:
-        dump = repo.git.config('--list')
+def list_config(local=False):
+    if local:
+        return local_git_command().config('--local', '--list')
     else:
-        dump = list_config()
+        return local_git_command().config('--list')
+
+
+def getconfig_simple(local=True):
+    dump = list_config(local)
     config = {}
     for line in dump.split('\n'):
         key, value = line.split('=', 1)

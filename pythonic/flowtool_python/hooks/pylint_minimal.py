@@ -1,6 +1,5 @@
 import os
 import sys
-import git
 import click
 import fnmatch
 from flowtool.style import echo, colors
@@ -8,22 +7,23 @@ from flowtool.execute import run_command
 from flowtool.style import debug
 
 from flowtool_git.common import local_repo
-from flowtool_git.common import short_status
+#from flowtool_git.common import short_status
 from flowtool_git.common import dirty_files
+from flowtool_git.config import getconfig_simple
 
-from pylint.lint import Run
+#from pylint.lint import Run
+
+def capture_pylint(*args):
+    """ Run pylint and return it's output. """
+    result = run_command(('pylint',) + args)
+    return result
 
 
-def demo(*args, **kwd):
-    echo.bold('demo-hook:', local_repo().git_dir)
-    #echo.white('git status:')
-    for line in short_status():
-        if line.on_index != ' ':
-            echo.cyan(line.on_index, '', line.filename)
-        if line.untracked != ' ':
-            echo.yellow('', line.untracked, line.filename)
+def get_config_name(repo):
 
-def minimal_config_name(repo):
+    for key, item in getconfig_simple().items():
+        echo.white(key, colors.cyan(item))
+
     return os.sep.join([
         os.path.dirname(repo.git_dir),
         '.pylint-minimal.cfg'
@@ -75,16 +75,11 @@ minimal_pylint_checks = [
     'yield-outside-function',
 ]
 
-def capture_pylint(*args):
-    """ Run pylint and return it's output. """
-    result = run_command(('pylint',) + args)
-    return result
-
 
 def pylint_setup(cmd=None):
     """ Setup function for pylint hook(s). """
-    repo = git.Repo(search_parent_directories=True)
-    config_file = minimal_config_name(repo)
+    repo = local_repo()
+    config_file = get_config_name(repo)
     if os.path.exists(config_file):
         echo.cyan('pyints-hook-setup: %s exists' % os.path.basename(config_file))
     else:
@@ -98,26 +93,26 @@ def pylint_setup(cmd=None):
             fh.write(minimal_config)
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
 
-IGNORE_RECURSIVE = set([
-    '.git', 'build', 'dist', 'test', 'tests', 'venv',
-])
+#IGNORE_RECURSIVE = set([
+    #'.git', 'build', 'dist', 'test', 'tests', 'venv',
+#])
 
+#def find_all_py_files(repo):
 
-def find_all_py_files(repo):
-    def ignore_location(loc, dirs, files):
-        inside = loc.split(os.sep)
-        shall_ignore = IGNORE_RECURSIVE.intersection(inside)
-        return bool(shall_ignore)
+    #def ignore_location(loc, dirs, files):
+        #inside = loc.split(os.sep)
+        #shall_ignore = IGNORE_RECURSIVE.intersection(inside)
+        #return bool(shall_ignore)
 
-    result = []
-    repo_root = os.path.dirname(repo.git_dir)
-    for step in os.walk(repo_root):
-        if not ignore_location(*step):
-            loc, _, files = step
-            matches = [n for n in files if n.endswith('.py')]
-            result.extend([os.sep.join([loc, m]) for m in matches])
-            debug.magenta(loc, matches)
-    return result
+    #result = []
+    #repo_root = os.path.dirname(repo.git_dir)
+    #for step in os.walk(repo_root):
+        #if not ignore_location(*step):
+            #loc, _, files = step
+            #matches = [n for n in files if n.endswith('.py')]
+            #result.extend([os.sep.join([loc, m]) for m in matches])
+            #debug.magenta(loc, matches)
+    #return result
 
 
 MAX_FAILS = 5
@@ -125,13 +120,13 @@ MAX_FAILS = 5
 def discover_lint_files(repo):
     """ Return the list of files to check. """
     #return find_all_py_files()
-    return dirty_files()
+    return [f for f in dirty_files() if f.endswith('.py')]
 
 
 def pylint_minimal(*args, **kwd):
     """ Run pylint with a minimal config. """
-    repo = git.Repo(search_parent_directories=True)
-    cfg = minimal_config_name(repo)
+    repo = local_repo()
+    cfg = get_config_name(repo)
     if not os.path.isfile(cfg):
         pylint_setup('install')
     check_these = discover_lint_files(repo)
