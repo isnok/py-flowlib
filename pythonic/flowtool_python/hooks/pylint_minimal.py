@@ -20,6 +20,7 @@ def capture_pylint(*args):
 
 
 def get_config_name(repo):
+    """ Get the pylint conifguration name either from repo config or make it up. """
 
     for key, item in getconfig_simple().items():
         echo.white(key, colors.cyan(item))

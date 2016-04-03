@@ -1,5 +1,5 @@
 from flowtool.style import colors, echo
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from .common import local_git_command
 
 def list_config(local=False):
@@ -11,10 +11,11 @@ def list_config(local=False):
 
 def getconfig_simple(local=True):
     dump = list_config(local)
-    config = {}
+    config = defaultdict(dict)
     for line in dump.split('\n'):
         key, value = line.split('=', 1)
-        config[key] = value
+        k1, k2 = key.split('.', 1)
+        config[k1][k2] = value
     return config
 
 
