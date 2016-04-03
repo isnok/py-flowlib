@@ -6,8 +6,21 @@ import fnmatch
 from flowtool.style import echo, colors
 from flowtool.execute import run_command
 from flowtool.style import debug
+
+from flowtool_git.common import local_repo
+from flowtool_git.common import short_status
+
 from pylint.lint import Run
 
+
+def demo(*args, **kwd):
+    echo.bold('demo-hook:', local_repo().git_dir)
+    #echo.white('git status:')
+    for line in short_status():
+        if line.on_index != ' ':
+            echo.cyan(line.on_index, '', line.filename)
+        if line.untracked != ' ':
+            echo.yellow('', line.untracked, line.filename)
 
 def minimal_config_name(repo):
     return os.sep.join([
@@ -88,9 +101,8 @@ IGNORE_RECURSIVE = set([
     '.git', 'build', 'dist', 'test', 'tests', 'venv',
 ])
 
-def discover_lint_files(repo):
-    """ Return the list of files to check. """
 
+def find_all_py_files(repo):
     def ignore_location(loc, dirs, files):
         inside = loc.split(os.sep)
         shall_ignore = IGNORE_RECURSIVE.intersection(inside)
@@ -106,7 +118,18 @@ def discover_lint_files(repo):
             debug.magenta(loc, matches)
     return result
 
-from pylint.epylint import py_run
+
+def discover_lint_files(repo):
+    """ Return the list of files to check. """
+    #return find_all_py_files()
+
+    to_check = []
+    for line in short_status():
+        if line.on_index != ' ':
+            debug.cyan(line.on_index, '', line.filename)
+            to_check.append(line.filename)
+    return to_check
+
 MAX_FAILS = 5
 
 def pylint_minimal(*args, **kwd):

@@ -13,7 +13,7 @@ VERSION_INFO = {}
 
 def get_version():
     global VERSION_INFO
-    return VERSION_INFO.get('version', 'no_version')
+    return VERSION_INFO.get('version', '$Format:%d %H$')
 '''
 
 exec(template)
@@ -26,7 +26,11 @@ def render_static_file():
 
 import os
 from os.path import join, dirname, isfile
-import configparser
+
+try:
+    from configparser import ConfigParser
+except:
+    from ConfigParser import ConfigParser
 
 
 def find_source_directory():
@@ -62,11 +66,9 @@ def get_setup_cfg():
     else:
         # loop was left without a break,
         # so there was a file with the name
-        parser = configparser.ConfigParser()
+        parser = ConfigParser()
         parser.read(join(current, 'setup.cfg'))
         return parser
-
-setup_cfg = get_setup_cfg()
 
 
 import subprocess
@@ -176,26 +178,27 @@ def get_tags_matching(prefix=''):
 
 def gather_vcs_info(prefix):
     distances = get_tags_matching(prefix)
-    latest_tag = sorted(distances, key=distances.__getitem__)[0]
 
     vcs_info = dict(
         prefix=prefix,
         prefix_tag_distances=distances,
-        latest_tag=latest_tag,
-        latest_tag_version=latest_tag[len(prefix):],
-        latest_tag_commit=get_commit(latest_tag),
         commit=get_commit('HEAD'),
         dirt=git_is_dirty(),
     )
+
+    if not distances:
+        return vcs_info
+
+    latest_tag = sorted(distances, key=distances.__getitem__)[0]
+    tag_version = latest_tag[len(prefix):]
+    vcs_info.update(
+        latest_tag=latest_tag,
+        latest_tag_version=tag_version,
+        latest_tag_commit=get_commit(latest_tag),
+        tag_version=parse_pep440(tag_version),
+    )
+
     return vcs_info
-
-prefix = setup_cfg.get('versioning', 'tag_prefix')
-vcs_info = gather_vcs_info(prefix)
-
-VERSION_INFO.update(
-    vcs_info=vcs_info,
-    tag_version=parse_pep440(vcs_info['latest_tag_version']),
-)
 
 #print(pformat(VERSION_INFO))
 
@@ -206,6 +209,10 @@ def vcs_versioning(version_info):
     """ Just use the information from the vcs, and format it nicely. """
 
     vcs_info = version_info['vcs_info']
+
+    if not 'latest_tag' in vcs_info:
+        return
+
     tag = vcs_info['latest_tag']
     distance = vcs_info['prefix_tag_distances'][tag]
 
@@ -223,18 +230,30 @@ def vcs_versioning(version_info):
 def snapshot_versioning(version_info):
     """ Just use the pep440-validated tag-version and add -SNAPSHOT if git is dirty """
 
-    version = version_info['tag_version']['version']
+    if not 'tag_version' in version_info['vcs_info']:
+        return
+
+    version = version_info['vcs_info']['tag_version']['version']
     if version_info['vcs_info']['dirt']:
         version += '-SNAPSHOT'
 
     return version
 
-assemble_version = vcs_versioning
-#assemble_version = snapshot_versioning
 
-###
+try:
+    setup_cfg = get_setup_cfg()
+    prefix = setup_cfg.get('versioning', 'tag_prefix') if setup_cfg else ''
+    vcs_info = gather_vcs_info(prefix)
+    VERSION_INFO.update(
+        vcs_info=vcs_info,
+    )
 
+    assemble_version = vcs_versioning
+    #assemble_version = snapshot_versioning
 
-VERSION_INFO['version'] = assemble_version(VERSION_INFO)
+    version = assemble_version(VERSION_INFO)
 
-#print(render_static_file())
+    if version:
+        VERSION_INFO['version'] = version
+except:
+    pass
