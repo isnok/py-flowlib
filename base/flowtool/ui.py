@@ -1,6 +1,14 @@
 import click
+import sys
 from flowtool.style import echo, colors
 from collections import namedtuple
+
+
+def abort(message, returncode=1):
+    output = echo.yellow if returncode else echo.white
+    output(message)
+    sys.exit(returncode)
+
 
 ChoiceItem = namedtuple('ChoiceItem', ['name', 'args'])
 def make_item(name, *values):

@@ -1,5 +1,6 @@
 """ Some pythonic helper functions and general purpose cornercutting. """
 
+
 def contains_any(container, *elems):
     """ Return the first elem, that is in container. """
     for elem in elems:
