@@ -2,8 +2,12 @@ import os
 import re
 import sys
 import click
+from flowtool.ui import abort
 from flowtool.style import colors, echo
 from flowtool.files import find_parent_containing
+from flowtool.files import find_subdirs_containing
+from flowtool.python import get_configparser
+from flowtool_git.common import local_repo
 from flowtool_git.tags import local_tags, delete_local_tags
 
 pep440_regex = re.compile('((?P<epoch>[0-9]*)!)?(?P<release>[0-9][0-9]*(\.[0-9][0-9]*)*)\.?((?P<pre_stage>a|b|rc)?(?P<pre_ver>[0-9]*))((\.post(?P<post>[0-9]*)))?((\.dev(?P<dev>[0-9]*)))?')
@@ -77,15 +81,9 @@ def normalize_pep440(**kwd):
         normalized = '{}!{}'.format(kwd['epoch'], normalized)
     return normalized
 
-def get_configparser():
-    try:
-        from configparser import ConfigParser
-    except:
-        from ConfigParser import ConfigParser
-    return ConfigParser()
 
-def get_confed_prefix():
-    setup_dir = find_parent_containing('setup.cfg', check='isfile')
+def get_confed_prefix(path=None):
+    setup_dir = find_parent_containing('setup.cfg', path=path, check='isfile')
     if not setup_dir:
         return
     parser = get_configparser()
@@ -93,13 +91,41 @@ def get_confed_prefix():
     return parser.get('versioning', 'tag_prefix')
 
 @click.command()
+@click.option('-a', '--all', is_flag=True, help='Clean all tags found in setup.cfgs in this repo.')
+@click.option('-y', '--yes', is_flag=True, help='Assume yes on all safety questions.')
+@click.option('-p', '--prefix', type=str, default=None, help='Specify prefix for tags (else uses setup.cfg).')
 @click.argument('n', type=int, default=3)
-def local_tag_cleanup(n=3):
+def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
     """ Delete all but the last n version tags. """
 
-    prefix = get_confed_prefix()
-    if not prefix:
-        prefix = click.prompt('No config found. Enter prefix manually')
+    if n < 0:
+        abort('Negative n supplied: %s' % n)
+    elif n == 0 and not yes:
+        click.confirm('Really keep zero (0) of the selected tags?', abort=True)
+
+    if prefix is None:
+        prefix = get_confed_prefix()
+        if prefix is None:
+            if yes:
+                abort('No tag prefix found or specified.')
+            prefix = click.prompt('No config found. Enter prefix manually')
+
+    if all:
+        for dir in find_subdirs_containing(
+                'setup.cfg',
+                path=local_repo().git_dir,
+                check='isfile',
+            ):
+            parser = get_configparser()
+            parser.read(os.path.join(dir, 'setup.cfg'))
+            prefix = parser.get('versioning', 'tag_prefix')
+            clean_tag_prefix(prefix, n, yes)
+    else:
+        clean_tag_prefix(prefix, n, yes)
+
+
+def clean_tag_prefix(prefix, n, yes):
+    """ Clean one tag prefix as requested. """
 
     tags = local_tags(prefix=prefix)
     def version_sort(tag):
@@ -120,5 +146,8 @@ def local_tag_cleanup(n=3):
     to_delete = versions[n:]
     for tag in to_delete:
         echo.yellow('->', tag)
-    click.confirm('Delete these tags locally?', abort=True)
-    echo.green(delete_local_tags(to_delete))
+
+    if yes or click.confirm('Delete these tags locally?'):
+        echo.green(delete_local_tags(to_delete))
+    else:
+        echo.cyan('Not deleting any of these.')
