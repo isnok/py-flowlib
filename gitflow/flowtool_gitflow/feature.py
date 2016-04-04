@@ -5,6 +5,7 @@ import re
 import sys
 import click
 from flowtool.style import colors, echo
+from flowtool.ui import abort
 from flowtool_git.common import local_repo
 
 def is_feature(name):
@@ -12,11 +13,6 @@ def is_feature(name):
 
 jira_issue_regex = re.compile(r'#?(?P<id>[A-Z]+-[0-9]+)')
 # ticket = '-'.join(branch[8:].split('-')[:2])
-
-def abort(message, returncode=1):
-    color = echo.yellow if returncode else echo.white
-    color(message)
-    sys.exit(returncode)
 
 @click.command()
 def main():
