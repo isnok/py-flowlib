@@ -111,13 +111,16 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
             prefix = click.prompt('No config found. Enter prefix manually')
 
     if all:
-        for dir in find_subdirs_containing(
+        git_root = os.path.dirname(local_repo().git_dir)
+        for cfgdir in find_subdirs_containing(
                 'setup.cfg',
-                path=local_repo().git_dir,
+                path=git_root,
                 check='isfile',
+                not_found=(),
             ):
+            echo.white('setup.cfg from', colors.cyan(cfgdir))
             parser = get_configparser()
-            parser.read(os.path.join(dir, 'setup.cfg'))
+            parser.read(os.path.join(cfgdir, 'setup.cfg'))
             prefix = parser.get('versioning', 'tag_prefix')
             clean_tag_prefix(prefix, n, yes)
     else:
@@ -126,6 +129,12 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
 
 def clean_tag_prefix(prefix, n, yes):
     """ Clean one tag prefix as requested. """
+
+    echo.white(
+        'Cleanup:', prefix,
+        'n =', n,
+        'yes =', yes,
+    )
 
     tags = local_tags(prefix=prefix)
     def version_sort(tag):
@@ -147,7 +156,7 @@ def clean_tag_prefix(prefix, n, yes):
     for tag in to_delete:
         echo.yellow('->', tag)
 
-    if yes or click.confirm('Delete these tags locally?'):
+    if yes or click.confirm('Delete these tags locally?', default=n):
         echo.green(delete_local_tags(to_delete))
     else:
         echo.cyan('Not deleting any of these.')
