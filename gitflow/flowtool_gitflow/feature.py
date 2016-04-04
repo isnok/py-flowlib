@@ -17,7 +17,7 @@ jira_issue_regex = re.compile(r'#?(?P<id>[A-Z]+-[0-9]+)')
 @click.command()
 def main():
     """ Handle feature branches. """
-    repo = git.Repo(search_parent_directories=True)
+    repo = local_repo()
     branches = [b.name for b in repo.branches]
     echo.white('Local branches:', branches)
     for b in branches:
