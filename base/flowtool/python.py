@@ -1,5 +1,12 @@
 """ Some pythonic helper functions and general purpose cornercutting. """
 
+def get_configparser():
+    try:
+        from configparser import ConfigParser
+    except:
+        from ConfigParser import ConfigParser
+    return ConfigParser()
+
 
 def contains_any(container, *elems):
     """ Return the first elem, that is in container. """
