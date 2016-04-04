@@ -5,6 +5,7 @@ from collections import namedtuple
 
 
 def abort(message, returncode=1):
+    """ Abort the program as requested. By default a nonzero exit status is returned. """
     output = echo.yellow if returncode else echo.white
     output(message)
     sys.exit(returncode)
@@ -18,6 +19,7 @@ def make_item(name, *values):
     return ChoiceItem(str(name), (name,) + values)
 
 def ask_choice(heading, choices, question):
+    """ Ask the User for a choice from a list through numeric selection. """
     lst = list(choices)
     if not isinstance(lst[0], ChoiceItem):
         lst = [make_item(x) for x in lst]
