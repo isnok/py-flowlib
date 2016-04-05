@@ -14,7 +14,7 @@ from flowtool_git.common import local_repo
 
 @click.command()
 @click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
-@click.option('-a', '--activate', type=bool, default=None, help='Wether the runner should be activated (made executable).')
+@click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
 def config_hooks(hook, activate):
     """ Interactively configure a hook. """
 
@@ -42,13 +42,81 @@ def config_hooks(hook, activate):
             deactivate_hook(file_hooks[hook_idx])
 
 
-    file_hooks = gather_hooks(repo)
-    # status(repo, file_hooks)
+@click.command()
+@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
+@click.option('--add/--remove', default=None, help='Wether the scripts should be added ro removed')
+@click.argument('script_names', nargs=-1)
+def config_scripts(hook, add, script_names):
+    """ Interactively add or remove the scripts of a hook. """
 
-    echo.bold(colors.blue('=== Hook Components ==='))
-    select_scripts(file_hooks[hook_idx])
-
+    repo = local_repo()
     file_hooks = gather_hooks(repo)
+
+    if not hook:
+        status(repo, file_hooks)
+        hook_idx = choose_hook(file_hooks)
+    else:
+        for idx, tupl in enumerate(file_hooks):
+            if tupl.name == hook:
+                hook_idx = idx
+                break
+        else:
+            abort('not a managed git hook:', hook)
+
+    info = file_hooks[hook_idx]
+    if not script_names:
+        echo.bold(colors.blue('=== Hook Components ==='))
+        select_scripts(info)
+    else:
+        available = find_entry_scripts(info.name)
+        mentioned = {}
+
+        for full_path, entry in available.items():
+            mentioned[os.path.basename(full_path)] = (full_path, entry)
+
+        for name in script_names:
+            if not name in mentioned:
+                echo.red(
+                    colors.bold(name),
+                    'is not available for this hook:',
+                    colors.cyan(info.name)
+                )
+            else:
+                full_path, entry = mentioned[name]
+                if add is None:
+                    pass
+                elif add:
+                    add_script(info, full_path, entry.load())
+                else:
+                    remove_script(info, full_path, entry.load())
+
+
+
+def add_script(hook_info, script_fullpath, setup_entry):
+    """ Add script to hook. """
+    dest = os.sep.join([
+        hook_info.runner_dir,
+        os.path.basename(script_fullpath),
+    ])
+    os.symlink(script_fullpath, dest)
+    echo.green('Added %s.' % script_fullpath)
+    setup_entry('install')
+    # if click.confirm('Also activate?', default=True):
+    make_executable(dest)
+        # echo.cyan('Activated %s.' % arg)
+
+def remove_script(hook_info, script_fullpath, setup_entry):
+    """ Remove script from hook. """
+    script = os.sep.join([
+        hook_info.runner_dir,
+        os.path.basename(script_fullpath),
+    ])
+    os.unlink(script)
+    setup_entry('uninstall')
+    echo.red('Removed %s.' % script)
+
+
+    # file_hooks = gather_hooks(repo)
     # status(repo, file_hooks)
 
     # echo.bold(colors.blue('=== Hook Components On / Off ==='))
