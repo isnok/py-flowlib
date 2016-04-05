@@ -99,7 +99,7 @@ def add_script(hook_info, script_fullpath, setup_entry):
         os.path.basename(script_fullpath),
     ])
     os.symlink(script_fullpath, dest)
-    echo.green('Added %s.' % script_fullpath)
+    echo.green('Added %s.' % dest)
     setup_entry('install')
     # if click.confirm('Also activate?', default=True):
     make_executable(dest)
