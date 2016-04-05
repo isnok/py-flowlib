@@ -84,6 +84,8 @@ minimal_pylint_checks = [
 
 def pylint_setup(cmd=None):
     """ Setup function for pylint hook(s). """
+    if cmd == 'uninstall':
+        return
     repo = local_repo()
     config_file = get_config_name(repo)
     if os.path.exists(config_file):
