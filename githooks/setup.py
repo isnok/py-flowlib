@@ -41,6 +41,7 @@ setup_args.update(
     install_requires=[
         'click',
         'flowtool-base',
+        'flowtool-git',
         'gitpython',
         'pylint',
     ],
