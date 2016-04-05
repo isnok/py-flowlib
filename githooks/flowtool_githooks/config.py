@@ -4,23 +4,43 @@ import click
 from flowtool.files import make_executable, toggle_executable
 from flowtool.style import echo, colors
 from flowtool.style import debug
+from flowtool.ui import abort
 
 from .status import status
 from .manager import gather_hooks, toggle_hook, choose_hook, find_entry_scripts
+from .manager import hook_specs, activate_hook, deactivate_hook
 
 from flowtool_git.common import local_repo
 
 @click.command()
-def config_hooks():
+@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
+@click.option('-a', '--activate', type=bool, default=None, help='Wether the runner should be activated (made executable).')
+def config_hooks(hook, activate):
     """ Interactively configure a hook. """
 
     repo = local_repo()
     file_hooks = gather_hooks(repo)
-    status(repo, file_hooks)
-    hook_idx = choose_hook(file_hooks)
 
-    echo.bold(colors.blue('=== Hook On / Off ==='))
-    toggle_hook(file_hooks[hook_idx], repo)
+    if not hook:
+        status(repo, file_hooks)
+        hook_idx = choose_hook(file_hooks)
+    else:
+        for idx, tupl in enumerate(file_hooks):
+            if tupl.name == hook:
+                hook_idx = idx
+                break
+        else:
+            abort('not a managed git hook:', hook)
+
+    if activate is None:
+        echo.bold(colors.blue('=== Hook On / Off ==='))
+        toggle_hook(file_hooks[hook_idx], repo)
+    else:
+        if activate:
+            activate_hook(file_hooks[hook_idx])
+        else:
+            deactivate_hook(file_hooks[hook_idx])
+
 
     file_hooks = gather_hooks(repo)
     # status(repo, file_hooks)
