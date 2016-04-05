@@ -18,7 +18,7 @@ def capture_pylint(*args):
     try:
         result = run_command(('pylint',) + args)
     except OSError as ex:
-        echo.yellow('Encountered %s while trying to run pylint. Is it installed?' % ex)
+        echo.yellow('\nEncountered %s while trying to run pylint. Is it installed?' % ex)
         sys.exit(1)
     return result
 
@@ -156,7 +156,7 @@ def pylint_minimal(*args, **kwd):
                 filename,
             )
             result = capture_pylint(*pylint_args)
-            if result.stdout or result.stderr:
+            if result.stdout or result.stderr or result.returncode:
                 fails += 1
                 returncode |= result.returncode
                 msg_fname = filename.replace(os.getcwd(), '')
@@ -209,7 +209,7 @@ def pylint_pre_push(*args, **kwd):
                 filename,
             )
             result = capture_pylint(*pylint_args)
-            if result.stdout or result.stderr:
+            if result.returncode:
                 fails += 1
                 returncode |= result.returncode
                 msg_fname = filename.replace(os.getcwd(), '')
@@ -219,5 +219,5 @@ def pylint_pre_push(*args, **kwd):
                 if result.stdout:
                     echo.white(result.stdout)
                 if fails >= MAX_FAILS:
-                    sys.exit(returncode or MAX_FAILS)
+                    break
     sys.exit(returncode)
