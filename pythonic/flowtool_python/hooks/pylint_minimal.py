@@ -174,7 +174,7 @@ def discover_changed_files(repo):
     changed = repo.git.diff('--name-status', 'master').split('\n')
     result = [l.split('\t', 1) for l in changed]
 
-    return [f[1] for f in result if f[0] != 'D']
+    return [f[1] for f in result if f and f[0] != 'D']
 
 
 def pylint_pre_push(*args, **kwd):
