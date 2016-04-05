@@ -18,6 +18,7 @@ HookSignature = namedtuple('HookSignature', ['name', 'args', 'stdin'])
 HOOK_SIGNATURES = [
     HookSignature('pre-commit', (), False),
     HookSignature('commit-msg', ('message_file',), False),
+    HookSignature('pre-push', (), True),
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
 
@@ -92,6 +93,8 @@ def deactivate_hook(info):
     """ Deactivate hook """
     make_not_executable(info.file)
     echo.yellow('Deactivated %s.' % info.name)
+
+from .install import install_hook
 
 def toggle_hook(info, repo):
     """ Toggle 'whole' git hooks. """

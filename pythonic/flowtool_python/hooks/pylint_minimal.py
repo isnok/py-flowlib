@@ -87,7 +87,7 @@ def pylint_setup(cmd=None):
     repo = local_repo()
     config_file = get_config_name(repo)
     if os.path.exists(config_file):
-        echo.cyan('pyints-hook-setup: %s exists' % os.path.basename(config_file))
+        echo.cyan('pylint-hook-setup: %s exists' % os.path.basename(config_file))
     else:
         minimal_config = capture_pylint(
             '--enable=%s' % ','.join(minimal_pylint_checks),
@@ -132,6 +132,58 @@ def pylint_minimal(*args, **kwd):
     if not os.path.isfile(cfg):
         pylint_setup('install')
     check_these = discover_lint_files(repo)
+    echo.bold(
+        'pylint-minimal-hook:',
+        'will check',
+        len(check_these),
+        'files using',
+        os.path.basename(cfg),
+    )
+    fails = 0
+    returncode = 0
+    with click.progressbar(check_these) as bar:
+        for filename in bar:
+            pylint_args = (
+                '--errors-only',
+                '--rcfile=%s' % cfg,
+                "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
+                filename,
+            )
+            result = capture_pylint(*pylint_args)
+            if result.stdout or result.stderr:
+                fails += 1
+                returncode |= result.returncode
+                msg_fname = filename.replace(os.getcwd(), '')
+                echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
+                if result.stderr:
+                    echo.red(result.stderr)
+                if result.stdout:
+                    echo.white(result.stdout)
+                if fails >= MAX_FAILS:
+                    sys.exit(returncode or MAX_FAILS)
+    sys.exit(returncode)
+
+
+
+
+def discover_changed_files(repo):
+    """ Return the list of files to check (on pre-push). """
+    reference_branch = 'master'
+
+    repo = local_repo()
+    changed = repo.git.diff('--name-status', 'master').split('\n')
+    result = [l.split('\t', 1) for l in changed]
+
+    return [f[1] for f in result if f[0] != 'D']
+
+
+def pylint_pre_push(*args, **kwd):
+    """ Run pylint with a minimal config. """
+    repo = local_repo()
+    cfg = get_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
+    check_these = discover_changed_files(repo)
     echo.bold(
         'pylint-minimal-hook:',
         'will check',
