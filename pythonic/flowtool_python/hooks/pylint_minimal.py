@@ -170,10 +170,11 @@ def pylint_minimal(*args, **kwd):
 
 def discover_changed_files(repo):
     """ Return the list of files to check (on pre-push). """
-    reference_branch = 'master'
+
+    reference_branch = 'origin/master'
 
     repo = local_repo()
-    changed = repo.git.diff('--name-status', 'master').split('\n')
+    changed = repo.git.diff('--name-status', reference_branch).split('\n')
     result = [l.split('\t', 1) for l in changed if l]
 
     return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
