@@ -15,7 +15,11 @@ from flowtool_git.config import getconfig_simple
 
 def capture_pylint(*args):
     """ Run pylint and return it's output. """
-    result = run_command(('pylint',) + args)
+    try:
+        result = run_command(('pylint',) + args)
+    except OSError as ex:
+        echo.yellow('\nEncountered %s while trying to run pylint. Is it installed?' % ex)
+        sys.exit(1)
     return result
 
 
@@ -84,10 +88,12 @@ minimal_pylint_checks = [
 
 def pylint_setup(cmd=None):
     """ Setup function for pylint hook(s). """
+    if cmd == 'uninstall':
+        return
     repo = local_repo()
     config_file = get_config_name(repo)
     if os.path.exists(config_file):
-        echo.cyan('pyints-hook-setup: %s exists' % os.path.basename(config_file))
+        echo.cyan('pylint-hook-setup: %s exists' % os.path.basename(config_file))
     else:
         minimal_config = capture_pylint(
             '--enable=%s' % ','.join(minimal_pylint_checks),
@@ -150,7 +156,7 @@ def pylint_minimal(*args, **kwd):
                 filename,
             )
             result = capture_pylint(*pylint_args)
-            if result.stdout or result.stderr:
+            if result.stdout or result.stderr or result.returncode:
                 fails += 1
                 returncode |= result.returncode
                 msg_fname = filename.replace(os.getcwd(), '')
@@ -161,4 +167,57 @@ def pylint_minimal(*args, **kwd):
                     echo.white(result.stdout)
                 if fails >= MAX_FAILS:
                     sys.exit(returncode or MAX_FAILS)
+    sys.exit(returncode)
+
+
+
+
+def discover_changed_files(repo):
+    """ Return the list of files to check (on pre-push). """
+
+    reference_branch = 'origin/master'
+
+    repo = local_repo()
+    changed = repo.git.diff('--name-status', reference_branch).split('\n')
+    result = [l.split('\t', 1) for l in changed if l]
+
+    return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
+
+
+def pylint_pre_push(*args, **kwd):
+    """ Run pylint with a minimal config. """
+    repo = local_repo()
+    cfg = get_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
+    check_these = discover_changed_files(repo)
+    echo.bold(
+        'pylint-minimal-hook:',
+        'will check',
+        len(check_these),
+        'files using',
+        os.path.basename(cfg),
+    )
+    fails = 0
+    returncode = 0
+    with click.progressbar(check_these) as bar:
+        for filename in bar:
+            pylint_args = (
+                '--errors-only',
+                '--rcfile=%s' % cfg,
+                "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
+                filename,
+            )
+            result = capture_pylint(*pylint_args)
+            if result.returncode:
+                fails += 1
+                returncode |= result.returncode
+                msg_fname = filename.replace(os.getcwd(), '')
+                echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
+                if result.stderr:
+                    echo.red(result.stderr)
+                if result.stdout:
+                    echo.white(result.stdout)
+                if fails >= MAX_FAILS:
+                    break
     sys.exit(returncode)

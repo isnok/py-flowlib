@@ -1,6 +1,7 @@
 import os
 import sys
 import click
+import shutil
 
 from collections import namedtuple
 from pkg_resources import iter_entry_points
@@ -18,6 +19,7 @@ HookSignature = namedtuple('HookSignature', ['name', 'args', 'stdin'])
 HOOK_SIGNATURES = [
     HookSignature('pre-commit', (), False),
     HookSignature('commit-msg', ('message_file',), False),
+    HookSignature('pre-push', (), True),
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
 
@@ -43,6 +45,33 @@ def find_entry_scripts(hook_name):
 
     return entrypoint_scripts
 
+
+def install_hook(info, repo):
+    name = info.name
+    hook_file = os.path.join(repo.git_dir, 'hooks', name)
+
+    def install():
+        echo.white('installing', os.path.basename(RUNNER), 'as', name)
+        shutil.copyfile(RUNNER, hook_file)
+        make_executable(hook_file)
+        if not os.path.exists(info.runner_dir):
+            os.mkdir(info.runner_dir)
+
+    if not os.path.exists(hook_file):
+        install()
+    elif filecmp.cmp(hook_file, RUNNER):
+        echo.green('Runner already installed as %r.' % name)
+    else:
+        message = 'A file differing from the runner is already installed as %r. Replace it?' % colors.cyan(name)
+        confirmed = click.confirm(colors.bold(message), default=True)
+        if confirmed:
+            backup = hook_file + '.old'
+            echo.white('storing backup to', os.path.basename(backup))
+            if os.path.exists(backup):
+                os.unlink(backup)
+            os.link(hook_file, backup)
+            os.unlink(hook_file)
+            install()
 
 def gather_file_hooks(repo):
     hook_dir = os.path.join(repo.git_dir, 'hooks')
@@ -92,6 +121,7 @@ def deactivate_hook(info):
     """ Deactivate hook """
     make_not_executable(info.file)
     echo.yellow('Deactivated %s.' % info.name)
+
 
 def toggle_hook(info, repo):
     """ Toggle 'whole' git hooks. """

@@ -41,6 +41,7 @@ setup_args.update(
     install_requires=[
         'click',
         'flowtool-base',
+        'flowtool-git',
         'gitpython',
         'pylint',
     ],
@@ -55,6 +56,7 @@ setup_args.update(
             'githooks-install = flowtool_githooks.install:install_hooks',
             'githooks-status = flowtool_githooks.status:show_status',
             'githooks-config = flowtool_githooks.config:config_hooks',
+            'githooks-scripts = flowtool_githooks.config:config_scripts',
             'githooks-introduce = flowtool_githooks.insert:introduce_githook',
             'githooks-wipe = flowtool_githooks.uninstall:wipe_hooks',
             'run-githook = flowtool_githooks.runner:run_hook',
