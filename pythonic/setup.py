@@ -47,7 +47,7 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'pythonic-clean = flowtool_python.clean:clean',
+            'clean-pycs = flowtool_python.clean:clean',
         ],
         'console_scripts': [
             '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_minimal',

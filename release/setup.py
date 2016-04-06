@@ -46,7 +46,7 @@ setup_args.update(
     entry_points={
         'flowtool_commands': [
             'release-now = flowtool_releasing.release:do_release',
-            'release-cleanup = flowtool_releasing.cleanup:local_tag_cleanup',
+            'clean-tags = flowtool_releasing.cleanup:local_tag_cleanup',
         ],
     },
 )
