@@ -109,66 +109,6 @@ def pylint_setup(cmd=None):
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
 
 
-def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
-    """ Find .py files in the repo, recursively ignoring some dirs. """
-
-    def ignore_location(loc, dirs, files):
-        inside = loc.split(os.sep)
-        shall_ignore = ignore_dirs.intersection(inside)
-        return bool(shall_ignore)
-
-    result = []
-    repo_root = os.path.dirname(repo.git_dir)
-    for step in os.walk(repo_root):
-        if not ignore_location(*step):
-            loc, _, files = step
-            matches = [n for n in files if n.endswith('.py')]
-            result.extend([os.sep.join([loc, m]) for m in matches])
-            debug.magenta(loc, matches)
-    return result
-
-
-def discover_lint_files(repo=None):
-    """ Return the list of dirty py files in the git. """
-
-    return [f for f in dirty_files() if f.endswith('.py')]
-
-
-
-def pylint_minimal(*args, **kwd):
-    """ Run pylint with a minimal config. """
-    repo = local_repo()
-    cfg = get_config_name(repo)
-    if not os.path.isfile(cfg):
-        pylint_setup('install')
-    check_these = discover_lint_files(repo)
-    run_hook(check_these, cfg)
-
-
-
-def discover_changed_files(repo):
-    """ Return the list of files to check (on pre-push). """
-
-    reference_branch = 'origin/master'
-
-    repo = local_repo()
-    changed = repo.git.diff('--name-status', reference_branch).split('\n')
-    result = [l.split('\t', 1) for l in changed if l]
-
-    return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
-
-
-def pylint_pre_push(*args, **kwd):
-    """ Run pylint with a minimal config. """
-
-    repo = local_repo()
-    cfg = get_config_name(repo)
-    if not os.path.isfile(cfg):
-        pylint_setup('install')
-
-    check_these = discover_changed_files(repo)
-    run_hook(check_these)
-
 
 def run_hook(check_these, cfg=None, continues=5):
     """ Run pylint on the selected files and exit nonzero if a run failed.
@@ -208,3 +148,67 @@ def run_hook(check_these, cfg=None, continues=5):
                     sys.exit(returncode or continues)
     if returncode:
         sys.exit(returncode)
+
+
+
+def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+    """ Find .py files in the repo, recursively ignoring some dirs. """
+
+    def ignore_location(loc, dirs, files):
+        inside = loc.split(os.sep)
+        shall_ignore = ignore_dirs.intersection(inside)
+        return bool(shall_ignore)
+
+    result = []
+    repo_root = os.path.dirname(repo.git_dir)
+    for step in os.walk(repo_root):
+        if not ignore_location(*step):
+            loc, _, files = step
+            matches = [n for n in files if n.endswith('.py')]
+            result.extend([os.sep.join([loc, m]) for m in matches])
+            debug.magenta(loc, matches)
+    return result
+
+
+def discover_lint_files(repo=None):
+    """ Return the list of dirty py files in the git. """
+
+    return [f for f in dirty_files() if f.endswith('.py')]
+
+
+
+def pylint_minimal(*args, **kwd):
+    """ Run pylint with a minimal config. """
+    repo = local_repo()
+    cfg = get_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
+    check_these = discover_lint_files(repo)
+    run_hook(check_these, cfg)
+
+
+
+def discover_changed_files(repo=None):
+    """ Return the list of files to check (on pre-push). """
+
+    reference_branch = 'origin/master'
+
+    if repo is None:
+        repo = local_repo()
+
+    changed = repo.git.diff('--name-status', reference_branch).split('\n')
+    result = [l.split('\t', 1) for l in changed if l]
+
+    return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
+
+
+def pylint_pre_push(*args, **kwd):
+    """ Run pylint with a minimal config. """
+
+    repo = local_repo()
+    cfg = get_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
+
+    check_these = discover_changed_files(repo)
+    run_hook(check_these)
