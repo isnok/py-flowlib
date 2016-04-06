@@ -4,6 +4,13 @@ python:
     - "3.4"
 install:
     - pip install -e base
+    - pip install -e git
+    - pip install -e gitflow
+    - pip install -e githooks
+    - pip install -e hooks-demo
+    - pip install -e pythonic
+    - pip install -e release
+    - pip install -e stages
     #- pip install -U pytest
     #- pip install -U tox
     #- pip install -U tox pytest
