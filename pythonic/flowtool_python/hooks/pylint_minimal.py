@@ -129,7 +129,7 @@ def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 
 
 
 def discover_lint_files(repo=None):
-    """ Return the list of files to check. """
+    """ Return the list of dirty py files in the git. """
 
     return [f for f in dirty_files() if f.endswith('.py')]
 
