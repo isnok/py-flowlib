@@ -59,4 +59,5 @@ def pytest_hook(*args, **kwd):
             hook_return |= returncode
             if fails > continues:
                 sys.exit(returncode)
-    sys.exit(hook_return)
+    if hook_return:
+        sys.exit(hook_return)

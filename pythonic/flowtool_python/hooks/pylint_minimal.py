@@ -184,8 +184,8 @@ def pylint_minimal(*args, **kwd):
     if not os.path.isfile(cfg):
         pylint_setup('install')
     check_these = discover_lint_files(repo)
-    run_hook(check_these, cfg)
-
+    if check_these:
+        run_hook(check_these, cfg)
 
 
 def discover_changed_files(repo=None):
@@ -211,4 +211,5 @@ def pylint_pre_push(*args, **kwd):
         pylint_setup('install')
 
     check_these = discover_changed_files(repo)
-    run_hook(check_these)
+    if check_these:
+        run_hook(check_these, cfg)
