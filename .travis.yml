@@ -19,3 +19,6 @@ install:
 script:
     - ft
     - ft self-info
+    - _flowtool_python.pytest_hook
+    - _flowtool_python.pylint_minimal
+    - _flowtool_githooks.demo
