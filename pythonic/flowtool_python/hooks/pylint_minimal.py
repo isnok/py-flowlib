@@ -23,12 +23,15 @@ def capture_pylint(*args):
     return result
 
 
-def get_config_name(repo):
+def get_config_name(repo=None):
     """ Get the pylint conifguration name either from repo config or make it up. """
 
     cfg = getconfig_simple()
     if 'pylint-minimal' in cfg and 'configfile' in cfg['pylint-minimal']:
         return cfg['pylint-minimal']['configfile']
+
+    if repo is None:
+        repo = local_repo()
 
     configfile = os.sep.join([
         os.path.dirname(repo.git_dir),
@@ -106,29 +109,30 @@ def pylint_setup(cmd=None):
         echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
 
 
-#def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', 'venv'])):
+def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+    """ Find .py files in the repo, recursively ignoring some dirs. """
 
-    #def ignore_location(loc, dirs, files):
-        #inside = loc.split(os.sep)
-        #shall_ignore = ignore_dirs.intersection(inside)
-        #return bool(shall_ignore)
+    def ignore_location(loc, dirs, files):
+        inside = loc.split(os.sep)
+        shall_ignore = ignore_dirs.intersection(inside)
+        return bool(shall_ignore)
 
-    #result = []
-    #repo_root = os.path.dirname(repo.git_dir)
-    #for step in os.walk(repo_root):
-        #if not ignore_location(*step):
-            #loc, _, files = step
-            #matches = [n for n in files if n.endswith('.py')]
-            #result.extend([os.sep.join([loc, m]) for m in matches])
-            #debug.magenta(loc, matches)
-    #return result
+    result = []
+    repo_root = os.path.dirname(repo.git_dir)
+    for step in os.walk(repo_root):
+        if not ignore_location(*step):
+            loc, _, files = step
+            matches = [n for n in files if n.endswith('.py')]
+            result.extend([os.sep.join([loc, m]) for m in matches])
+            debug.magenta(loc, matches)
+    return result
 
 
-MAX_FAILS = 5
-
-def discover_lint_files(repo):
+def discover_lint_files(repo=None):
     """ Return the list of files to check. """
+
     return [f for f in dirty_files() if f.endswith('.py')]
+
 
 
 def pylint_minimal(*args, **kwd):
@@ -138,6 +142,41 @@ def pylint_minimal(*args, **kwd):
     if not os.path.isfile(cfg):
         pylint_setup('install')
     check_these = discover_lint_files(repo)
+    run_hook(check_these, cfg)
+
+
+
+def discover_changed_files(repo):
+    """ Return the list of files to check (on pre-push). """
+
+    reference_branch = 'origin/master'
+
+    repo = local_repo()
+    changed = repo.git.diff('--name-status', reference_branch).split('\n')
+    result = [l.split('\t', 1) for l in changed if l]
+
+    return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
+
+
+def pylint_pre_push(*args, **kwd):
+    """ Run pylint with a minimal config. """
+
+    repo = local_repo()
+    cfg = get_config_name(repo)
+    if not os.path.isfile(cfg):
+        pylint_setup('install')
+
+    check_these = discover_changed_files(repo)
+    run_hook(check_these)
+
+
+def run_hook(check_these, cfg=None, continues=5):
+    """ Run pylint on the selected files and exit nonzero if a run failed.
+        Continue up to 'continues' times if one run fails still, to show possibly
+        more errors that you can fix easily in one go when checking a lot of files.
+    """
+    if cfg is None:
+        cfg = get_config_name()
     echo.bold(
         'pylint-minimal-hook:',
         'will check',
@@ -165,59 +204,7 @@ def pylint_minimal(*args, **kwd):
                     echo.red(result.stderr)
                 if result.stdout:
                     echo.white(result.stdout)
-                if fails >= MAX_FAILS:
-                    sys.exit(returncode or MAX_FAILS)
-    sys.exit(returncode)
-
-
-
-
-def discover_changed_files(repo):
-    """ Return the list of files to check (on pre-push). """
-
-    reference_branch = 'origin/master'
-
-    repo = local_repo()
-    changed = repo.git.diff('--name-status', reference_branch).split('\n')
-    result = [l.split('\t', 1) for l in changed if l]
-
-    return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
-
-
-def pylint_pre_push(*args, **kwd):
-    """ Run pylint with a minimal config. """
-    repo = local_repo()
-    cfg = get_config_name(repo)
-    if not os.path.isfile(cfg):
-        pylint_setup('install')
-    check_these = discover_changed_files(repo)
-    echo.bold(
-        'pylint-minimal-hook:',
-        'will check',
-        len(check_these),
-        'files using',
-        os.path.basename(cfg),
-    )
-    fails = 0
-    returncode = 0
-    with click.progressbar(check_these) as bar:
-        for filename in bar:
-            pylint_args = (
-                '--errors-only',
-                '--rcfile=%s' % cfg,
-                "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
-                filename,
-            )
-            result = capture_pylint(*pylint_args)
-            if result.returncode:
-                fails += 1
-                returncode |= result.returncode
-                msg_fname = filename.replace(os.getcwd(), '')
-                echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
-                if result.stderr:
-                    echo.red(result.stderr)
-                if result.stdout:
-                    echo.white(result.stdout)
-                if fails >= MAX_FAILS:
-                    break
-    sys.exit(returncode)
+                if fails >= continues:
+                    sys.exit(returncode or continues)
+    if returncode:
+        sys.exit(returncode)
