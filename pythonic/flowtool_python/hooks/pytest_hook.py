@@ -5,6 +5,7 @@ import click
 import fnmatch
 from flowtool.style import echo, colors
 from flowtool.style import debug
+from flowtool_git.common import local_repo
 
 import pytest
 
@@ -22,8 +23,11 @@ IGNORE_RECURSIVE = set([
     '.git', 'build', 'dist', 'test', 'tests', 'venv',
 ])
 
-def find_configs(repo):
+def find_configs(repo=None):
     """ Find dirs with pytest compatible configs. """
+
+    if repo is None:
+        repo = local_repo()
 
     def ignore_location(loc):
         inside = loc.split(os.sep)
@@ -40,21 +44,19 @@ def pytest_setup(cmd=None):
     """ Setup function for pytest hook(s). (Unused) """
 
 
-MAX_FAILS = 1
-
 def pytest_hook(*args, **kwd):
     """ Run pytest in discovered directories. """
-    repo = git.Repo(search_parent_directories=True)
+    locations = list(find_configs())
+    echo.bold('Will run pytest in %d dir(s).' % len(locations))
+    continues = 0
     hook_return = 0
     fails = 0
-    locations = list(find_configs(repo))
-    echo.bold('Will run pytest in %d dir(s).' % len(locations))
     for loc in locations:
         echo.bold('->', loc)
         returncode = run_pytest()
         if returncode:
             fails += 1
             hook_return |= returncode
-            if fails == MAX_FAILS:
-                sys.exit(MAX_FAILS)
+            if fails > continues:
+                sys.exit(returncode)
     sys.exit(hook_return)
