@@ -1,3 +1,6 @@
+[![build-status](https://travis-ci.org/isnok/py-flowlib.svg?branch=master)](https://travis-ci.org/isnok/py-flowlib)
+
+
 # flowtool
 
 An extensible workflow management command.
@@ -9,6 +12,8 @@ You can choose your components granularly from (currently):
 * `flowtool-gitflow` - general git helpers
 * `flowtool-githooks` - git hook manager
 * `flowtool-python` - a git hook to check python code and more
+* `flowtool-versioning` - an automated versioning system
+* `flowtool-release` - an automated release process for python packages to [PyPI](http://pypi.python.org).
 
 or just install the "virtual meta package" via
 
@@ -24,9 +29,9 @@ The command is obviously named `flowtool` and has also a quick alias: `ft`.
 Freshly installed `flowtool-base` brings only one command:
 ```shell
 flowtool --help
-flowtool runtime-info
+flowtool self-info
 ft
-ft runtime-info
+ft self-info
 ```
 
 ## Completion

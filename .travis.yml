@@ -11,6 +11,8 @@ install:
     - pip install -e pythonic
     - pip install -e release
     - pip install -e stages
+    - pip install -e versioning
+    - pip install -e meta
     #- pip install -U pytest
     #- pip install -U tox
     #- pip install -U tox pytest
