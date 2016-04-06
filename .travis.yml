@@ -19,3 +19,4 @@ install:
 script:
     - ft
     - ft self-info
+    - ft self-update -y
