@@ -9,7 +9,7 @@ An extensible workflow management command.
 
 You can choose your components granularly from (currently):
 
-* [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/git) - general git helpers
+* [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/gitflow) - general git shortcuts and workflow helpers
 * [`flowtool-githooks`](https://github.com/isnok/py-flowlib/tree/master/githooks) - git hook manager
 * [`flowtool-githook-demo`](https://github.com/isnok/py-flowlib/tree/master/hooks-demo) - some example git hooks and one for [shellcheck](https://github.com/koalaman/shellcheck)
 * [`flowtool-python`](https://github.com/isnok/py-flowlib/tree/master/pythonic) - a [git hook](https://github.com/isnok/py-flowlib/tree/master/pythonic/flowtool_python/hooks) to check python code and more
