@@ -152,10 +152,16 @@ def clean_tag_prefix(prefix, n, yes):
         )
     )
 
-    echo.red('Local git tags to be removed:')
     to_delete = versions[n:]
-    for tag in to_delete:
-        echo.yellow('->', tag)
+    echo.red('tags to be removed:', colors.bold(str(len(to_delete))))
+    if len(to_delete) <= 3:
+        for tag in to_delete:
+            echo.yellow('->', tag)
+    else:
+        echo.yellow('->', to_delete[-1])
+        echo.yellow('  ', '...', len(to_delete) - 2, 'more', '...')
+        echo.yellow('->', to_delete[0])
+
 
     if yes or click.confirm('Delete these tags locally?', default=n):
         echo.green(delete_local_tags(to_delete))
