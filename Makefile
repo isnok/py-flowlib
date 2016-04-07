@@ -1,8 +1,8 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo meta pythonic release snippets stages venv versioning
 
-travis: main-command demo-hook pytest pylint shellcheck
+travis: main-command demo-hook pytest pylint
 
-test: travis tox
+test: tox shellcheck
 
 main-command:
 	# check flowtool command:
@@ -29,6 +29,6 @@ shellcheck:
 tox:
 	for dir in $(COMPONENT_DIRS); do cd $${dir}; if [ -f tox.ini ]; then tox; fi; cd ..; done
 
-all: test
+all: travis test
 
 .PHONY : all test travis main-command demo-hook pytest pylint shellcheck
