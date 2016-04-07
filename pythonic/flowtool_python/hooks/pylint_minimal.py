@@ -11,11 +11,12 @@ from flowtool_git.common import short_status
 from flowtool_git.config import getconfig_simple
 
 #from pylint.lint import Run
+PYLINT_EXECUTABLE = os.path.join(os.path.dirname(sys.executable), 'pylint')
 
 def capture_pylint(*args):
     """ Run pylint and return it's output. """
     try:
-        result = run_command(('pylint',) + args)
+        result = run_command((PYLINT_EXECUTABLE,) + args)
     except OSError as ex:
         echo.yellow('\nEncountered %s while trying to run pylint. Is it installed?' % ex)
         sys.exit(1)
