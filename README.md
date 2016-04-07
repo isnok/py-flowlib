@@ -55,7 +55,5 @@ package that we all can use one day.
 ## Todo
 
 * Invent and implement more features.
-* Currently I still have some ideas. One would be a version management helper
-* ... and the other a release-helper.
 * There must be many more tools waiting to be wrapped in quality git hooks.
-* Issue Tracker integration is planned.
+* Issue Tracker integration was planned, but is now postponed (from my side).
