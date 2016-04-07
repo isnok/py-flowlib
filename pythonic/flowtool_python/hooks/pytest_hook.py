@@ -60,7 +60,10 @@ def pytest_hook(args=()):
             fails += 1
             hook_return |= returncode
             if fails > continues:
-                sys.exit(returncode)
+                break
         os.chdir(restore_dir)
-    if hook_return:
+    if hook_return == 5:
+        echo.yellow('-> PyTest returned %d. No tests discovered?' % hook_return)
+        sys.exit(hook_return)
+    else:
         sys.exit(hook_return)

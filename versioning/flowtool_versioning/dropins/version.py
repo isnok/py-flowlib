@@ -38,7 +38,11 @@ except:
 
 
 def find_source_directory():
-    """ Find a directory in the source tree. """
+    """ Find a directory in the source tree.
+
+        >>> type(find_source_directory()) == str
+        True
+    """
 
     if not os.path.islink(__file__):
         return dirname(__file__)
