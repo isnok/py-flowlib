@@ -23,6 +23,8 @@ def capture_pylint(*args):
     return result
 
 
+GITCONFIG_KEY = 'pylint-minimal.configfile'
+
 def get_config_name(repo=None):
     """ Get the pylint conifguration name either from repo config or set it up. """
 
@@ -37,11 +39,10 @@ def get_config_name(repo=None):
         os.path.dirname(repo.git_dir),
         '.pylint-minimal.cfg'
     ])
-    git_config_key = 'pylint-minimal.configfile'
-    local_git_command().config(git_config_key, configfile)
+    local_git_command().config(GITCONFIG_KEY, configfile)
     echo.cyan(
         'configured',
-        colors.yellow(git_config_key),
+        colors.yellow(GITCONFIG_KEY),
         'to',
         colors.white(configfile),
         'in local git repository',
@@ -98,12 +99,22 @@ minimal_pylint_checks = [
 
 def pylint_setup(cmd=None):
     """ Setup function for pylint hook(s). """
-    if cmd == 'uninstall':
-        return
     repo = local_repo()
+    if cmd == 'uninstall':
+        echo.cyan(
+            'pylint-hook-setup:',
+            'unsetting',
+            colors.yellow(GITCONFIG_KEY),
+        )
+        repo.git.config('--unset', GITCONFIG_KEY)
+        return
     config_file = get_config_name(repo)
     if os.path.exists(config_file):
-        echo.cyan('pylint-hook-setup: %s exists' % os.path.basename(config_file))
+        echo.cyan(
+            'pylint-hook-setup:',
+            os.path.basename(config_file),
+            'exists',
+        )
     else:
         minimal_config = capture_pylint(
             '--enable=%s' % ','.join(minimal_pylint_checks),
@@ -113,7 +124,7 @@ def pylint_setup(cmd=None):
         ).stdout
         with open(config_file, 'w') as fh:
             fh.write(minimal_config)
-        echo.cyan('pyints-hook-setup: created %s' % os.path.basename(config_file))
+        echo.cyan('pyints-hook-setup: created', os.path.basename(config_file))
 
 
 
