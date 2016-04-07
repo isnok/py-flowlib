@@ -50,7 +50,7 @@ run_hook () {
     shift
     if [[ -f "$STDIN_TMPFILE" ]]; then
         cat "$STDIN_TMPFILE" | $run "$@"
-    else:
+    else
         $run "$@"
     fi
 }
