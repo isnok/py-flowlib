@@ -40,7 +40,8 @@ except:
 def find_source_directory():
     """ Find a directory in the source tree.
 
-        >>> type(find_source_directory()) == str
+        >>> from os.path import isdir
+        >>> isdir(find_source_directory())
         True
     """
 
