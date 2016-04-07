@@ -21,7 +21,7 @@ def read_stdin_nonblocking():
 
 @click.command()
 @click.argument('args', nargs=-1)
-def demo(args):
+def demo(args=()):
     """ A demo git hook function.
         It tries to take all input a git hook can get and display it.
     """
@@ -41,7 +41,7 @@ def demo(args):
         echo.cyan('<<<stdin<<<')
 
 def demo_setup(cmd=None):
-    """ Micro setup.py imitation to set up configs or so. """
+    """ Micro setup process to set up configs or uninstall them. """
     echo.white('demo-hook-setup:', cmd)
 
 
