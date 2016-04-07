@@ -45,12 +45,13 @@ def contains_any_filter(containers, *elems):
     return [c for c in containers if contains_any(c, *elems)]
 
 
+# pylint: disable=E0401,E1101,E0611
 
 def get_configparser():
     try:
-        from configparser import ConfigParser # pylint: disable=E0401
+        from configparser import ConfigParser
     except:
-        from ConfigParser import ConfigParser # pylint: disable=E0401
+        from ConfigParser import ConfigParser
     return ConfigParser()
 
 
@@ -63,7 +64,7 @@ def import_file(name, path):
     try: # py3.5
         import importlib.util
         spec = importlib.util.spec_from_file_location(name, path)
-        module = importlib.util.module_from_spec(spec)  # pylint: disable=E1101
+        module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
     except:
