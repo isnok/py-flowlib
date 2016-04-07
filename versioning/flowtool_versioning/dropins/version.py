@@ -61,6 +61,9 @@ def get_setup_cfg():
     """ Return the nearest directory in the parent dirs,
         that contains a setup.cfg, or None if no such
         parent dir exists.
+
+        >>> type(get_setup_cfg()).__name__
+        'ConfigParser'
     """
 
     current = find_source_directory()
@@ -82,6 +85,12 @@ def get_setup_cfg():
 
 import subprocess
 def get_stdout(*command):
+    """ Simply get the stdout of a subprocess.
+        Todo: Maybe enhance this function a bit? (fail handling?)
+
+        >>> get_stdout('echo', 'Hello, World!')
+        'Hello, World!\\n'
+    """
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE
@@ -108,6 +117,9 @@ def parse_pep440(version_string):
         Pre-release segment: {a|b|rc}N
         Post-release segment: .postN
         Development release segment: .devN
+
+        >>> parse_pep440('1.2.3.4')['release']
+        (1, 2, 3, 4)
     """
 
     PYTHON3 = sys.version_info[0] == 3
