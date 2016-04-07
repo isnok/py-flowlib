@@ -1,8 +1,8 @@
 import os, sys
 import click
-from flowtool.style import colors, echo
+from flowtool.style import colors, echo, debug
 from flowtool.files import find_parent_containing, find_subdirs_containing, check_file, append_to_file, make_executable
-from flowtool.ui import ask_choice
+from flowtool.ui import ask_choice, abort
 #from flowtool_git.common import local_repo
 
 import filecmp
@@ -26,25 +26,27 @@ GITATTRIBUTES_ADDON = '''
 
 @click.command()
 @click.argument('path', type=click.Path(), default=os.getcwd())
-def init_versioning(path=os.getcwd()):
+@click.option(
+    '-y', '--yes', is_flag=True, default=False,
+    help="Update all components without asking."
+)
+def init_versioning(path=os.getcwd(),yes=None):
     """Initialize or update versioning."""
 
     git_dir = find_parent_containing('.git', path, check='isdir')
     if git_dir:
-        echo.white('git root is', git_dir)
+        debug.white('git root is', git_dir)
     else:
-        echo.yellow('%s is not under git version control.' % path)
-        click.confirm("Continue anyway?", abort=True)
+        abort('%s is not under git version control.' % path)
 
     setup_dir = find_parent_containing('setup.py', path, check='isfile')
     echo.white('setup.py found:', colors.cyan(str(setup_dir)))
     if not setup_dir:
-        echo.yellow(
+        abort(''.join([
             'Please navigate or point me to a directory containing a',
             colors.white('setup.py'),
-            colors.yellow('file.')
-        )
-        sys.exit(1)
+            'file.',
+        ]))
 
     from flowtool_versioning.dropins.version import __file__ as versionfile_source
 
@@ -55,12 +57,15 @@ def init_versioning(path=os.getcwd()):
     versionfile = None
     modules = find_subdirs_containing('__init__.py', setup_dir)
     if modules:
-        modules.append(None)
-        chosen = ask_choice(
-            heading='Searched for __init__.py:',
-            choices=modules,
-            question='Include _version.py into which module?',
-        )
+        if yes and len(modules) == 1:
+            chosen = modules[0]
+        else:
+            modules.append(None)
+            chosen = ask_choice(
+                heading='Searched for __init__.py:',
+                choices=modules,
+                question='Include _version.py into which module?',
+            )
         versionfile = None
         if chosen is not None:
             versionfile = os.path.join(chosen, '_version.py')
@@ -85,6 +90,7 @@ def init_versioning(path=os.getcwd()):
     if not check_file(gitattributes, rel_path + ' export-subst'):
         append_to_file(gitattributes, GITATTRIBUTES_ADDON.format(rel_path))
 
+
     # setup.cfg (needed for cmdclass import!)
     setup_cfg = os.path.join(setup_dir, 'setup.cfg')
     echo.white('setup.cfg:', colors.cyan(setup_cfg))
@@ -92,7 +98,7 @@ def init_versioning(path=os.getcwd()):
         echo.green('Versioning config detected in setup.cfg.')
     else:
         echo.cyan('There seems to be no versioning config in setup.cfg')
-        if click.confirm(
+        if yes or click.confirm(
             colors.bold('Shall I add a default [versioning] section to setup.cfg?'),
             default=True):
             version_config = DEFAULT_VERSION_CONFIG
@@ -132,10 +138,10 @@ from versioning import get_cmdclass, get_version
 
 setup(
     ...
-    version=get_version,
+    version=get_version(),
     cmdclass=get_cmdclass(),
     ...
 )
 ''')
-    echo.cyan("or similar to your setup.py, and don't forget to edit setup.cfg also.")
+    echo.cyan("to your setup.py, and don't forget to edit setup.cfg also.")
     echo.magenta('Enjoy a beautiful day.')

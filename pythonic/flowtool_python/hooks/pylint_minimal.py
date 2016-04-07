@@ -171,7 +171,7 @@ def run_hook(check_these, cfg=None, continues=5):
 
 
 
-def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '.cache', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
     """ Find .py files in the repo, recursively ignoring some dirs. """
 
     if repo is None:

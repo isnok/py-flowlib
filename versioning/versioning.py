@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Inspired by https://github.com/warner/python-versioneer. """
+""" flowtool-versioning cmdclass file. flowtool-versioning provides an
+    automatic versioning system based on git tags. This is the command
+    set, that it brings to add capabilities to your setup.py file to
+    deal with git tags and handle the versioning. See the link for more
+    information:
+
+        https://github.com/isnok/py-flowlib
+"""
+
+# TODO: make these files pass pylint regularly
+# pylint: disable=E0401,E1101
+
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
 try:
@@ -15,7 +26,7 @@ def find_parent_containing(name, path=None, check='exists'):
         and isdir.
     """
 
-    current = os.getcwd() if path is None else path
+    current = os.path.dirname(__file__) if path is None else path
 
     if check == 'exists':
         check = exists
@@ -72,12 +83,15 @@ def import_file(name, path):
     except:
         pass
 
-version_in_git = import_file('versions', source_versionfile)
-if version_in_git:
-    get_version = version_in_git.get_version
-else:
-    print("== Warning: source_versionfile %s could not be imported. (no tags found?)" % source_versionfile)
-    get_version = lambda: 'versionfile_not_installed'
+if __name__ != 'flowtool_versioning.dropins.cmdclass':
+
+    version_in_git = import_file('versions', source_versionfile)
+    if version_in_git:
+        get_version = version_in_git.get_version
+    else:
+        print("== Warning: source_versionfile %s could not be imported. (no tags found?)" % source_versionfile)
+        get_version = lambda: 'versionfile_not_installed'
+
 
 def build_versionfile():
     if parser.has_option('versioning', 'build_versionfile'):

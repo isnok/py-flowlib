@@ -21,7 +21,7 @@ def run_pytest(*args):
 
 
 IGNORE_RECURSIVE = set([
-    '.git', '.tox', 'build', 'dist', 'test', 'tests', 'venv',
+    '.git', '.tox', '.cache', 'build', 'dist', 'test', 'tests', 'venv',
 ])
 
 def find_pytest_configs(repo=None):
@@ -59,17 +59,27 @@ def pytest_hook(args=()):
     locations = list(find_pytest_configs())
     if not locations:
         return
-    echo.bold('Will run pytest in %d dir(s).' % len(locations))
+    echo.bold(
+        '->',
+        'Will run',
+        colors.yellow('pytest'),
+        'in',
+        len(locations),
+        'dir(s).',
+    )
     continues = 0
     hook_return = 0
     fails = 0
+    restore_dir = os.getcwd()
     for loc in locations:
-        echo.bold('->', loc)
+        echo.white('->', colors.cyan(loc))
+        os.chdir(loc)
         returncode = run_pytest(loc)
         if returncode:
             fails += 1
             hook_return |= returncode
             if fails > continues:
                 sys.exit(returncode)
+        os.chdir(restore_dir)
     if hook_return:
         sys.exit(hook_return)

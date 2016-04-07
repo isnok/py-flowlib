@@ -62,7 +62,7 @@ def run_hook(check_these, continues=4):
         sys.exit(returncode)
 
 
-def all_sh_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+def all_sh_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '.cache', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
     """ Find all .sh files in the repo, recursively ignoring some dirs. """
 
     if repo is None:
