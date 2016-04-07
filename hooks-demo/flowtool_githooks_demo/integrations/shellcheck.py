@@ -127,7 +127,7 @@ def universal_hook(args=()):
     """ Determine what files to check depending on the hook type
         we are being run as.
     """
-    hook_type = sys.argv[0].split(os.sep)[2][:-2]
+    hook_type = sys.argv[0].split(os.sep)[-2][:-2]
     echo.white('universal_hook:', 'running as', colors.cyan(hook_type))
 
     if hook_type in ('pre-commit', 'commit-msg'):
