@@ -22,9 +22,9 @@ in your project. It will also create a file named `versioning.py` next to your
 `setup.py` from there.
 
 Once you have it wired into your `setup.py` (same process as
-`python-versioneer`) and created a tag with your chosen prefix (`setup.cfg`,
-prefix can be empty also) to bootstrap automatic versioning, you should be
-able to run:
+[python-versioneer](https://github.com/warner/python-versioneer)) and created a
+tag with your chosen prefix (`setup.cfg`, prefix can be empty also) to
+bootstrap automatic versioning, you should be able to run:
 ```
 ./versioning.py     # outputs the current version
 ./setup.py version  # get more detailed current version info

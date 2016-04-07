@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Inspired by https://github.com/warner/python-versioneer. """
+""" flowtool-versioning cmdclass file. flowtool-versioning provides an
+    automatic versioning system based on git tags. This is the command
+    set, that it brings to add capabilities to your setup.py file to
+    deal with git tags and handle the versioning. See the link for more
+    information:
+
+        https://github.com/isnok/py-flowlib
+"""
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
 try:
