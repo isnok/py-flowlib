@@ -1,6 +1,6 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo meta pythonic release snippets stages venv versioning
 
-travis: main-command demo-hook pytest pylint
+travis: main-command demo-hook pytest pylint yamllint
 
 test: tox shellcheck
 
@@ -21,6 +21,10 @@ pytest:
 pylint:
 	# check all .py files in the repo with the minimal pylint hook:
 	_flowtool_python.pylint_minimal
+
+yamllint:
+	# check all .yml/.yaml files in the repo with yamllint
+	_flowtool_githooks.yamllint
 
 shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):
