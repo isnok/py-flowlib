@@ -20,28 +20,6 @@ def run_pytest(*args):
     return errno
 
 
-IGNORE_RECURSIVE = set([
-    '.git', '.tox', '.cache', 'build', 'dist', 'test', 'tests', 'venv',
-])
-
-def find_pytest_configs(repo=None):
-    """ Find dirs with pytest compatible configs. """
-
-    look_for = set(['pytest.ini', 'tox.ini'])
-
-    if repo is None:
-        repo = local_repo()
-
-    def ignore_location(loc):
-        inside = loc.split(os.sep)
-        shall_ignore = IGNORE_RECURSIVE.intersection(inside)
-        return bool(shall_ignore)
-
-    for loc, _, files in os.walk(os.path.dirname(repo.git_dir)):
-        if look_for.intersection(files) and not ignore_location(loc):
-            yield loc
-
-
 def pytest_setup(cmd=None):
     """ Setup function for pytest hook(s). """
     if cmd == 'install':
@@ -49,6 +27,8 @@ def pytest_setup(cmd=None):
     elif cmd == 'uninstall':
         pass
 
+
+from flowtool_githooks.discovering import find_pytest_configs
 
 
 @click.command()

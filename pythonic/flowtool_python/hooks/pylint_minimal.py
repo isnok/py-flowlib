@@ -171,71 +171,7 @@ def run_hook(check_these, cfg=None, continues=5):
 
 
 
-def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '.cache', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
-    """ Find .py files in the repo, recursively ignoring some dirs. """
-
-    if repo is None:
-        repo = local_repo()
-
-    def ignore_location(loc, dirs, files):
-        inside = loc.split(os.sep)
-        shall_ignore = ignore_dirs.intersection(inside)
-        return bool(shall_ignore)
-
-    result = []
-    repo_root = os.path.dirname(repo.git_dir)
-    for step in os.walk(repo_root):
-        if not ignore_location(*step):
-            loc, _, files = step
-            matches = [n for n in files if n.endswith(suffix)]
-            result.extend([os.sep.join([loc, m]) for m in matches])
-            debug.magenta(loc, matches)
-    return result
-
-
-def added_files(suffix='', untracked_files=False):
-    """ Return the list of files that match suffix and are added
-        to the local git's index.
-
-        Using this, will run pylint on all files added to the commit.
-        This does just check the files in the repo, so if
-        has changes not added to the index, the file checked
-        may not be the same as the file checked in.
-    """
-    untracked = 'yes' if untracked_files else 'no'
-    added = []
-    for line in short_status('--untracked-files=%s' % untracked):
-        if line.on_index != ' ':
-            added.append(line.filename)
-    return [f for f in added if f.endswith(suffix)]
-
-
-def discover_changed_files(
-        suffix='',
-        reference_branch='origin/master',
-        diff_filter='D',
-    ):
-    """ Return the list of files that match suffix and have changes
-        in comparison to the reference_branch.
-
-        diff_filter maps to the --diff-filter option of `git diff`:
-
-        Select only files that are Added (A), Copied (C), Deleted (D),
-        Modified (M), Renamed (R), have their type (i.e. regular file, symlink,
-        submodule, ...) changed (T), are Unmerged (U), are Unknown (X), or have
-        had their pairing Broken (B).
-    """
-
-    repo = local_repo()
-    changed = repo.git.diff(
-        '--name-status',
-        '--diff-filter=%s' % diff_filter,
-        reference_branch,
-    ).split('\n')
-    parsed = [l.split('\t', 1) for l in changed if l]
-
-    return [f[1] for f in parsed if f[1].endswith(suffix)]
-
+from flowtool_githooks.discovering import find_project_py_files, added_files, discover_changed_files
 
 @click.command()
 @click.argument('args', nargs=-1)
@@ -248,7 +184,7 @@ def universal_hook(args=()):
         hook_type = arg0[:-2]
     else:
         hook_type = 'standalone'
-    debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
+    echo.white('universal_hook:', 'running as', colors.cyan(hook_type))
 
     if hook_type in ('pre-commit', 'commit-msg'):
         check_these = added_files(SUFFIX)
