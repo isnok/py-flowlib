@@ -20,7 +20,7 @@ def effect_function(name):
 def echo_function(style_func):
     global DEBUG_OUTPUT
     def echo(*message, **kwd):
-        click.echo(style_func(' '.join(map(str, message))), **kwd)
+        click.echo(' '.join(map(style_func, map(str, message))), **kwd)
     return echo
 
 def debug_function(style_func):

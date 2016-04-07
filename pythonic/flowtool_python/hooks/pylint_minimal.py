@@ -24,7 +24,7 @@ def capture_pylint(*args):
 
 
 def get_config_name(repo=None):
-    """ Get the pylint conifguration name either from repo config or make it up. """
+    """ Get the pylint conifguration name either from repo config or set it up. """
 
     cfg = getconfig_simple()
     if 'pylint-minimal' in cfg and 'configfile' in cfg['pylint-minimal']:
@@ -37,8 +37,15 @@ def get_config_name(repo=None):
         os.path.dirname(repo.git_dir),
         '.pylint-minimal.cfg'
     ])
-    local_git_command().config('pylint-minimal.configfile', configfile)
-    echo.cyan('configured pylint-minimal.configfile locally in git')
+    git_config_key = 'pylint-minimal.configfile'
+    local_git_command().config(git_config_key, configfile)
+    echo.cyan(
+        'configured',
+        colors.yellow(git_config_key),
+        'to',
+        colors.white(configfile),
+        'in local git repository',
+    )
     return configfile
 
 
