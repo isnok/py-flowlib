@@ -5,6 +5,7 @@ python:
     - "3.4"
     - "3.5"
 install:
+    - apt-get install shellcheck pylint
     - pip install -e ./base
     - pip install -e ./git
     - pip install -e ./gitflow
