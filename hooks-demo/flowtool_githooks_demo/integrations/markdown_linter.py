@@ -15,7 +15,7 @@ SUFFIX = '.md'
 def run_checker(filename):
     """ Run checker and return it's output. """
     try:
-        result = run_command(CHECKER, filename)
+        result = run_command((CHECKER, filename))
     except OSError as ex:
         echo.yellow('\nEncountered %s while trying to run %s. Is it installed?' % (ex, CHECKER))
         sys.exit(1)
