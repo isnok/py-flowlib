@@ -24,4 +24,4 @@ install:
     #- pip install -U pytest
     #- pip install -U tox
     #- pip install -U tox pytest
-script: travis_tests.sh
+script: ./travis_tests.sh
