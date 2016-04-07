@@ -25,7 +25,7 @@ shellcheck:
 	_flowtool_githooks.shellcheck
 
 tox:
-	for dir in $(COMPONENT_DIRS); do cd $$dir; if [ -f tox.ini ]; then tox; fi; cd ..; done
+	for dir in $(COMPONENT_DIRS); do cd $${dir}; if [ -f tox.ini ]; then tox; fi; cd ..; done
 
 all: test
 

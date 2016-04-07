@@ -2,7 +2,7 @@
 
 An automated workflow for releasing Python Packages to PyPI and github.
 
-Requires `flowtool-versioning` to be in place, and at least one tag created.
+Requires `flowtool-versioning` to be up-and-running (installed and at least one tag created).
 
 The release process works as follows:
 
@@ -13,8 +13,9 @@ The release process works as follows:
 
 It add the following commands to `flowtool`:
 ```
-flowtool release-now      # make a release
-flowtool release-cleanup  # clean up older tags on the local repo
+flowtool release-now   # make a release
+flowtool clean-tags    # clean up older tags on the local repo
 ```
 
-Request more documentation!
+If you want to use it in your project, try it out, and request more
+documentation when you need it.
