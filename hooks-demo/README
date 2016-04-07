@@ -59,3 +59,8 @@ Good to test what a non-zero exit status will do for certain hooks.
 A step towards a collection of git hooks, that wrap code checkers.
 This one wraps [shellcheck](https://github.com/koalaman/shellcheck),
 a shell script syntax, style and security checker.
+
+## _flowtool_githooks.yamllint
+
+One more step towards a collection of useful git hooks.
+This one wraps [yamllint](https://github.com/adrienverge/yamllint), a yaml linter.

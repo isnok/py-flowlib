@@ -1,18 +1,19 @@
+---
 language: python
 python:
-    #- "2.6"  # cannot import versioning
+    # - "2.6"  # cannot import versioning
     - "2.7"
-    #- "3.2"  # error in click.utils: u'...
+    # - "3.2"  # error in click.utils: u'...
     - "3.3"
     - "3.4"
     - "3.5"
 before_install:
-    #- sudo apt-get -qq update
-    #- sudo apt-get install -y pylint
-    #- sudo apt-get install -y shellcheck
-    #- sudo apt-get install -y cabal-install
-    #- cabal update
-    #- cabal install shellcheck
+    # - sudo apt-get -qq update
+    # - sudo apt-get install -y pylint
+    # - sudo apt-get install -y shellcheck
+    # - sudo apt-get install -y cabal-install
+    # - cabal update
+    # - cabal install shellcheck
     - pip install -U pytest
 install:
     - pip install -e ./base
@@ -25,6 +26,6 @@ install:
     - pip install -e ./stages
     - pip install -e ./versioning
     - pip install -e ./meta
-    #- pip install -U tox
-    #- pip install -U tox pytest
+    # - pip install -U tox
+    # - pip install -U tox pytest
 script: make travis
