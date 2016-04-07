@@ -60,6 +60,9 @@ def short_status(*args):
             )
     return result
 
+
+# to be deprecated:
+
 def dirty_files(untracked_files=False):
     untracked = 'yes' if untracked_files else 'no'
     dirty = []
