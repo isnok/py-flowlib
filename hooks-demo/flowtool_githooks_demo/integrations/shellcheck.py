@@ -4,7 +4,7 @@ import click
 #import fnmatch
 from flowtool.style import echo, colors
 from flowtool.execute import run_command
-#from flowtool.style import debug
+from flowtool.style import debug
 
 from flowtool_git.common import local_repo
 from flowtool_git.common import short_status
@@ -62,6 +62,26 @@ def run_hook(check_these, continues=4):
         sys.exit(returncode)
 
 
+def all_sh_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+    """ Find all .sh files in the repo, recursively ignoring some dirs. """
+
+    if repo is None:
+        repo = local_repo()
+
+    def ignore_location(loc, dirs, files):
+        inside = loc.split(os.sep)
+        shall_ignore = ignore_dirs.intersection(inside)
+        return bool(shall_ignore)
+
+    result = []
+    repo_root = os.path.dirname(repo.git_dir)
+    for step in os.walk(repo_root):
+        if not ignore_location(*step):
+            loc, _, files = step
+            matches = [n for n in files if n.endswith(suffix)]
+            result.extend([os.sep.join([loc, m]) for m in matches])
+            debug.magenta(loc, matches)
+    return result
 
 def added_files(suffix='', untracked_files=False):
     """ Return the list of files that match suffix and are added
@@ -112,10 +132,11 @@ def universal_hook(args=()):
 
     if hook_type in ('pre-commit', 'commit-msg'):
         check_these = added_files(SUFFIX)
-    elif hook_type in ('pre-push'):
+    elif hook_type in ('pre-push',):
         check_these = discover_changed_files(SUFFIX)
     else:
-        check_these = []
+        check_these = all_sh_files(SUFFIX)
+        echo.bold(check_these)
 
     if check_these:
         run_hook(check_these)

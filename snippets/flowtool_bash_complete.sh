@@ -1,3 +1,5 @@
+#!/bin/bash
+
 _flowtool_completion() {
     COMPREPLY=( $( COMP_WORDS="${COMP_WORDS[*]}" \
                    COMP_CWORD=$COMP_CWORD \

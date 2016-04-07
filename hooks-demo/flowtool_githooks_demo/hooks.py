@@ -29,7 +29,6 @@ def demo(args=()):
     echo.bold('demo-hook:', colors.cyan(sys.argv[0]), args)
     echo.white('running in:', colors.magenta(os.getcwd()))
     echo.white('git root:', os.path.dirname(local_repo().git_dir))
-    #echo.white('git status:')
     for line in short_status():
         if line.on_index != ' ':
             echo.cyan(line.on_index, '', line.filename)
