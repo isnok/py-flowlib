@@ -1,6 +1,8 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo meta pythonic release snippets stages venv versioning
 
-test: main-command demo-hook pytest pylint
+travis: main-command demo-hook pytest pylint shellcheck
+
+test: travis tox
 
 main-command:
 	# check flowtool command:
@@ -29,4 +31,4 @@ tox:
 
 all: test
 
-.PHONY : all test demo-hook pytest pylint shellcheck
+.PHONY : all test travis main-command demo-hook pytest pylint shellcheck

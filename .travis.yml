@@ -10,9 +10,10 @@ before_install:
     - sudo apt-get -qq update
     #- sudo apt-get install -y pylint
     #- sudo apt-get install -y shellcheck
-    - pip install -U pytest
     - sudo apt-get install -y cabal-install
-    - cabal install shellcheck
+    - sudo cabal update
+    - sudo cabal install shellcheck
+    - pip install -U pytest
 install:
     - pip install -e ./base
     - pip install -e ./git
@@ -26,4 +27,4 @@ install:
     - pip install -e ./meta
     #- pip install -U tox
     #- pip install -U tox pytest
-script: make test
+script: make travis
