@@ -11,8 +11,8 @@ before_install:
     #- sudo apt-get install -y pylint
     #- sudo apt-get install -y shellcheck
     - sudo apt-get install -y cabal-install
-    - sudo cabal update
-    - sudo cabal install shellcheck
+    - cabal update
+    - cabal install shellcheck
     - pip install -U pytest
 install:
     - pip install -e ./base
