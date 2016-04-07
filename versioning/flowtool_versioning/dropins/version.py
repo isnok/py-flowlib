@@ -62,8 +62,8 @@ def get_setup_cfg():
         that contains a setup.cfg, or None if no such
         parent dir exists.
 
-        >>> type(get_setup_cfg()).__name__
-        'ConfigParser'
+        >>> hasattr(get_setup_cfg(), 'get')
+        True
     """
 
     current = find_source_directory()
@@ -88,8 +88,8 @@ def get_stdout(*command):
     """ Simply get the stdout of a subprocess.
         Todo: Maybe enhance this function a bit? (fail handling?)
 
-        >>> get_stdout('echo', 'Hello, World!')
-        'Hello, World!\\n'
+        >>> get_stdout('echo', 'Hello, World!') == 'Hello, World!\\n'
+        True
     """
     process = subprocess.Popen(
         command,
@@ -122,10 +122,9 @@ def parse_pep440(version_string):
         (1, 2, 3, 4)
     """
 
-    PYTHON3 = sys.version_info[0] == 3
-    if PYTHON3:
+    try:
         match = pep440_regex.fullmatch(version_string)
-    else:
+    except AttributeError:
         match = pep440_regex.match(version_string)
     if match is None:
         return None
