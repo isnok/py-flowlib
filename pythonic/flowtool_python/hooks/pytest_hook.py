@@ -50,8 +50,12 @@ def pytest_setup(cmd=None):
         pass
 
 
-def pytest_hook(*args, **kwd):
+
+@click.command()
+@click.argument('args', nargs=-1)
+def pytest_hook(args=()):
     """ Run pytest in discovered directories. """
+
     locations = list(find_pytest_configs())
     if not locations:
         return

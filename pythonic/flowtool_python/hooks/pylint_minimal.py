@@ -195,7 +195,9 @@ def discover_lint_files(repo=None):
 
 
 
-def pylint_minimal(*args, **kwd):
+@click.command()
+@click.argument('args', nargs=-1)
+def pylint_minimal(args=()):
     """ Run pylint with a minimal config. """
     repo = local_repo()
     cfg = get_config_name(repo)
@@ -220,7 +222,10 @@ def discover_changed_files(repo=None):
     return [f[1] for f in result if f[0] != 'D' and f[1].endswith('.py')]
 
 
-def pylint_pre_push(*args, **kwd):
+@click.command()
+@click.argument('remote', nargs=1)
+@click.argument('address', nargs=1)
+def pylint_pre_push(remote='', address=''):
     """ Run pylint with a minimal config. """
 
     repo = local_repo()
