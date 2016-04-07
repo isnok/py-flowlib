@@ -128,7 +128,7 @@ def universal_hook(args=()):
         we are being run as.
     """
     hook_type = sys.argv[0].split(os.sep)[-2][:-2]
-    echo.white('universal_hook:', 'running as', colors.cyan(hook_type))
+    debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
 
     if hook_type in ('pre-commit', 'commit-msg'):
         check_these = added_files(SUFFIX)
