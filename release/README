@@ -13,8 +13,9 @@ The release process works as follows:
 
 It add the following commands to `flowtool`:
 ```
-flowtool release-now   # make a release
-flowtool clean-tags    # clean up older tags on the local repo
+flowtool release-now         # make a release
+flowtool clean-tags          # clean up older tags on the local repo
+flowtool clean-tags 1 -a -y  # clean up all older tags and keep only the latest
 ```
 
 If you want to use it in your project, try it out, and request more

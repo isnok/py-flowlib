@@ -9,16 +9,24 @@ An extensible workflow management command.
 
 You can choose your components granularly from (currently):
 
-* `flowtool-gitflow` - general git helpers
-* `flowtool-githooks` - git hook manager
-* `flowtool-githook-demo` - some example git hooks and one for [shellcheck](https://github.com/koalaman/shellcheck)
-* `flowtool-python` - a [git hook](https://github.com/isnok/py-flowlib/tree/master/pythonic/flowtool_python/hooks) to check python code and more
-* `flowtool-versioning` - an [automated versioning](https://github.com/isnok/py-flowlib/tree/master/versioning) system
-* `flowtool-release` - an automated release process for python packages to [PyPI](http://pypi.python.org).
+* [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/git) - general git helpers
+* [`flowtool-githooks`](https://github.com/isnok/py-flowlib/tree/master/githooks) - git hook manager
+* [`flowtool-githook-demo`](https://github.com/isnok/py-flowlib/tree/master/hooks-demo) - some example git hooks and one for [shellcheck](https://github.com/koalaman/shellcheck)
+* [`flowtool-python`](https://github.com/isnok/py-flowlib/tree/master/pythonic) - a [git hook](https://github.com/isnok/py-flowlib/tree/master/pythonic/flowtool_python/hooks) to check python code and more
+* [`flowtool-versioning`](https://github.com/isnok/py-flowlib/tree/master/versioning) - an [automated versioning](https://github.com/isnok/py-flowlib/tree/master/versioning) system
+* [`flowtool-release`](https://github.com/isnok/py-flowlib/tree/master/release) - an automated release process for python packages to [PyPI](http://pypi.python.org).
+* [`flowtool-all`](https://github.com/isnok/py-flowlib/tree/master/meta) - virtual meta package to install all components
 
-or just install the "virtual meta package" via
+Try it out:
 
 ```shell
+pip install flowtool-gitflow
+pip install flowtool-githooks
+pip install flowtool-githook-demo
+pip install flowtool-python
+pip install flowtool-versioning
+pip install flowtool-release
+
 pip install flowtool-all
 ```
 
@@ -31,8 +39,14 @@ Freshly installed `flowtool-base` brings only one command:
 ```shell
 flowtool --help
 flowtool self-info
-ft
 ft self-info
+```
+
+Keep it up to date via:
+
+```shell
+ft self-update --help
+ft self-update -a -y
 ```
 
 ## Completion
