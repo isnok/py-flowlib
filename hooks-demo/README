@@ -8,6 +8,30 @@ That just means for a user of this tool, that the hooks will show up in the
 `ft githooks-scripts` menu automatically, and can also be run via their name from
 the command line.
 
+## Setting things up
+
+To install the hook runner and set up the demo hook try these commands:
+```shell
+$ flowtool githooks-install
+$ flowtool githooks-scripts --hook pre-commit --add _flowtool_githooks.demo
+$ flowtool githooks-scripts --hook commit-msg --add _flowtool_githooks.demo
+$ flowtool githooks-scripts --hook pre-push --add _flowtool_githooks.demo
+```
+
+To configure the hooks interactively:
+
+```shell
+$ flowtool githooks-scripts --help
+$ flowtool githooks-scripts
+```
+
+To unistall the hooks use:
+
+```shell
+$ flowtool githooks-scripts --hook pre-commit --remove _flowtool_githooks.demo
+$ flowtool githooks-wipe
+```
+
 ## `_flowtool_githooks.demo`
 
 A git hook to showcase the possibilities of git hooks.
@@ -29,4 +53,5 @@ Good to test what a non-zero exit status will do for certain hooks.
 ## `_flowtool_githooks.shellcheck`
 
 A step towards a collection of git hooks, that wrap code checkers.
-This one wraps `shellcheck`, a shell script syntax, style and security checker.
+This one wraps [shellcheck](https://github.com/koalaman/shellcheck),
+a shell script syntax, style and security checker.
