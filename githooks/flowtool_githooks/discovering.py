@@ -48,7 +48,7 @@ def find_files_named_in_project(names=(), ignore_dirs=IGNORE_RECURSIVE):
 
 def added_files(suffix='', untracked_files=False):
     """ Return the list of files that match suffix and are added
-        to the local git's index.
+        to the local git's index and that are not deleted.
 
         Using this, will run pylint on all files added to the commit.
         This does just check the files in the repo, so if
@@ -58,7 +58,7 @@ def added_files(suffix='', untracked_files=False):
     untracked = 'yes' if untracked_files else 'no'
     added = []
     for line in short_status('--untracked-files=%s' % untracked):
-        if line.on_index != ' ':
+        if line.on_index not in ' D':
             added.append(line.filename)
     return [f for f in added if f.endswith(suffix)]
 
@@ -66,7 +66,7 @@ def added_files(suffix='', untracked_files=False):
 def discover_changed_files(
         suffix='',
         reference_branch='origin/master',
-        diff_filter='D',
+        diff_filter='ACMRTUXB',  # exclude (only) (D)eleted by now
     ):
     """ Return the list of files that match suffix and have changes
         in comparison to the reference_branch.
