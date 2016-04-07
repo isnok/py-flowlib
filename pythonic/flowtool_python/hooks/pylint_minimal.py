@@ -24,6 +24,7 @@ def capture_pylint(*args):
 
 GITCONFIG_KEY = 'pylint-minimal.configfile'
 PYLINT_CONFIG = '.pylint-minimal.cfg'
+SUFFIX = '.py'
 
 def get_config_name(repo=None):
     """ Get the pylint configuration file name either from repo config or set it up. """
@@ -170,8 +171,11 @@ def run_hook(check_these, cfg=None, continues=5):
 
 
 
-def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
     """ Find .py files in the repo, recursively ignoring some dirs. """
+
+    if repo is None:
+        repo = local_repo()
 
     def ignore_location(loc, dirs, files):
         inside = loc.split(os.sep)
@@ -183,7 +187,7 @@ def find_project_py_files(repo, ignore_dirs=frozenset(['.git', 'build', 'dist', 
     for step in os.walk(repo_root):
         if not ignore_location(*step):
             loc, _, files = step
-            matches = [n for n in files if n.endswith('.py')]
+            matches = [n for n in files if n.endswith(suffix)]
             result.extend([os.sep.join([loc, m]) for m in matches])
             debug.magenta(loc, matches)
     return result
@@ -200,23 +204,6 @@ def added_files(suffix='', untracked_files=False):
         if line.on_index != ' ':
             added.append(line.filename)
     return [f for f in added if f.endswith(suffix)]
-
-
-@click.command()
-@click.argument('args', nargs=-1)
-def pylint_minimal(args=()):
-    """ Run pylint with on all files added to the commit.
-        This does just check the files in the repo, so if
-        has changes not added to the index, the file checked
-        may not be the same as the file checked in.
-    """
-    repo = local_repo()
-    cfg = get_config_name(repo)
-    if not os.path.isfile(cfg):
-        pylint_setup('install')
-    check_these = added_files('.py')
-    if check_these:
-        run_hook(check_these, cfg)
 
 
 def discover_changed_files(
@@ -246,6 +233,22 @@ def discover_changed_files(
     return [f[1] for f in parsed if f[1].endswith(suffix)]
 
 
+#@click.command()
+#@click.argument('args', nargs=-1)
+#def pylint_minimal(args=()):
+    #""" Run pylint with on all files added to the commit.
+        #This does just check the files in the repo, so if
+        #has changes not added to the index, the file checked
+        #may not be the same as the file checked in.
+    #"""
+    #repo = local_repo()
+    #cfg = get_config_name(repo)
+    #if not os.path.isfile(cfg):
+        #pylint_setup('install')
+    #check_these = added_files('.py')
+    #if check_these:
+        #run_hook(check_these, cfg)
+
 @click.command()
 @click.argument('remote', nargs=1)
 @click.argument('address', nargs=1)
@@ -260,3 +263,22 @@ def pylint_pre_push(remote='', address=''):
     check_these = discover_changed_files('.py')
     if check_these:
         run_hook(check_these, cfg)
+
+@click.command()
+@click.argument('args', nargs=-1)
+def universal_hook(args=()):
+    """ Determine what files to check depending on the hook type
+        we are being run as.
+    """
+    hook_type = sys.argv[0].split(os.sep)[2][:-2]
+    echo.white('universal_hook:', 'running as', colors.cyan(hook_type))
+
+    if hook_type in ('pre-commit', 'commit-msg'):
+        check_these = added_files(SUFFIX)
+    elif hook_type in ('pre-push',):
+        check_these = discover_changed_files(SUFFIX)
+    else:
+        check_these = find_project_py_files(SUFFIX)
+
+    if check_these:
+        run_hook(check_these)
