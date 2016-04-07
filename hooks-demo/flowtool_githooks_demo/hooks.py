@@ -19,11 +19,13 @@ def read_stdin_nonblocking():
         return
     #stdin_was_closed()
 
-def demo(*args, **kwd):
+@click.command()
+@click.argument('args', nargs=-1)
+def demo(args):
     """ A demo git hook function.
         It tries to take all input a git hook can get and display it.
     """
-    echo.bold('demo-hook:', sys.argv[0], args, kwd)
+    echo.bold('demo-hook:', sys.argv[0], args)
     echo.white('git-dir:', local_repo().git_dir)
     #echo.white('git status:')
     for line in short_status():
@@ -44,9 +46,11 @@ def demo_setup(cmd=None):
 
 
 
-def demo_fail(*args, **kwd):
+@click.command()
+@click.argument('args', nargs=-1)
+def demo_fail(args=()):
     """ A hook that will always exit with a nonzero status. """
-    echo.red('demo-fail: OaaH, this will crash!', args, kwd)
+    echo.red('demo-fail: OaaH, this will crash!', args)
     stdin = ''.join(read_stdin_nonblocking())
     if stdin:
         echo.cyan('>>>stdin>>>')
