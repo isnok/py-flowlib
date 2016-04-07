@@ -212,7 +212,7 @@ def pylint_minimal(args=()):
     cfg = get_config_name(repo)
     if not os.path.isfile(cfg):
         pylint_setup('install')
-    check_these = added_files()
+    check_these = added_files('.py')
     if check_these:
         run_hook(check_these, cfg)
 
@@ -255,6 +255,6 @@ def pylint_pre_push(remote='', address=''):
     if not os.path.isfile(cfg):
         pylint_setup('install')
 
-    check_these = discover_changed_files(repo)
+    check_these = discover_changed_files('.py')
     if check_these:
         run_hook(check_these, cfg)
