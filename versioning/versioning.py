@@ -10,7 +10,7 @@
 """
 
 # TODO: make these files pass pylint regularly
-# pylint: disable=E0401,E1101
+# pylint: disable=E0401,E1101,E0611
 
 import os
 from os.path import join, exists, isfile, isdir, dirname, basename
