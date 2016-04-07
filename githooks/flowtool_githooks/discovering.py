@@ -3,14 +3,19 @@ import sys
 from flowtool.style import colors, echo, debug
 from flowtool_git.common import local_repo, short_status
 
-def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '.cache', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
+IGNORE_RECURSIVE = frozenset([
+    '.git', '.tox', '.cache', 'build', 'dist', 'test', 'tests', 'venv',
+])
+
+
+def find_suffix_files_in_project(suffix='', ignore_dirs=IGNORE_RECURSIVE):
     """ Find .py files in the repo, recursively ignoring some dirs. """
 
-    if repo is None:
-        repo = local_repo()
+    repo = local_repo()
+    repo_root_segments = os.path.dirname(repo.git_dir).split(os.sep)
 
     def ignore_location(loc, dirs, files):
-        inside = loc.split(os.sep)
+        inside = loc.split(os.sep)[len(repo_root_segments):]
         shall_ignore = ignore_dirs.intersection(inside)
         return bool(shall_ignore)
 
@@ -24,6 +29,22 @@ def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '
             debug.magenta(loc, matches)
     return result
 
+def find_files_named_in_project(names=(), ignore_dirs=IGNORE_RECURSIVE):
+    """ Find dirs with pytest compatible configs. """
+
+    look_for = set(names)
+
+    repo = local_repo()
+    repo_root_segments = os.path.dirname(repo.git_dir).split(os.sep)
+
+    def ignore_location(loc):
+        inside = loc.split(os.sep)[len(repo_root_segments):]
+        shall_ignore = ignore_dirs.intersection(inside)
+        return bool(shall_ignore)
+
+    for loc, _, files in os.walk(os.path.dirname(repo.git_dir)):
+        if look_for.intersection(files) and not ignore_location(loc):
+            yield loc
 
 def added_files(suffix='', untracked_files=False):
     """ Return the list of files that match suffix and are added
@@ -67,48 +88,4 @@ def discover_changed_files(
     parsed = [l.split('\t', 1) for l in changed if l]
 
     return [f[1] for f in parsed if f[1].endswith(suffix)]
-
-
-IGNORE_RECURSIVE = set([
-    '.git', '.tox', '.cache', 'build', 'dist', 'test', 'tests', 'venv',
-])
-
-def find_pytest_configs(repo=None):
-    """ Find dirs with pytest compatible configs. """
-
-    look_for = set(['pytest.ini', 'tox.ini'])
-
-    if repo is None:
-        repo = local_repo()
-
-    def ignore_location(loc):
-        inside = loc.split(os.sep)
-        shall_ignore = IGNORE_RECURSIVE.intersection(inside)
-        return bool(shall_ignore)
-
-    for loc, _, files in os.walk(os.path.dirname(repo.git_dir)):
-        if look_for.intersection(files) and not ignore_location(loc):
-            yield loc
-
-
-def all_sh_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '.cache', 'build', 'dist', 'test', 'tests', '.tox', 'venv'])):
-    """ Find all .sh files in the repo, recursively ignoring some dirs. """
-
-    if repo is None:
-        repo = local_repo()
-
-    def ignore_location(loc, dirs, files):
-        inside = loc.split(os.sep)
-        shall_ignore = ignore_dirs.intersection(inside)
-        return bool(shall_ignore)
-
-    result = []
-    repo_root = os.path.dirname(repo.git_dir)
-    for step in os.walk(repo_root):
-        if not ignore_location(*step):
-            loc, _, files = step
-            matches = [n for n in files if n.endswith(suffix)]
-            result.extend([os.sep.join([loc, m]) for m in matches])
-            debug.magenta(loc, matches)
-    return result
 
