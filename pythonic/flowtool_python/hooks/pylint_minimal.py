@@ -171,7 +171,7 @@ def run_hook(check_these, cfg=None, continues=5):
 
 
 
-from flowtool_githooks.discovering import find_project_py_files, added_files, discover_changed_files
+from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
 
 @click.command()
 @click.argument('args', nargs=-1)
@@ -184,14 +184,14 @@ def universal_hook(args=()):
         hook_type = arg0[:-2]
     else:
         hook_type = 'standalone'
-    echo.white('universal_hook:', 'running as', colors.cyan(hook_type))
+    debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
 
     if hook_type in ('pre-commit', 'commit-msg'):
         check_these = added_files(SUFFIX)
     elif hook_type in ('pre-push',):
         check_these = discover_changed_files(SUFFIX)
     else:
-        check_these = find_project_py_files(SUFFIX)
+        check_these = find_suffix_files_in_project(SUFFIX)
 
     if check_these:
         run_hook(check_these)

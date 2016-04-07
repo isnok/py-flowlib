@@ -6,6 +6,7 @@ import fnmatch
 from flowtool.style import echo, colors
 from flowtool.style import debug
 from flowtool_git.common import local_repo
+from flowtool_githooks.discovering import find_files_named_in_project
 
 import pytest
 
@@ -28,7 +29,7 @@ def pytest_setup(cmd=None):
         pass
 
 
-from flowtool_githooks.discovering import find_pytest_configs
+PYTEST_CONFIGS = ['pytest.ini', 'tox.ini']
 
 
 @click.command()
@@ -36,7 +37,7 @@ from flowtool_githooks.discovering import find_pytest_configs
 def pytest_hook(args=()):
     """ Run pytest in discovered directories. """
 
-    locations = list(find_pytest_configs())
+    locations = list(find_files_named_in_project(PYTEST_CONFIGS))
     if not locations:
         return
     echo.bold(
