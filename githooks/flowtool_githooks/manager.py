@@ -62,8 +62,8 @@ def install_hook(info, repo):
     elif filecmp.cmp(hook_file, RUNNER):
         echo.green('Runner already installed as %r.' % name)
     else:
-        message = 'A file differing from the runner is already installed as %r. Replace it?' % colors.cyan(name)
-        confirmed = click.confirm(colors.bold(message), default=True)
+        message = 'A file differing from the runner is already installed as %s. Replace it?' % colors.magenta(name)
+        confirmed = click.confirm(message, default=True)
         if confirmed:
             backup = hook_file + '.old'
             echo.white('storing backup to', os.path.basename(backup))

@@ -46,8 +46,10 @@ exit_fail () {
 run_hook () {
     hook="$(basename $1)"
     echo_info "$hook"
+
     run="$1"
     shift
+
     if [[ -f "$STDIN_TMPFILE" ]]; then
         cat "$STDIN_TMPFILE" | $run "$@"
     else
@@ -76,7 +78,7 @@ save_stdin () {
     if [[ -n "$line" ]]; then
 
         STDIN_TMPFILE=$(mktemp "/tmp/$HOOK_NAME-XXXXXX")
-        trap clean_tempiles EXIT SIGINT
+        trap clean_tempiles EXIT # SIGINT
 
         while [[ -n "$line" ]]; do
             echo "$line" >> $STDIN_TMPFILE
