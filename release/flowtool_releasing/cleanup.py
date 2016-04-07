@@ -103,13 +103,6 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
     elif n == 0 and not yes:
         click.confirm('Really keep zero (0) of the selected tags?', abort=True)
 
-    if prefix is None:
-        prefix = get_confed_prefix()
-        if prefix is None:
-            if yes:
-                abort('No tag prefix found or specified.')
-            prefix = click.prompt('No config found. Enter prefix manually')
-
     if all:
         git_root = os.path.dirname(local_repo().git_dir)
         for cfgdir in find_subdirs_containing(
@@ -123,7 +116,15 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
             parser.read(os.path.join(cfgdir, 'setup.cfg'))
             prefix = parser.get('versioning', 'tag_prefix')
             clean_tag_prefix(prefix, n, yes)
+
     else:
+        if prefix is None:
+            prefix = get_confed_prefix()
+            if prefix is None:
+                if yes:
+                    abort('No tag prefix found or specified.')
+                prefix = click.prompt('No config found. Enter prefix manually')
+
         clean_tag_prefix(prefix, n, yes)
 
 
