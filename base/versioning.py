@@ -24,6 +24,10 @@ def find_parent_containing(name, path=None, check='exists'):
         that contains name, or None if no such parent dir exists.
         The check can be customized/chosen from exists, isfile
         and isdir.
+
+        >>> from os.path import isdir
+        >>> isdir(find_parent_containing('.'))
+        True
     """
 
     current = os.path.dirname(__file__) if path is None else path
@@ -43,14 +47,14 @@ def find_parent_containing(name, path=None, check='exists'):
     else:
         return current
 
-def read_config(*filenames):
-    """Read the project setup.cfg file to determine Versioneer config."""
+def read_config(filename):
+    """Read the project setup.cfg file to determine versioning config."""
     # This might raise EnvironmentError (if setup.cfg is missing), or
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at
     # the top of versioneer.py for instructions on writing your setup.cfg .
     parser = ConfigParser()
-    parser.read(filenames)
+    parser.read(filename)
     return parser
 
 setup_cfg = join(
@@ -139,6 +143,14 @@ def bump_version(info):
 
 
 def render_bumped(**kwd):
+    """ Render the bumped version.
+        >>> render_bumped(release=(1,2,3,4))
+        '1.2.3.4'
+        >>> render_bumped(release=(1,2,3,4), pre_release=('a', 5), post_release=6, dev_release=7, epoch=0)
+        '0!1.2.3.4a5.post6.dev7'
+        >>> render_bumped(release=(1,2,3), post_release=4, dev_release=5)
+        '1.2.3.post4.dev5'
+    """
     normalized = '.'.join(map(str, kwd['release']))
     if 'pre_release' in kwd:
         normalized += '%s%s' % kwd['pre_release']

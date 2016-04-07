@@ -22,10 +22,10 @@ def run_command(command, debug=None, **kwd):
         CompletedCommand(command=['true'], returncode=0, stdout='', stderr='')
         >>> run_command(['false'])
         CompletedCommand(command=['false'], returncode=1, stdout='', stderr='')
-        >>> shell.run_command('ls /bin/ls')
-        CompletedCommand(command=['ls', '/bin/ls'], returncode=0, stdout='/bin/ls\n', stderr='')
-        >>> shell.run_command(['ls', '_not_there_file_'])
-        CompletedCommand(command=['ls', '_not_there_file_'], returncode=2, stdout='', stderr='ls: cannot access _not_there_file_: No such file or directory\n')
+        >>> run_command('ls /bin/ls')
+        CompletedCommand(command=['ls', '/bin/ls'], returncode=0, stdout='/bin/ls\\n', stderr='')
+        >>> run_command(['ls', '_not_there_file_'])
+        CompletedCommand(command=['ls', '_not_there_file_'], returncode=2, stdout='', stderr="ls: cannot access '_not_there_file_': No such file or directory\\n")
     """
     global print_all_executions
 

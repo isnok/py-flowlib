@@ -38,7 +38,12 @@ except:
 
 
 def find_source_directory():
-    """ Find a directory in the source tree. """
+    """ Find a directory in the source tree.
+
+        >>> from os.path import isdir
+        >>> isdir(find_source_directory())
+        True
+    """
 
     if not os.path.islink(__file__):
         return dirname(__file__)
@@ -56,6 +61,9 @@ def get_setup_cfg():
     """ Return the nearest directory in the parent dirs,
         that contains a setup.cfg, or None if no such
         parent dir exists.
+
+        >>> hasattr(get_setup_cfg(), 'get')
+        True
     """
 
     current = find_source_directory()
@@ -77,6 +85,12 @@ def get_setup_cfg():
 
 import subprocess
 def get_stdout(*command):
+    """ Simply get the stdout of a subprocess.
+        Todo: Maybe enhance this function a bit? (fail handling?)
+
+        >>> get_stdout('echo', 'Hello, World!') == 'Hello, World!\\n'
+        True
+    """
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE
@@ -103,12 +117,14 @@ def parse_pep440(version_string):
         Pre-release segment: {a|b|rc}N
         Post-release segment: .postN
         Development release segment: .devN
+
+        >>> parse_pep440('1.2.3.4')['release']
+        (1, 2, 3, 4)
     """
 
-    PYTHON3 = sys.version_info[0] == 3
-    if PYTHON3:
+    try:
         match = pep440_regex.fullmatch(version_string)
-    else:
+    except AttributeError:
         match = pep440_regex.match(version_string)
     if match is None:
         return None

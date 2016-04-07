@@ -136,12 +136,13 @@ def init_versioning(path=os.getcwd(),yes=None):
     echo.white('''
 from versioning import get_cmdclass, get_version
 
-setup(
-    ...
-    version=get_version(),
-    cmdclass=get_cmdclass(),
-    ...
-)
+if __name__ == '__main__':
+    setup(
+        ...
+        version=get_version(),
+        cmdclass=get_cmdclass(),
+        ...
+    )
 ''')
     echo.cyan("to your setup.py, and don't forget to edit setup.cfg also.")
     echo.magenta('Enjoy a beautiful day.')

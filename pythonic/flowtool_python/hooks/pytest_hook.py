@@ -12,8 +12,10 @@ import pytest
 
 def run_pytest(*args):
     """ Run pytest and return its exit status. """
+
     pytest_args = [
         '--doctest-modules',
+        '--doctest-ignore-import-errors',
         '--ignore=setup.py',
     ] + list(args)
     errno = pytest.main(pytest_args)
