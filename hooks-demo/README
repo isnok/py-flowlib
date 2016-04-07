@@ -1,3 +1,32 @@
 # flowtool-githooks-demo
 
-Two very simple git hooks (one passing, one failing) as examples and for debug.
+This package contains some example git hooks.
+
+The hooks are made runnable via `console_scripts` entry points.
+The hooks are also recognized by the `flowtool-githooks` management via entry points.
+That just means for a user of this tool, that the hooks will show up in the
+`ft githooks-scripts` menu automatically, and can also be run via their name from
+the command line.
+
+## `_flowtool_githooks.demo`
+
+A git hook to showcase the possibilities of git hooks.
+It prints its (command line) arguments and various information
+that may or may not be interesting to someone developing a hook
+for his own purposes.
+
+As one main feature, it reads it's standard input non-blocking
+and outputs it if there is anything, since only some hooks get
+additional information passed in via stdin.
+
+## `_flowtool_githooks.demo_fail`
+
+A git hook that will always fail.
+
+Good to test what a non-zero exit status will do for certain hooks.
+
+
+## `_flowtool_githooks.shellcheck`
+
+A step towards a collection of git hooks, that wrap code checkers.
+This one wraps `shellcheck`, a shell script syntax, style and security checker.

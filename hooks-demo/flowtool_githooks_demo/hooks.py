@@ -1,3 +1,4 @@
+import os
 import sys
 import select
 import click
@@ -25,8 +26,9 @@ def demo(args=()):
     """ A demo git hook function.
         It tries to take all input a git hook can get and display it.
     """
-    echo.bold('demo-hook:', sys.argv[0], args)
-    echo.white('git-dir:', local_repo().git_dir)
+    echo.bold('demo-hook:', colors.cyan(sys.argv[0]), args)
+    echo.white('running in:', colors.magenta(os.getcwd()))
+    echo.white('git root:', os.path.dirname(local_repo().git_dir))
     #echo.white('git status:')
     for line in short_status():
         if line.on_index != ' ':
