@@ -9,18 +9,13 @@ from flowtool.style import debug
 from flowtool_git.common import local_repo
 from flowtool_git.common import short_status
 
-CHECKER = os.path.join(os.path.dirname(sys.executable), 'yamllint')
-SUFFIXES = ('.yaml', '.yml')
-def merge_found(*args):
-    result = set()
-    for lst in args:
-        result.update(lst)
-    return sorted(result)
+CHECKER = os.path.join(os.path.dirname(sys.executable), 'markdownlint')
+SUFFIX = '.md'
 
-def run_checker(*args):
-    """ Run yamllint and return it's output. """
+def run_checker(filename):
+    """ Run checker and return it's output. """
     try:
-        result = run_command((CHECKER,) + args)
+        result = run_command(CHECKER, filename)
     except OSError as ex:
         echo.yellow('\nEncountered %s while trying to run %s. Is it installed?' % (ex, CHECKER))
         sys.exit(1)
@@ -58,7 +53,7 @@ def run_hook(check_these, continues=4):
                 msg_fname = filename.replace(os.getcwd(), '')
                 echo.yellow(
                     '\n\n%s failed at:' % os.path.basename(CHECKER),
-                    colors.cyan(msg_fname),
+                    colors.cyan(msg_fname)
                 )
                 if result.stderr:
                     echo.red(result.stderr)
@@ -86,11 +81,11 @@ def universal_hook(args=()):
     debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
 
     if hook_type in ('pre-commit', 'commit-msg'):
-        check_these = merge_found(*[added_files(s) for s in SUFFIXES])
+        check_these = added_files(SUFFIX)
     elif hook_type in ('pre-push',):
-        check_these = merge_found(*[discover_changed_files(s) for s in SUFFIXES])
+        check_these = discover_changed_files(SUFFIX)
     else:
-        check_these = merge_found(*[find_suffix_files_in_project(s) for s in SUFFIXES])
+        check_these = find_suffix_files_in_project(SUFFIX)
 
     if check_these:
         run_hook(check_these)

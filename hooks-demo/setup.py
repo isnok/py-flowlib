@@ -49,24 +49,28 @@ setup_args.update(
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:universal_hook',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:universal_hook',
+            '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:universal_hook',
         ],
         'flowtool_githooks.pre_commit': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
+            '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
         ],
         'flowtool_githooks.commit_msg': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
+            '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
         ],
         'flowtool_githooks.pre_push': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
+            '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
         ],
     },
 )

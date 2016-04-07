@@ -64,3 +64,8 @@ a shell script syntax, style and security checker.
 
 One more step towards a collection of useful git hooks.
 This one wraps [yamllint](https://github.com/adrienverge/yamllint), a yaml linter.
+
+## _flowtool_githooks.markdownlint
+
+One more step towards a collection of useful git hooks.
+This one wraps [pymarkdownlint](https://github.com/jorisroovers/pymarkdownlint), a markdown linter.
