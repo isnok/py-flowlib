@@ -55,6 +55,10 @@ setup_args.update(
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
         ],
+        'flowtool_githooks.pre_push': [
+            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
+            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+        ],
     },
 )
 
