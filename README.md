@@ -56,4 +56,4 @@ package that we all can use one day.
 
 * Invent and implement more features.
 * There must be many more tools waiting to be wrapped in quality git hooks.
-* Issue Tracker integration was planned, but is now postponed (from my side).
+* Issue Tracker integration was planned, but is now postponed (feel free to add it if required)

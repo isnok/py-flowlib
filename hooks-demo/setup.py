@@ -46,18 +46,22 @@ setup_args.update(
         'console_scripts': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail',
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:universal_hook',
         ],
         'flowtool_githooks.pre_commit': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
         ],
         'flowtool_githooks.commit_msg': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
         ],
         'flowtool_githooks.pre_push': [
             '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
             '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
         ],
     },
 )
