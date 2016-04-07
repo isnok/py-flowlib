@@ -11,6 +11,7 @@ You can choose your components granularly from (currently):
 
 * `flowtool-gitflow` - general git helpers
 * `flowtool-githooks` - git hook manager
+* `flowtool-githook-demo` - some example git hooks and one for [shellcheck](https://github.com/koalaman/shellcheck)
 * `flowtool-python` - a [git hook](https://github.com/isnok/py-flowlib/tree/master/pythonic/flowtool_python/hooks) to check python code and more
 * `flowtool-versioning` - an [automated versioning](https://github.com/isnok/py-flowlib/tree/master/versioning) system
 * `flowtool-release` - an automated release process for python packages to [PyPI](http://pypi.python.org).
