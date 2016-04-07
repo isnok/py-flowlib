@@ -23,7 +23,8 @@ def demo(*args, **kwd):
     """ A demo git hook function.
         It tries to take all input a git hook can get and display it.
     """
-    echo.bold('demo-hook:', local_repo().git_dir, args, kwd)
+    echo.bold('demo-hook:', sys.argv[0], args, kwd)
+    echo.white('git-dir:', local_repo().git_dir)
     #echo.white('git status:')
     for line in short_status():
         if line.on_index != ' ':
