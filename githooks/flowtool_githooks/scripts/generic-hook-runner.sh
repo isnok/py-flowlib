@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOOK_NAME="$(basename $0)"
+HOOK_NAME=$(basename "$0")
 
 HELP="
 This script runs all executable hooks from the respective directory.
@@ -40,18 +40,18 @@ exit_fail () {
     ret=$1
     shift
     echo_fail "$@" "($ret)"
-    exit $ret
+    exit "$ret"
 }
 
 run_hook () {
-    hook="$(basename $1)"
+    hook=$(basename "$1")
     echo_info "$hook"
 
     run="$1"
     shift
 
     if [[ -f "$STDIN_TMPFILE" ]]; then
-        cat "$STDIN_TMPFILE" | $run "$@"
+        $run "$@" < "$STDIN_TMPFILE"
     else
         $run "$@"
     fi
@@ -59,7 +59,7 @@ run_hook () {
 
 hook_done () {
     if [[ $1 -ne 0 ]]; then
-        exit_fail $1 "failed: $2"
+        exit_fail "$1" "failed: $2"
     fi
 }
 
@@ -81,7 +81,7 @@ save_stdin () {
         trap clean_tempiles EXIT # SIGINT
 
         while [[ -n "$line" ]]; do
-            echo "$line" >> $STDIN_TMPFILE
+            echo "$line" >> "$STDIN_TMPFILE"
             read line
         done
     fi
