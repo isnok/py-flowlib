@@ -136,7 +136,6 @@ def universal_hook(args=()):
         check_these = discover_changed_files(SUFFIX)
     else:
         check_these = all_sh_files(SUFFIX)
-        echo.bold(check_these)
 
     if check_these:
         run_hook(check_these)
