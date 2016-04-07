@@ -21,14 +21,17 @@ def rollback(tag):
     echo.cyan('Done:', rollback.stdout.strip())
 
 
-def do_release_step(command, tag):
+def do_release_step(command, tag, no_rollback=None):
     echo.cyan('running:', command)
     published = run_command(command)
     if published.returncode:
         echo.bold(colors.red('Failed:'))
         echo.yellow(published.stderr)
         echo.white(published.stdout)
-        rollback(tag)
+        if no_rollback:
+            echo.cyan(no_rollback)
+        else:
+            rollback(tag)
         sys.exit(published.returncode)
 
 
@@ -39,7 +42,10 @@ def do_publish(tag):
     do_release_step('git push --tags', tag)
     echo.bold(colors.green('Git tags published.'))
 
-    do_release_step('./setup.py sdist upload', tag)
+    do_release_step(
+        './setup.py sdist upload', tag,
+        no_rollback='Not rolling back tag %r since it is already pusblished.' % tag,
+    )
     echo.bold(colors.green('New release published on PyPI.'))
 
 
