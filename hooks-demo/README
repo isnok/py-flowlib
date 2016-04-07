@@ -32,7 +32,7 @@ $ flowtool githooks-scripts --hook pre-commit --remove _flowtool_githooks.demo
 $ flowtool githooks-wipe
 ```
 
-## `_flowtool_githooks.demo`
+## _flowtool_githooks.demo
 
 A git hook to showcase the possibilities of git hooks.
 It prints its (command line) arguments and various information
@@ -43,7 +43,7 @@ As one main feature, it reads it's standard input non-blocking
 and outputs it if there is anything, since only some hooks get
 additional information passed in via stdin.
 
-## `_flowtool_githooks.demo_fail`
+## _flowtool_githooks.demo_fail
 
 A git hook that will always fail.
 
