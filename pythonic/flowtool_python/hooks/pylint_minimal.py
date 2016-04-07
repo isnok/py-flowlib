@@ -23,20 +23,22 @@ def capture_pylint(*args):
 
 
 GITCONFIG_KEY = 'pylint-minimal.configfile'
+PYLINT_CONFIG = '.pylint-minimal.cfg'
 
 def get_config_name(repo=None):
-    """ Get the pylint conifguration name either from repo config or set it up. """
+    """ Get the pylint configuration file name either from repo config or set it up. """
 
     cfg = getconfig_simple()
-    if 'pylint-minimal' in cfg and 'configfile' in cfg['pylint-minimal']:
-        return cfg['pylint-minimal']['configfile']
+    section, key = GITCONFIG_KEY.split('.')
+    if section in cfg and key in cfg[section]:
+        return cfg[section][key]
 
     if repo is None:
         repo = local_repo()
 
     configfile = os.sep.join([
         os.path.dirname(repo.git_dir),
-        '.pylint-minimal.cfg'
+        PYLINT_CONFIG,
     ])
     local_git_command().config(GITCONFIG_KEY, configfile)
     echo.cyan(
