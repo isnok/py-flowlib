@@ -193,10 +193,14 @@ def find_project_py_files(suffix='', repo=None, ignore_dirs=frozenset(['.git', '
     return result
 
 
-
 def added_files(suffix='', untracked_files=False):
     """ Return the list of files that match suffix and are added
         to the local git's index.
+
+        Using this, will run pylint on all files added to the commit.
+        This does just check the files in the repo, so if
+        has changes not added to the index, the file checked
+        may not be the same as the file checked in.
     """
     untracked = 'yes' if untracked_files else 'no'
     added = []
@@ -233,6 +237,26 @@ def discover_changed_files(
     return [f[1] for f in parsed if f[1].endswith(suffix)]
 
 
+@click.command()
+@click.argument('args', nargs=-1)
+def universal_hook(args=()):
+    """ Determine what files to check depending on the hook type
+        we are being run as.
+    """
+    hook_type = sys.argv[0].split(os.sep)[-2][:-2]
+    debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
+
+    if hook_type in ('pre-commit', 'commit-msg'):
+        check_these = added_files(SUFFIX)
+    elif hook_type in ('pre-push',):
+        check_these = discover_changed_files(SUFFIX)
+    else:
+        check_these = find_project_py_files(SUFFIX)
+
+    if check_these:
+        run_hook(check_these)
+
+
 #@click.command()
 #@click.argument('args', nargs=-1)
 #def pylint_minimal(args=()):
@@ -253,7 +277,7 @@ def discover_changed_files(
 @click.argument('remote', nargs=1)
 @click.argument('address', nargs=1)
 def pylint_pre_push(remote='', address=''):
-    """ Run pylint with a minimal config. """
+    """ Run pylint as pre-push hook. Soon to be deprecated - universal hook is already better. """
 
     repo = local_repo()
     cfg = get_config_name(repo)
@@ -264,21 +288,3 @@ def pylint_pre_push(remote='', address=''):
     if check_these:
         run_hook(check_these, cfg)
 
-@click.command()
-@click.argument('args', nargs=-1)
-def universal_hook(args=()):
-    """ Determine what files to check depending on the hook type
-        we are being run as.
-    """
-    hook_type = sys.argv[0].split(os.sep)[-2][:-2]
-    debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
-
-    if hook_type in ('pre-commit', 'commit-msg'):
-        check_these = added_files(SUFFIX)
-    elif hook_type in ('pre-push',):
-        check_these = discover_changed_files(SUFFIX)
-    else:
-        check_these = find_project_py_files(SUFFIX)
-
-    if check_these:
-        run_hook(check_these)
