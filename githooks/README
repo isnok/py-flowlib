@@ -2,35 +2,58 @@
 
 Some functionality to use granular git hooks.
 
-The main idea is, that instead of running one single hook script
-`flowtool-githooks` will manage and 'run' a directory instead.
+The main concept behind `flowtool-githooks` is, that instead of running
+one single hook script the package will 'run' a directory instead.
+The directory will be created right next to where the hook is in
+`.git/hooks` and it has the name of the hook plus `.d`.
+So for example the directory for the `pre-commit` hook is
+`.git/hooks/pre-commit.d` right next to the hook script:
+`.git/hooks/pre-commit`
 
-To accomplish that, a shell script is installed as the hook.
+`flowtool-githooks` ships the runner script and adds some commands to
+manage the content of the hook directories.
 
 Scripts inside the hooks directory, `.git/hooks/pre-commit.d`
 and `.git/hooks/commit-msg.d` currently, are only executed, if
-the are executable. This is used as a way of activating and
+the are executable. This is an old way of activating and
 deactivating the scripts by the management command.
+
+Currently it is better supported to create symlinks in the hook directory.
+To introduce arbitrary scripts/executables as git hooks use the command:
+
+```shell
+$ flowtool githooks-introduce --hook <hook_name> /path/to/file
+$ flowtool githooks-introduce --help  # might be helpful as well
+```
 
 ## Installation
 
+Currently the `flowtool-githooks` package contains only the runner and
+the management commands. To get some pre configured hooks check the
+[`flowtool-githooks-demo`](https://github.com/isnok/py-flowlib/tree/master/hooks-demo) package, and (for python-related hooks)
+[`flowtool-python`](https://github.com/isnok/py-flowlib/tree/master/pythonic).
+
 Once you have `flowtool-githooks` and it's requirements installed,
 you can run
+
 ```shell
-flowtool githooks-config --install
+flowtool githooks-install   # install the runner (asks before overwriting anything)
 ```
+
 from inside a git repository to install the hooks.
-When they are installed, they can be configred interactively
-by running
+When they are installed, they can be configred interactively by running
+
 ```shell
-flowtool githooks-config
+flowtool githooks-config    # interactively configure git hooks (needs other hook-pkgs also)
 ```
-The gaphical status representation can be attained via
+
+And you can also just get the status of githooks in the current repo:
+
 ```shell
 flowtool githooks-status
 ```
 
 ## More to come
 
-This part of the project and documentation will definitely
-be improved in the future.
+There is also a small library of "discovery functions" contained in this package.
+It is used by some hook scripts to find files to take care of.

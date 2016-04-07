@@ -10,7 +10,11 @@ the command line.
 
 ## Setting things up
 
-To install the hook runner and set up the demo hook try these commands:
+```shell
+$ pip install flowtool-githooks-demo
+```
+Then you can install the hook runner and set up the demo hook by using these commands:
+
 ```shell
 $ flowtool githooks-install
 $ flowtool githooks-scripts --hook pre-commit --add _flowtool_githooks.demo
@@ -50,7 +54,7 @@ A git hook that will always fail.
 Good to test what a non-zero exit status will do for certain hooks.
 
 
-## `_flowtool_githooks.shellcheck`
+## _flowtool_githooks.shellcheck
 
 A step towards a collection of git hooks, that wrap code checkers.
 This one wraps [shellcheck](https://github.com/koalaman/shellcheck),
