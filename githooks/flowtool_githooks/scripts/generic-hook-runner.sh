@@ -48,7 +48,11 @@ run_hook () {
     echo_info "$hook"
     run="$1"
     shift
-    $run "$@"
+    if [[ -f "$STDIN_TMPFILE" ]]; then
+        cat "$STDIN_TMPFILE" | $run "$@"
+    else:
+        $run "$@"
+    fi
 }
 
 hook_done () {
@@ -57,11 +61,40 @@ hook_done () {
     fi
 }
 
+STDIN_TMPFILE=""
+
+clean_tempiles () {
+    rm "$STDIN_TMPFILE"
+}
+
+save_stdin () {
+    if [[ -t 0 ]]; then
+        stty -echo -icanon time 0 min 0
+    fi
+
+    read line
+    if [[ -n "$line" ]]; then
+
+        STDIN_TMPFILE=$(mktemp "/tmp/$HOOK_NAME-XXXXXX")
+        trap clean_tempiles EXIT SIGINT
+
+        while [[ -n "$line" ]]; do
+            echo "$line" >> $STDIN_TMPFILE
+            read line
+        done
+    fi
+
+    if [[ -t 0 ]]; then
+        stty sane
+    fi
+}
+
 run_hooks () {
     GIT_DIR="$(git rev-parse --git-dir)"
     HOOK_DIR="${GIT_DIR}/hooks/${HOOK_NAME}.d"
     mkdir -p "$HOOK_DIR"
     HOOKS=$(find "$HOOK_DIR" -executable -not -type d | sort -nr)
+    save_stdin
     for hook in $HOOKS; do
         run_hook "$hook" "$@"
         ret=$?
