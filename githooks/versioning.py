@@ -68,8 +68,6 @@ def import_file(name, path):
     """ Import a python source file by its filesystem path.
         >>> from os.path import join, dirname
         >>> module = import_file('import_file_test', join(dirname(__file__), '__init__.py'))
-        >>> module.__name__
-        'import_file_test'
     """
     try: # py3.5
         import importlib.util
