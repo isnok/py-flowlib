@@ -1,4 +1,4 @@
-COMPONENT_DIRS = base git gitflow githooks hooks-demo meta pythonic release snippets stages venv versioning
+COMPONENT_DIRS = base git gitflow githooks hooks-demo pythonic versioning release stages meta
 
 travis: main-command demo-hook pytest pylint yamllint coverage
 
@@ -38,6 +38,7 @@ tox:
 	for dir in $(COMPONENT_DIRS); do cd $${dir}; if [ -f tox.ini ]; then tox; fi; cd ..; done
 
 versioning-great-again:
+	ft clean-pycs
 	for dir in $(COMPONENT_DIRS); do cd $${dir}; ft versioning-update -y; cd ..; done; git status --short
 
 all: travis test
