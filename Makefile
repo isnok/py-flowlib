@@ -1,8 +1,8 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo pythonic versioning release stages meta
 
-travis: main-command demo-hook pylint yamllint coverage
+travis: main-command demo-hook coverage
 
-test: tox shellcheck
+test: shellcheck tox yamllint pylint
 
 main-command:
 	# check flowtool command:
