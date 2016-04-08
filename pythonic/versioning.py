@@ -47,6 +47,11 @@ def find_parent_containing(name, path=None, check='exists'):
     else:
         return current
 
+    alternative = dirname(__file__)
+
+    if path != alternative:
+        return find_parent_containing(name, path=alternative, check=check)
+
 def read_config(filename):
     """Read the project setup.cfg file to determine versioning config."""
     # This might raise EnvironmentError (if setup.cfg is missing), or
