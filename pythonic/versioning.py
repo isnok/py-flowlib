@@ -65,6 +65,12 @@ parser = read_config(setup_cfg)
 source_versionfile = parser.get('versioning', 'source_versionfile')
 
 def import_file(name, path):
+    """ Import a python source file by its filesystem path.
+        >>> from os.path import join, dirname
+        >>> module = import_file('import_file_test', join(dirname(__file__), '__init__.py'))
+        >>> module.__name__
+        'import_file_test'
+    """
     try: # py3.5
         import importlib.util
         spec = importlib.util.spec_from_file_location(name, path)
@@ -98,16 +104,16 @@ if __name__ != 'flowtool_versioning.dropins.cmdclass':
 
 
 def build_versionfile():
+    """ Return the build_versionfile.
+
+        >>> type(build_versionfile())
+        <class 'str'>
+    """
     if parser.has_option('versioning', 'build_versionfile'):
         return parser.get('versioning', 'build_versionfile')
     else:
         return source_versionfile
 
-#print(build_versionfile())
-
-
-def render_versionfile():
-    print(version_in_git.render_versionfile())
 
 import sys
 from distutils.core import Command
@@ -293,7 +299,10 @@ class cmd_release(cmd_upload):
 
 
 def get_cmdclass():
-    """Return the custom setuptools/distutils subclasses."""
+    """ Return the custom setuptools/distutils subclasses.
+        >>> sorted(get_cmdclass().keys())
+        ['build_py', 'bump', 'release', 'sdist', 'upload', 'version']
+    """
     cmds = dict(
         version=cmd_version_info,
         #versioning_update=cmd_versioning_update,
