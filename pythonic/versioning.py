@@ -25,8 +25,13 @@ def find_parent_containing(name, path=None, check='exists'):
         The check can be customized/chosen from exists, isfile
         and isdir.
 
-        >>> from os.path import isdir
-        >>> isdir(find_parent_containing('.'))
+        >>> from os.path import isdir, dirname, basename
+        >>> isdir(find_parent_containing('.', check='isdir'))
+        True
+        >>> my_name, my_dir = basename(__file__), dirname(__file__)
+        >>> find_parent_containing(my_name, my_dir, check='isfile') == my_dir
+        True
+        >>> find_parent_containing('.', check='isdir') == find_parent_containing('.')
         True
     """
 
@@ -39,7 +44,7 @@ def find_parent_containing(name, path=None, check='exists'):
     elif check in ('isdir', 'dir'):
         check = isdir
 
-    while not check(join(current, name)):
+    while not exists(join(current, name)):
         old = current
         current = dirname(current)
         if old == current:
@@ -50,7 +55,7 @@ def find_parent_containing(name, path=None, check='exists'):
     alternative = dirname(__file__)
 
     if path != alternative:
-        return find_parent_containing(name, path=alternative, check=check)
+        return find_parent_containing(name, path=alternative)
 
 def read_config(filename):
     """ Read the project setup.cfg file to determine versioning config.
@@ -124,20 +129,14 @@ def build_versionfile():
 
 import sys
 from distutils.core import Command
+from pprint import pformat
 
 class cmd_version_info(Command):
     description = "show versioning configuration and current project version"
     user_options = []
     boolean_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
     def run(self):
-        from pprint import pformat
         print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
 
@@ -148,6 +147,10 @@ def bump_version(info):
         {'release': (8, 2)}
         >>> bump_version({'release':(8, 1), 'post_release':0})['post_release']
         1
+        >>> bump_version({'release':(8, 1), 'pre_release':('a', 0), 'dev_release':4})['dev_release']
+        5
+        >>> bump_version({'release':(8, 1), 'pre_release':('b', 0)})['pre_release']
+        ('b', 1)
     """
     if 'dev_release' in info:
         info['dev_release'] += 1
@@ -187,14 +190,7 @@ class cmd_version_bump(Command):
     user_options = []
     boolean_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
     def run(self):
-        from pprint import pformat
         vcs_info = version_in_git.VERSION_INFO['vcs_info']
         tag_info = bump_version(vcs_info['tag_version'])
         print('== Current Version:\n%s' % pformat(tag_info))
@@ -211,12 +207,6 @@ class cmd_update_versionfile(Command):
     user_options = []
     boolean_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
     def run(self):
         print('== Updating file:\n%s' % source_versionfile)
         from flowtool_versioning.dropins import version
@@ -230,9 +220,11 @@ if "setuptools" in sys.modules:
 else:
     from distutils.command.build_py import build_py as _build_py
 
+
 class cmd_build_py(_build_py):
-    def run(self):
-        _build_py.run(self)
+    pass
+    #def run(self):
+        #_build_py.run(self)
         # now locate _version.py in the new build/ directory and replace
         # it with an updated value
         #deploy_to = build_versionfile()
@@ -273,6 +265,7 @@ else:
     from distutils.command.sdist import sdist as _sdist
 
 class cmd_sdist(_sdist):
+
     def run(self):
         self.distribution.metadata.version = get_version()
         return _sdist.run(self)

@@ -7,6 +7,15 @@ def find_parent_containing(name, path=None, check='exists', not_found=None):
         that contains name, or None if no such parent dir exists.
         The check can be customized/chosen from exists, isfile
         and isdir.
+
+        >>> from os.path import isdir, dirname, basename
+        >>> isdir(find_parent_containing('.', check='isdir'))
+        True
+        >>> my_name, my_dir = basename(__file__), dirname(__file__)
+        >>> find_parent_containing(my_name, my_dir, check='isfile') == my_dir
+        True
+        >>> find_parent_containing('.', check='isdir') == find_parent_containing('.')
+        True
     """
 
     current = os.getcwd() if path is None else path
@@ -91,19 +100,28 @@ def cached_readlines(path):
     return _read_cache(path)[:-1]
 
 
+
 def is_executable(filename):
+    """ Check wether a file has the executable bit set (for the owner).
+
+        >>> is_executable(__file__)
+        False
+    """
     mode = os.stat(filename).st_mode
     return bool(mode & stat.S_IXUSR)
+
 
 def make_executable(filename):
     mode = os.stat(filename).st_mode
     all_exec = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     os.chmod(filename, mode | all_exec)
 
+
 def make_not_executable(filename):
     mode = os.stat(filename).st_mode
     not_exec = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
     os.chmod(filename, mode & not_exec)
+
 
 def toggle_executable(filename):
     mode = os.stat(filename).st_mode
@@ -112,4 +130,3 @@ def toggle_executable(filename):
     else:
         new = mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     os.chmod(filename, new)
-

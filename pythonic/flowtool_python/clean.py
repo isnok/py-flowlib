@@ -22,6 +22,11 @@ cleaning_config = {
 
 
 def filter_fn(names, patterns):
+    """ Filter a list of filenames using a list of patterns.
+
+        >>> filter_fn(['a.b', 'a.a', 'c.a'], ['*.b', 'a.*'])
+        ['a.b', 'a.b', 'a.a']
+    """
     filtered = []
     for pattern in patterns:
         filtered.extend([n for n in names if fnmatch.fnmatch(n, pattern)])
