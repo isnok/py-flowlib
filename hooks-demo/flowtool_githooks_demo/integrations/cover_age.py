@@ -67,7 +67,7 @@ def run_hook(check_these, continues=4):
                     break
 
             report = run_command('coverage report').stdout
-            echo.cyan('\n\n' + report)
+            echo.cyan(colors.bold('\n\n> ' + os.path.dirname(filename)), '\n\n' + report)
     if returncode:
         sys.exit(returncode)
 
