@@ -136,6 +136,12 @@ class cmd_version_info(Command):
     user_options = []
     boolean_options = []
 
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
     def run(self):
         print('== Version-Config (setup.cfg):\n%s' % pformat(dict(parser.items('versioning'))))
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
@@ -190,6 +196,12 @@ class cmd_version_bump(Command):
     user_options = []
     boolean_options = []
 
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
     def run(self):
         vcs_info = version_in_git.VERSION_INFO['vcs_info']
         tag_info = bump_version(vcs_info['tag_version'])
@@ -206,6 +218,12 @@ class cmd_update_versionfile(Command):
     description = "update the versioning"
     user_options = []
     boolean_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
 
     def run(self):
         print('== Updating file:\n%s' % source_versionfile)
