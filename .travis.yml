@@ -28,4 +28,7 @@ install:
     - pip install -e ./meta
     # - pip install -U tox
     # - pip install -U tox pytest
-script: make travis
+script:
+    - make travis
+after_success:
+    - coveralls
