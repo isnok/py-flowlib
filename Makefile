@@ -1,6 +1,6 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo meta pythonic release snippets stages venv versioning
 
-travis: main-command demo-hook pytest pylint yamllint
+travis: main-command demo-hook pytest pylint yamllint coverage
 
 test: tox shellcheck
 
@@ -25,6 +25,10 @@ pylint:
 yamllint:
 	# check all .yml/.yaml files in the repo with yamllint
 	_flowtool_githooks.yamllint
+
+coverage:
+	# check all dirs with pytest.ini/tox.ini using `coverage -m py.test ...`
+	_flowtool_githooks.coverage
 
 shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):

@@ -3,3 +3,4 @@ flowtool-githooks
 yamllint
 #pymarkdownlint
 cclint
+coverage
