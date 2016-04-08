@@ -12,6 +12,8 @@ cleaning_config = {
         'dist',
         '*.egg-info',
         '__pycache__',
+        '.cache',
+        '.tox',
     ],
     'filenames': [
         '*.py[cod]',

@@ -37,6 +37,9 @@ shellcheck:
 tox:
 	for dir in $(COMPONENT_DIRS); do cd $${dir}; if [ -f tox.ini ]; then tox; fi; cd ..; done
 
+versioning-great-again:
+	for dir in $(COMPONENT_DIRS); do cd $${dir}; ft versioning-update -y; cd ..; done; git status --short
+
 all: travis test
 
-.PHONY : all test travis main-command demo-hook pytest pylint shellcheck
+.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again
