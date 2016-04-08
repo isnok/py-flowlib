@@ -53,7 +53,11 @@ def find_parent_containing(name, path=None, check='exists'):
         return find_parent_containing(name, path=alternative, check=check)
 
 def read_config(filename):
-    """Read the project setup.cfg file to determine versioning config."""
+    """ Read the project setup.cfg file to determine versioning config.
+
+        >>> hasattr(read_config(''), 'get')
+        True
+    """
     # This might raise EnvironmentError (if setup.cfg is missing), or
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at

@@ -53,7 +53,11 @@ def find_parent_containing(name, path=None, check='exists'):
         return find_parent_containing(name, path=alternative, check=check)
 
 def read_config(filename):
-    """Read the project setup.cfg file to determine versioning config."""
+    """ Read the project setup.cfg file to determine versioning config.
+
+        >>> hasattr(read_config(''), 'get')
+        True
+    """
     # This might raise EnvironmentError (if setup.cfg is missing), or
     # configparser.NoSectionError (if it lacks a [versioneer] section), or
     # configparser.NoOptionError (if it lacks "VCS="). See the docstring at
@@ -138,6 +142,13 @@ class cmd_version_info(Command):
         print('== Version-Info:\n%s' % pformat(version_in_git.VERSION_INFO))
 
 def bump_version(info):
+    """ Bump a parsed version.
+
+        >>> bump_version({'release':(8, 1)})
+        {'release': (8, 2)}
+        >>> bump_version({'release':(8, 1), 'post_release':0})['post_release']
+        1
+    """
     if 'dev_release' in info:
         info['dev_release'] += 1
     elif 'post_release' in info:
@@ -193,6 +204,7 @@ class cmd_version_bump(Command):
         tag = vcs_info['prefix'] + render_bumped(**tag_info)
         print('== Tagging: %s' % tag)
         os.system('git tag ' + tag)
+
 
 class cmd_update_versionfile(Command):
     description = "update the versioning"
