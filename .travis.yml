@@ -15,6 +15,7 @@ before_install:
     # - cabal update
     # - cabal install shellcheck
     - pip install -U pytest
+    - pip install coveralls
 install:
     - pip install -e ./base
     - pip install -e ./git
