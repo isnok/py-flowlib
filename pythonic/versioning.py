@@ -222,9 +222,9 @@ else:
 
 
 class cmd_build_py(_build_py):
-    pass
-    #def run(self):
-        #_build_py.run(self)
+
+    def run(self):
+        _build_py.run(self)
         # now locate _version.py in the new build/ directory and replace
         # it with an updated value
         #deploy_to = build_versionfile()
