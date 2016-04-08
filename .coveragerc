@@ -1,3 +1,2 @@
 [report]
-#omit = */virtualenv/*
 omit = */v*env/*
