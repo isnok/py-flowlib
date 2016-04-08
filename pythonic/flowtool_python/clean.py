@@ -77,8 +77,14 @@ def clean(directory):
 
     if confirm_clean(files_to_delete, dirs_to_remove):
         for fname in files_to_delete:
-            os.unlink(fname)
+            try:
+                os.unlink(fname)
+            except FileNotFoundError:
+                pass
         for dirname in dirs_to_remove:
-            shutil.rmtree(dirname)
+            try:
+                shutil.rmtree(dirname)
+            except FileNotFoundError:
+                pass
 
     echo.white('Done.')

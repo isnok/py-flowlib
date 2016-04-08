@@ -104,8 +104,8 @@ if __name__ != 'flowtool_versioning.dropins.cmdclass':
 def build_versionfile():
     """ Return the build_versionfile.
 
-        >>> type(build_versionfile())
-        <class 'str'>
+        >>> type(build_versionfile()) == str
+        True
     """
     if parser.has_option('versioning', 'build_versionfile'):
         return parser.get('versioning', 'build_versionfile')
