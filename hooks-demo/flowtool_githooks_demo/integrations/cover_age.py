@@ -20,7 +20,7 @@ def merge_found(*args):
 def run_checker(*args):
     """ Run converage and return it's output. """
     try:
-        result = run_command((CHECKER, 'run', '--omit=*/virtualenv/*', '--omit=*/venv/*', '-m', 'py.test') + args)
+        result = run_command((CHECKER, 'run', '-m', 'py.test') + args)
     except OSError as ex:
         echo.yellow('\nEncountered %s while trying to run %s. Is it installed?' % (ex, CHECKER))
         sys.exit(1)
