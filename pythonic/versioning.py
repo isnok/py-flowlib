@@ -30,7 +30,7 @@ def find_parent_containing(name, path=None, check='exists'):
         True
     """
 
-    current = os.path.dirname(__file__) if path is None else path
+    current = os.getcwd() if path is None else path
 
     if check == 'exists':
         check = exists
@@ -104,8 +104,8 @@ if __name__ != 'flowtool_versioning.dropins.cmdclass':
 def build_versionfile():
     """ Return the build_versionfile.
 
-        >>> type(build_versionfile())
-        <class 'str'>
+        >>> type(build_versionfile()) == str
+        True
     """
     if parser.has_option('versioning', 'build_versionfile'):
         return parser.get('versioning', 'build_versionfile')
