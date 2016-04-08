@@ -30,7 +30,7 @@ GITATTRIBUTES_ADDON = '''
     '-y', '--yes', is_flag=True, default=False,
     help="Update all components without asking."
 )
-def init_versioning(path=os.getcwd(),yes=None):
+def init_versioning(path=os.getcwd(), yes=None):
     """Initialize or update versioning."""
 
     git_dir = find_parent_containing('.git', path, check='isdir')
@@ -42,10 +42,10 @@ def init_versioning(path=os.getcwd(),yes=None):
     setup_dir = find_parent_containing('setup.py', path, check='isfile')
     echo.white('setup.py found:', colors.cyan(str(setup_dir)))
     if not setup_dir:
-        abort(''.join([
+        abort(' '.join([
             'Please navigate or point me to a directory containing a',
             colors.white('setup.py'),
-            'file.',
+            colors.yellow('file.'),
         ]))
 
     from flowtool_versioning.dropins.version import __file__ as versionfile_source
