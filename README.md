@@ -1,5 +1,5 @@
 [![build-status](https://travis-ci.org/isnok/py-flowlib.svg?branch=master)](https://travis-ci.org/isnok/py-flowlib)
-[![Code Coverage](https://coveralls.io/repos/isnok/py-flowlib/badge.svg?branch=master)](https://coveralls.io/r/isnok/py-flowlib?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/isnok/py-flowlib/badge.svg?branch=master)](https://coveralls.io/github/isnok/py-flowlib?branch=master)
 
 
 # flowtool
