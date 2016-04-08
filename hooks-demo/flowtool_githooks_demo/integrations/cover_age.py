@@ -50,7 +50,9 @@ def run_hook(check_these, continues=4):
     returncode = 0
     with click.progressbar(check_these) as bar:
         for filename in bar:
+
             result = run_checker(os.path.dirname(filename))
+
             if result.returncode:
                 fails += 1
                 returncode |= result.returncode
@@ -68,6 +70,7 @@ def run_hook(check_these, continues=4):
 
             report = run_command('coverage report').stdout
             echo.cyan(colors.bold('\n\n> ' + os.path.dirname(filename)), '\n\n' + report)
+
     if returncode:
         sys.exit(returncode)
 
