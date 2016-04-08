@@ -30,7 +30,7 @@ def find_parent_containing(name, path=None, check='exists'):
         True
     """
 
-    current = os.path.dirname(__file__) if path is None else path
+    current = os.getcwd() if path is None else path
 
     if check == 'exists':
         check = exists
