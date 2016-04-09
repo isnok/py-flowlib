@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """ Work efficiently with feature branches.
 
+    >>> is_feature('feature/detector')
+    True
+    >>> is_feature('bugfix/foobar')
+    False
+
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
     >>> result = runner.invoke(main, [])
@@ -9,8 +14,7 @@
     >>> result.output.startswith('Local branches')
     True
     >>> result = runner.invoke(commit, [])
-    >>> result.exit_code
-    1
+    >>> result.exit_code in (1, -1)
     >>> 'Please give a commit message' in result.output
     True
     >>> result = runner.invoke(commit, ['my', 'message'])
