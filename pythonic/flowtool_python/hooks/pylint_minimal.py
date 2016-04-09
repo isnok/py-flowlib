@@ -5,13 +5,13 @@
     >>> result = runner.invoke(universal_hook, ('--noop',))
     >>> result.exit_code
     0
-    >>> result.output
-    ''
+    >>> bool(result.output)
+    False
     >>> result = runner.invoke(pylint_pre_push, ('remote', 'login', '--noop',))
     >>> result.exit_code
     0
-    >>> result.output
-    ''
+    >>> not result.output
+    True
 """
 import os
 import sys
