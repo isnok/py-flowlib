@@ -134,14 +134,6 @@ class cmd_version_info(Command):
     """ Version info command.
 
         Run `./setup.py version` to get detailed info on the latest version.
-
-        Alibi tests to increase coverage:
-
-        >>> cmd_version_info.initialize_options(None)
-        >>> cmd_version_info.finalize_options(None)
-        >>> cmd_version_info.run(None)
-        == Version-Config (setup.cfg):
-        ...
     """
 
     description = "show versioning configuration and current project version"
@@ -217,11 +209,6 @@ class cmd_version_bump(Command):
         Run `./setup.py bump` to create a new git tag
         with the smallest version component increased
         by one.
-
-        Alibi tests to increase coverage:
-
-        >>> cmd_version_bump.initialize_options(None)
-        >>> cmd_version_bump.finalize_options(None)
     """
     description = "bump the (pep440) version by adding one to the smallest version component"
     user_options = []
