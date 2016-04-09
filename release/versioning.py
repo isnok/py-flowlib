@@ -51,10 +51,10 @@ def find_setup_cfg():
         if found:
             return found
 
-try:
-    from configparser import ConfigParser
-except:
-    from ConfigParser import ConfigParser
+import sys
+PYTHON = sys.version_info
+configparser_module = 'ConfigParser' if PYTHON.major == 2 else 'configparser'
+configparser = __import__(configparser_module)
 
 def parse_setup_cfg():
     """ Find and parse the project setup.cfg that contains the versioning config.
@@ -62,7 +62,7 @@ def parse_setup_cfg():
         >>> hasattr(parse_setup_cfg(), 'has_option')
         True
     """
-    parser = ConfigParser()
+    parser = configparser.ConfigParser()
     parser.read(find_setup_cfg())
     return parser
 
@@ -83,9 +83,6 @@ def read_setup_cfg():
     return source_versionfile, build_versionfile
 
 
-source_versionfile, build_versionfile = read_setup_cfg()
-
-
 
 def import_file(name, path):
     """ Import a python source file by its filesystem path.
@@ -93,26 +90,26 @@ def import_file(name, path):
         >>> from os.path import join, dirname
         >>> module = import_file('import_file_test', join(dirname(__file__), '__init__.py'))
     """
-    try: # py3.5
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
-    except:
-        pass
 
-    try: # py3.3, py3.4
-        from importlib.machinery import SourceFileLoader
-        return SourceFileLoader(name, path).load_module()
-    except:
-        pass
-
-    try: # py2
+    if PYTHON.major == 2:
         import imp
-        return imp.load_source(name, path)
-    except:
-        pass
+        module = imp.load_source(name, path)
+    else:
+        try: # py3.5
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(name, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except:
+            pass
+
+        try: # py3.3, py3.4
+            from importlib.machinery import SourceFileLoader
+            module = SourceFileLoader(name, path).load_module()
+        except:
+            pass
+
+    return module
 
 
 def get_version():
@@ -123,10 +120,24 @@ def get_version():
     """
     return 'no_version'
 
-versionfile = None if __name__ == 'flowtool_versioning.dropins.cmdclass' else import_file('_version', source_versionfile)
 
-if versionfile:
-    get_version = versionfile.get_version
+def setup_versioning():
+    """ Here some magic happens.
+
+        >>> import sys
+        >>> type(setup_versioning()) == type(sys)
+        True
+    """
+
+    global get_version
+
+    source_versionfile, build_versionfile = read_setup_cfg()
+
+    versionfile = None if source_versionfile is None else import_file('_version', source_versionfile)
+
+    get_version = versionfile.get_version if hasattr(versionfile, 'get_version') else get_version
+
+    return versionfile
 
 
 
@@ -152,6 +163,8 @@ class cmd_version_info(Command):
 
         pretty_version_info = pformat(dict(parser.items('versioning')))
         print('== Version-Config (setup.cfg):\n' + pretty_version_info)
+
+        versionfile = setup_versioning()
         if versionfile is not None:
             print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
 
@@ -203,6 +216,28 @@ def render_bumped(**kwd):
     return normalized
 
 
+def do_bump(not_really=None):
+    """ Execute a version bump (if not testing)
+
+        >>> do_bump(not_really={'dirt':'','tag_version':{'release':(1,1,2)},'prefix':''})
+        == Next Version: {'release': (1, 1, 3)}
+        == Tagging: 1.1.3
+        >>> do_bump(not_really={'dirt':'XXX','tag_version':{'release':(1,1,2)},'prefix':''})
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
+    """
+    versionfile = setup_versioning()
+    vcs_info = versionfile.VERSION_INFO['vcs_info'] if not_really is None else not_really
+    tag_info = bump_version(vcs_info['tag_version'])
+    print('== Next Version: %s' % pformat(tag_info))
+    if vcs_info['dirt']:
+        print("==> Auto bump aborted due to dirty git repository.")
+        sys.exit(1)
+    tag = vcs_info['prefix'] + render_bumped(**tag_info)
+    print('== Tagging: %s' % tag)
+    not_really or os.system('git tag ' + tag)
+
 class cmd_version_bump(Command):
     """ Version bump command.
 
@@ -221,15 +256,7 @@ class cmd_version_bump(Command):
         pass
 
     def run(self):
-        vcs_info = versionfile.VERSION_INFO['vcs_info']
-        tag_info = bump_version(vcs_info['tag_version'])
-        print('== Current Version:\n%s' % pformat(tag_info))
-        if vcs_info['dirt']:
-            print("==> Auto bump aborted due to dirty git repository.")
-            sys.exit(1)
-        tag = vcs_info['prefix'] + render_bumped(**tag_info)
-        print('== Tagging: %s' % tag)
-        os.system('git tag ' + tag)
+        do_bump()
 
 
 #class cmd_update_versionfile(Command):
@@ -302,26 +329,47 @@ if "setuptools" in sys.modules:
 else:
     from distutils.command.sdist import sdist as _sdist
 
+def add_to_sdist(base_dir):
+    """ The custom part of the sdist command.
+
+        >>> add_to_sdist('/tmp')
+        == Rendering:
+        ...
+        >>> add_to_sdist('/tmp')
+        == Rendering:
+        ...
+    """
+    self_target = join(base_dir, basename(__file__))
+    if os.path.exists(self_target):
+        os.unlink(self_target)
+    os.link(__file__, self_target)
+
+    # now locate _version.py in the new base_dir directory
+    # (remembering that it may be a hardlink) and replace it with an
+    # updated value
+
+    source_versionfile, build_versionfile = read_setup_cfg()
+    target_versionfile = os.path.join(base_dir, build_versionfile)
+    print("== Rendering:\n%s" % target_versionfile)
+
+    versionfile = setup_versioning()
+    try:
+        with open(target_versionfile, 'w') as fh:
+            fh.write(versionfile.render_static_file())
+    except FileNotFoundError:
+        pass
 
 class cmd_sdist(_sdist):
 
     def run(self):
+        versionfile = setup_versioning()
         self.distribution.metadata.version = versionfile.get_version()
         return _sdist.run(self)
 
     def make_release_tree(self, base_dir, files):
+        versionfile = setup_versioning()
         _sdist.make_release_tree(self, base_dir, files)
-        os.link(__file__, join(base_dir, basename(__file__)))
-
-        # now locate _version.py in the new base_dir directory
-        # (remembering that it may be a hardlink) and replace it with an
-        # updated value
-
-        target_versionfile = os.path.join(base_dir, build_versionfile)
-        print("== Rendering: %s" % target_versionfile)
-        os.unlink(target_versionfile)
-        with open(target_versionfile, 'w') as fh:
-            fh.write(versionfile.render_static_file())
+        add_to_sdist(base_dir)
 
 
 from distutils.command.upload import upload as _upload
@@ -338,15 +386,25 @@ class cmd_upload(_upload):
         sys.exit(1)
 
 
+def publish_code(not_really=None):
+    """ push git and its tags
+
+        >>> publish_code(not_really=True)
+        === git push
+        === pushing tags also
+    """
+    print("=== git push")
+    not_really or os.system('git push')
+    print("=== pushing tags also")
+    not_really or os.system('git push --tags')
+
+
 class cmd_release(cmd_upload):
 
     description="Do the protected upload, but push git things first"
 
     def run(self):
-        print("=== git push")
-        os.system('git push')
-        print("=== pushing tags also")
-        os.system('git push --tags')
+        publish_code()
         return cmd_upload.run(self)
 
 
@@ -374,6 +432,7 @@ def main():
         >>> main()
         no_version
     """
+    versionfile = setup_versioning()
     print(get_version())
 
 if __name__ == '__main__':
