@@ -91,23 +91,27 @@ def import_file(name, path):
         >>> module = import_file('import_file_test', join(dirname(__file__), '__init__.py'))
     """
 
-    if PYTHON.major == 2:
+    module = None
+
+    try: # py2
         import imp
         module = imp.load_source(name, path)
-    else:
-        try: # py3.5
-            import importlib.util
-            spec = importlib.util.spec_from_file_location(name, path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-        except:
-            pass
+    except IOError:
+        pass
 
-        try: # py3.3, py3.4
-            from importlib.machinery import SourceFileLoader
-            module = SourceFileLoader(name, path).load_module()
-        except:
-            pass
+    try: # py3.5
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(name, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    except:
+        pass
+
+    try: # py3.3, py3.4
+        from importlib.machinery import SourceFileLoader
+        module = SourceFileLoader(name, path).load_module()
+    except:
+        pass
 
     return module
 
@@ -125,7 +129,7 @@ def setup_versioning():
     """ Here some magic happens.
 
         >>> import sys
-        >>> type(setup_versioning()) == type(sys)
+        >>> type(setup_versioning()) in (type(sys), type(None))
         True
     """
 
@@ -356,7 +360,7 @@ def add_to_sdist(base_dir):
     try:
         with open(target_versionfile, 'w') as fh:
             fh.write(versionfile.render_static_file())
-    except FileNotFoundError:
+    except:
         pass
 
 class cmd_sdist(_sdist):
