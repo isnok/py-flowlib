@@ -37,20 +37,31 @@ def find_parent_containing(name, path=None, check='exists', not_found=None):
 
     return not_found
 
-def find_subdirs_containing(name, path=None, check='exists', not_found=None):
+def find_subdirs_containing(name, path=None, check='exists', checklist=lambda x: x, not_found=None):
+    """ Return the subdirectories containind name.
+        The check can be chosen from exists, (is)file and (is)dir.
 
-    current = os.getcwd() if path is None else path
+        >>> from os.path import dirname, basename
+        >>> my_name, my_dir = basename(__file__), dirname(__file__)
+        >>> find_subdirs_containing('.', check='isdir') is find_subdirs_containing('.')
+        True
+        >>> len(find_subdirs_containing(my_name, my_dir, check='isfile')) >= 1
+        True
+        >>> len(find_subdirs_containing(my_name, my_dir, check='isfile')) <= len(find_subdirs_containing(my_name, my_dir))
+        True
+    """
+    path = os.getcwd() if path is None else path
 
     if check in ('exists', exists):
-        def checklist(loc, dirs, files):
+        def checklist(loc, dirs, files):  # pylint: disable=E0102
             return dirs + files
 
     elif check in ('isfile', 'file', isfile):
-        def checklist(loc, dirs, files):
+        def checklist(loc, dirs, files):  # pylint: disable=E0102
             return files
 
     elif check in ('isdir', 'dir', isdir):
-        def checklist(loc, dirs, files):
+        def checklist(loc, dirs, files):  # pylint: disable=E0102
             return dirs
 
     found = []
@@ -65,7 +76,15 @@ def find_subdirs_containing(name, path=None, check='exists', not_found=None):
 
 
 def check_file(path, for_content):
-    """ Might be inefficient on large files. """
+    """ Might be inefficient on large files.
+
+        >>> check_file(__file__, 'check_file')
+        True
+        >>> check_file(__file__, '_'.join(['random', 'pattern']))
+        False
+        >>> check_file('/_not_/_here_/_not_/_there_', 'pattern')
+        False
+    """
     if not isfile(path):
         return False
     with open(path, 'r') as f:
@@ -73,6 +92,11 @@ def check_file(path, for_content):
 
 
 def append_to_file(path, content):
+    """ Append to a File.
+
+        >>> append_to_file('/dev/null', '100 thousand bytes')
+        True
+    """
     with open(path, 'a') as f:
         f.write(content)
         return True
@@ -84,19 +108,39 @@ def _read_cache(path):
         Appending an empty string adds a final newline
         in the read case, and omitting it in the readlines
         case also creates a copy of the cached list.
+
+        >>> len(_read_cache(__file__)) > 100
+        True
+        >>> len(_read_cache(__file__)) > 100
+        True
     """
     if path in _cache:
-        content = _cache[path]
+        return _cache[path]
     else:
         with open(path, 'r') as f:
-            content = _cache.setdefault(path, f.readlines())
+            content = []
+            for line in f.readlines():
+                if line.endswith('\n'):
+                    content.append(line[:-1])
+                else:
+                    content.append(line)
             content.append('')
-    return content
+            return _cache.setdefault(path, content)
 
 def cached_read(path):
+    """ Read a file, cached.
+
+        >>> cached_read(__file__).split('\\n') == _read_cache(__file__)
+        True
+    """
     return '\n'.join(_read_cache(path))
 
 def cached_readlines(path):
+    """ Get the lines of a file, cached.
+
+        >>> '\\n'.join(cached_readlines(__file__)) + '\\n' == cached_read(__file__)
+        True
+    """
     return _read_cache(path)[:-1]
 
 

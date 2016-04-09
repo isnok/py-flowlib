@@ -2,6 +2,13 @@
 
     Developed for python3, but it looks (?)
     as if they work just as good with python2.
+
+    >>> type(CompletedCommand) == type
+    True
+    >>> print_all_executions
+    False
+    >>> run_command('date').returncode
+    0
 '''
 
 print_all_executions = False
@@ -49,6 +56,14 @@ def run_command(command, debug=None, **kwd):
     return result
 
 def pformat_completed(result):
+    """ Format a CompletedCommand for printing or logging.
+
+        >>> print(pformat_completed(run_command('true')))
+        ==> Finished command: ['true']
+        Exit code: 0
+        stdout:
+        ...
+    """
     pretty = '\n'.join([
         '==> Finished command: {0.command}',
         'Exit code: {0.returncode}',
@@ -59,12 +74,19 @@ def pformat_completed(result):
 
 
 def main():
-    global print_all_executions
-    print_all_executions = True
-    for cmd in ('ls -l', 'ping -c 2 -w 1 8.8.8.8', 'git explode'):
+    """ Show some abilities of the execute module.
+
+        >>> main()
+        ==> Finished command: ['ls', '-l']
+        Exit code: 0
+        stdout:
+        ...
+    """
+    #global print_all_executions
+    #print_all_executions = True
+    for cmd in ('ls -l', 'git explode'):
         result = run_command(cmd, debug=True)
-        if False:
-            print(pformat_completed(result))
+        print(pformat_completed(result))
 
 if __name__ == '__main__':
     import click

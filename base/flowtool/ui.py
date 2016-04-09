@@ -5,7 +5,13 @@ from collections import namedtuple
 
 
 def abort(message, returncode=1):
-    """ Abort the program as requested. By default a nonzero exit status is returned. """
+    """ Abort the program as requested. By default a nonzero exit status is returned.
+
+        >>> abort('Bye.')
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
+    """
     output = echo.yellow if returncode else echo.white
     output(message)
     sys.exit(returncode)
@@ -13,6 +19,12 @@ def abort(message, returncode=1):
 
 ChoiceItem = namedtuple('ChoiceItem', ['name', 'args'])
 def make_item(name, *values):
+    """ Make a ChoiceItem. Currently only internal use. may come in use to customize
+        the choice menu item later.
+
+        >>> make_item('Point', 1, 2, 3)
+        ChoiceItem(name='Point', args=('Point', 1, 2, 3))
+    """
     if isinstance(name, tuple):
         values = name[1:] + values
         name = name[0]
