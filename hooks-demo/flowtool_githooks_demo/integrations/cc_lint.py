@@ -1,3 +1,13 @@
+""" A demo integration of cclint.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(universal_hook, ('--noop',))
+    >>> result.exit_code
+    0
+    >>> bool(result.output)
+    False
+"""
 import os
 import sys
 import click
@@ -73,8 +83,9 @@ def run_hook(check_these, continues=4):
 from flowtool_githooks.discovering import added_files, discover_changed_files, find_suffix_files_in_project
 
 @click.command()
+@click.option('--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('args', nargs=-1)
-def universal_hook(args=()):
+def universal_hook(args=(), noop=None):
     """ Determine what files to check depending on the hook type
         we are being run as.
     """
@@ -92,5 +103,5 @@ def universal_hook(args=()):
     else:
         check_these = merge_found(*[find_suffix_files_in_project(s) for s in SUFFIXES])
 
-    if check_these:
+    if check_these and not noop:
         run_hook(check_these)
