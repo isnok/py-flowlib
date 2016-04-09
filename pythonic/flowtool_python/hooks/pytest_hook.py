@@ -13,7 +13,7 @@ import pytest
 def run_pytest(*args):
     """ Run pytest and return its exit status. """
 
-    errno = pytest.main(args)
+    errno = pytest.main(list(args))
 
     return errno
 
