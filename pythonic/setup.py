@@ -64,6 +64,7 @@ setup_args.update(
         ],
         'flowtool_githooks.pre_push': [
             '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
             '_flowtool_python.pylint_commit_range = flowtool_python.hooks.pylint_minimal:pylint_setup', # deprecate
         ],
     },
