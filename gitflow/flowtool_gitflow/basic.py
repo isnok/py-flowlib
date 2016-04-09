@@ -8,8 +8,8 @@
     >>> result.output.startswith("No branch in your current repo matches ")
     True
     >>> result = runner.invoke(checkout_branch, ['aster'])
-    >>> result.exit_code in (0, -1)
-    True
+    >>> result.exit_code
+    -1
     >>> 'master' in result.output
     True
     >>> result = runner.invoke(checkout_branch, ['--noop', ''])
@@ -46,7 +46,7 @@ def checkout(branch, repo=None):
 @click.command()
 @click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('pattern', default='')
-def checkout_branch(pattern, noop=None):
+def checkout_branch(pattern='', noop=None):
     """ Check out branches via substrings. """
 
     repo = local_repo()

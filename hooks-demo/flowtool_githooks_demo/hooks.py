@@ -10,12 +10,12 @@
     >>> runner = CliRunner()
     >>> result = runner.invoke(demo, ['/tmp'])
     >>> result.exit_code
-    0
+    -1
     >>> result.output.startswith('demo-hook:')
     True
     >>> result = runner.invoke(demo_fail, ['/tmp'])
     >>> result.exit_code
-    0
+    -1
     >>> result.output.startswith('demo-fail:')
     True
 """
