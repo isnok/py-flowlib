@@ -1,3 +1,14 @@
+""" Get git hooks status.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(run_hook, ())
+    >>> result.output.startswith('Too many matches')
+    True
+    >>> result = runner.invoke(run_hook, ('wrong',))
+    >>> result.output.startswith('No hook found')
+    True
+"""
 import os
 import sys
 import click
