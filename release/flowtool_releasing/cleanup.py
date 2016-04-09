@@ -46,11 +46,11 @@ def parse_pep440(version_string):
         '0'
     """
 
-    PYTHON3 = sys.version_info[0] == 3
-    if PYTHON3:
+    try:
         match = pep440_regex.fullmatch(version_string)
-    else:
+    except AttributeError:
         match = pep440_regex.match(version_string)
+
     if match is None:
         return None
 
