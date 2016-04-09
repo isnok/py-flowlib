@@ -2,21 +2,21 @@
     This file contains the main routines to configure git hooks interacitvely.
 
     >>> import sys
-    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--activate']
+    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--activate']
     >>> config_hooks()
     Traceback (most recent call last):
     ...
-    SystemExit: 0
-    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--add', 'some_script']
+    SystemExit: 2
+    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--add', 'some_script']
     >>> config_scripts()
     Traceback (most recent call last):
     ...
-    SystemExit: 0
-    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--remove', 'some_script']
+    SystemExit: 2
+    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--remove', 'some_script']
     >>> config_scripts()
     Traceback (most recent call last):
     ...
-    SystemExit: 0
+    SystemExit: 2
 """
 import os
 import click
@@ -50,7 +50,7 @@ def config_hooks(hook, activate):
                 hook_idx = idx
                 break
         else:
-            abort('not a managed git hook:', hook)
+            abort('not a managed git hook: %s' % hook)
 
     if activate is None:
         echo.bold(colors.blue('=== Hook On / Off ==='))
