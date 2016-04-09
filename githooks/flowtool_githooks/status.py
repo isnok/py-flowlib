@@ -3,7 +3,7 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
     >>> result = runner.invoke(show_status, ())
-    >>> result.output.startswith('git hooks status (')
+    >>> result.output.startswith('git hooks status:')
     True
 """
 import os
@@ -17,7 +17,19 @@ from flowtool_git.common import local_repo
 from flowtool_githooks.manager import find_entry_scripts, gather_hooks
 
 def status(repo=None, file_hooks=None):
-    """ Draw a nice summary of the git hook status. """
+    """ Draw a nice summary of the git hook status.
+
+        >>> import os
+        >>> if not os.path.exists('/tmp/test.d'): os.makedirs('/tmp/test.d')
+        >>> from collections import namedtuple
+        >>> Hook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
+        >>> status(file_hooks=[
+        ...     Hook('hook_one', False, '/some/path', False, '/tmp/test.d'),
+        ...     Hook('hook_two', True, '/some/other', True, '/tmp/test.d'),
+        ... ])
+        git hooks status:
+        ...
+    """
 
     if repo is None:
         repo = local_repo()
@@ -25,7 +37,8 @@ def status(repo=None, file_hooks=None):
     if file_hooks is None:
         file_hooks = gather_hooks()
 
-    echo.bold('git hooks status (%s):' % repo.git_dir)
+    echo.bold('git hooks status:')
+    echo.white('git dir', repo.git_dir)
     for number, info in enumerate(file_hooks):
 
         if info.is_runner:
