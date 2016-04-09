@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """ The flowtool main command.
 
-    >>> print(flowtool_main_group.__doc__)
-     flowtool - a{t,dd} your service.
-    <BLANKLINE>
+    >>> import sys
+    >>> sys.argv = []
+    >>> flowtool_main_group()
+    Traceback (most recent call last):
     ...
+    SystemExit: 0
 """
 
 from pkg_resources import iter_entry_points
