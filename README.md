@@ -1,5 +1,8 @@
 [![build-status](https://travis-ci.org/isnok/py-flowlib.svg?branch=master)](https://travis-ci.org/isnok/py-flowlib)
 [![Coverage Status](https://coveralls.io/repos/github/isnok/py-flowlib/badge.svg?branch=master)](https://coveralls.io/github/isnok/py-flowlib?branch=master)
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/flowtool-all.svg)](https://pypi.python.org/pypi/flowtool-all)
+[![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-all.svg)](https://pypi.python.org/pypi/flowtool-all)
+[![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-all.svg)](https://pypi.python.org/pypi/flowtool-all)
 
 
 # flowtool
