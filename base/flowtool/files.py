@@ -109,9 +109,12 @@ def _read_cache(path):
         in the read case, and omitting it in the readlines
         case also creates a copy of the cached list.
 
-        >>> len(_read_cache(__file__)) > 100
+        >>> cached = _read_cache(__file__)
+        >>> len(cached) > 10
         True
-        >>> len(_read_cache(__file__)) > 100
+        >>> len(_read_cache(__file__)) > 10
+        True
+        >>> _read_cache(__file__) is cached
         True
     """
     if path in _cache:
