@@ -1,37 +1,64 @@
 """ Automated releasing.
     This file contains the functions for the bump+release cycle.
 
-    >>> import sys
-    >>> sys.argv = ['some_name']
-    >>> do_release()
-    Traceback (most recent call last):
-    ...
-    FileNotFoundError: [Errno 2] No such file or directory: './versioning.py'
+    #>>> import sys
+    #>>> sys.argv = ['some_name']
+    #>>> do_release()
+    #Traceback (most recent call last):
+    #...
+    #FileNotFoundError: [Errno 2] No such file or directory: './versioning.py'
 """
 import sys
 import click
 from flowtool.execute import run_command
 from flowtool.style import colors, echo
+from flowtool.ui import abort
 
 
 def version_or_exit():
+    """ Get the current version or exit the process.
+
+        #>>> version_or_exit()
+        #Traceback (most recent call last):
+        #...
+        #SystemExit: 1
+    """
     get_version = run_command('./versioning.py')
     if get_version.returncode:
-        echo.bold(colors.red('versioning.py'), 'was not found in current directory.')
-        sys.exit(1)
+        abort(colors.red('versioning.py') + ' was not found in current directory.')
     else:
         return get_version.stdout.strip()
 
 
 def rollback(tag):
-    rollback = run_command(['git', 'tag', '-d', tag])
-    if rollback.returncode:
-        echo.bold(colors.red(rollback))
-        sys.exit(rollback.returncode)
-    echo.cyan('Done:', rollback.stdout.strip())
+    """ Roll back the tagging that was just done and inform the user.
+
+        >>> rollback('not_a_tag')
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
+    """
+    done = run_command(['git', 'tag', '-d', tag])
+    if done.returncode:
+        echo.bold(colors.red(str(done)))
+        sys.exit(done.returncode)
+    echo.cyan('Done:', done.stdout.strip())
 
 
 def do_release_step(command, tag, no_rollback=None):
+    """ Do a release step, possibly rolling back the tagging.
+
+        >>> do_release_step('true', 'rollback_tag')
+        running: true
+        >>> do_release_step('false', 'rollback_tag')
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
+        >>> do_release_step('false', 'rollback_tag', no_rollback=True)
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
+    """
     echo.cyan('running:', command)
     published = run_command(command)
     if published.returncode:
