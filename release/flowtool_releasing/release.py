@@ -4,8 +4,8 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
     >>> result = runner.invoke(do_release, ())
-    >>> result.output
-    ''
+    >>> result.exit_code in (1, -1)
+    True
 """
 import sys
 import click
