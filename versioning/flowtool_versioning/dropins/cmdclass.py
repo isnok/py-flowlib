@@ -346,7 +346,10 @@ def add_to_sdist(base_dir):
     self_target = join(base_dir, basename(__file__))
     if os.path.exists(self_target):
         os.unlink(self_target)
-    os.link(__file__, self_target)
+    try:
+        os.link(__file__, self_target)
+    except OSError:
+        print("=== Could not add versioning.py to sdist!")
 
     # now locate _version.py in the new base_dir directory
     # (remembering that it may be a hardlink) and replace it with an
