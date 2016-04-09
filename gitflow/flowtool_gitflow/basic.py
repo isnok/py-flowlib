@@ -8,9 +8,9 @@ from flowtool_git.common import local_repo
 def checkout(branch, repo=None):
     """ Check out a branch and give an appropriate message.
 
-        >>> from flowtool_git.common import local_repo
-        >>> checkout(local_repo().active_branch)
-        Already on 'master'.
+        #>>> from flowtool_git.common import local_repo
+        #>>> checkout(local_repo().active_branch)
+        #Already on 'master'.
     """
 
     if repo is None:
