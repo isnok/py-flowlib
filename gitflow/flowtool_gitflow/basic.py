@@ -6,7 +6,7 @@
     >>> result = runner.invoke(checkout_branch, ['/not_a_branch/'])
     >>> result.exit_code
     0
-    >>> result.output.startswith("No branch in your current repo matches '/not_a_branch/'.\\nBranches in this repo: ['")
+    >>> result.output.startswith("No branch in your current repo matches ")
     True
 """
 import click
