@@ -144,6 +144,22 @@ def setup_versioning():
     return versionfile
 
 
+def print_version_info():
+    """ Testable body of a setuptools/distutils command.
+
+        >>> print_version_info()
+        == Version-Config (setup.cfg):
+        ...
+    """
+    parser = parse_setup_cfg()
+
+    pretty_version_info = pformat(dict(parser.items('versioning')))
+    print('== Version-Config (setup.cfg):\n' + pretty_version_info)
+
+    versionfile = setup_versioning()
+    if versionfile is not None and hasattr(versionfile, 'VERSION_INFO'):
+        print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
+
 
 class cmd_version_info(Command):
     """ Version info command.
@@ -159,14 +175,7 @@ class cmd_version_info(Command):
     def finalize_options(self): pass
 
     def run(self):
-        parser = parse_setup_cfg()
-
-        pretty_version_info = pformat(dict(parser.items('versioning')))
-        print('== Version-Config (setup.cfg):\n' + pretty_version_info)
-
-        versionfile = setup_versioning()
-        if versionfile is not None:
-            print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
+        print_version_info()
 
 
 
