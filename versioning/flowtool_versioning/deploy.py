@@ -6,8 +6,8 @@
     >>> result = runner.invoke(init_versioning, ['/tmp'])
     >>> result.exit_code
     1
-    >>> result.output
-    '/tmp is not under git version control.\\n'
+    >>> result.output == '/tmp is not under git version control.\\n'
+    True
 """
 import os, sys
 import click
