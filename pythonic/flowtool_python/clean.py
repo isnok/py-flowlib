@@ -34,10 +34,18 @@ def filter_fn(names, patterns):
 
 
 def determine_what_to_clean(loc, dirs, files):
+    """ Find unneeded files and directories.
+
+        >>> determine_what_to_clean('/test', ['build', 'bla', 'blub'], ['a.txt', 'b.pyo'])
+        (['/test/build'], ['/test/b.pyo'])
+    """
+
     def add_loc(lst):
         return [os.sep.join([loc, name]) for name in lst]
+
     rm_dirs = filter_fn(dirs, cleaning_config['dirnames'])
     rm_files = filter_fn(files, cleaning_config['filenames'])
+
     return (add_loc(rm_dirs), add_loc(rm_files))
 
 
@@ -66,7 +74,7 @@ def confirm_clean(files_to_delete, dirs_to_remove):
 
 
 @click.command()
-@click.argument('directory', type=click.Path(exists=True), default=os.curdir)
+@click.argument('directory', type=click.Path(exists=True), default=os.getcwd())
 def clean(directory):
     """ Recursively clean python temporary files. """
 

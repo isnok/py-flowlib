@@ -9,7 +9,11 @@ IGNORE_RECURSIVE = frozenset([
 
 
 def find_suffix_files_in_project(suffix='', ignore_dirs=IGNORE_RECURSIVE):
-    """ Find .py files in the repo, recursively ignoring some dirs. """
+    """ Find suffix files in the repo, recursively ignoring some dirs.
+
+        >>> len(find_suffix_files_in_project('.py')) > 10
+        True
+    """
 
     repo = local_repo()
     repo_root_segments = os.path.dirname(repo.git_dir).split(os.sep)
@@ -30,7 +34,11 @@ def find_suffix_files_in_project(suffix='', ignore_dirs=IGNORE_RECURSIVE):
     return result
 
 def find_files_named_in_project(names=(), ignore_dirs=IGNORE_RECURSIVE):
-    """ Find dirs with pytest compatible configs. """
+    """ Find dirs with pytest compatible configs.
+
+        >>> len(list(find_files_named_in_project(['setup.cfg']))) > 3
+        True
+    """
 
     look_for = set(names)
 
@@ -50,10 +58,13 @@ def added_files(suffix='', untracked_files=False):
     """ Return the list of files that match suffix and are added
         to the local git's index and that are not deleted.
 
-        Using this, will run pylint on all files added to the commit.
+        Using this, will run your checker on all files added to the commit.
         This does just check the files in the repo, so if
         has changes not added to the index, the file checked
         may not be the same as the file checked in.
+
+        >>> type(added_files()) == list
+        True
     """
     untracked = 'yes' if untracked_files else 'no'
     added = []
@@ -77,6 +88,9 @@ def discover_changed_files(
         Modified (M), Renamed (R), have their type (i.e. regular file, symlink,
         submodule, ...) changed (T), are Unmerged (U), are Unknown (X), or have
         had their pairing Broken (B).
+
+        >>> type(discover_changed_files()) == list
+        True
     """
 
     repo = local_repo()

@@ -14,9 +14,11 @@ demo-hook:
 	# test if the hooks are executable:
 	_flowtool_githooks.demo
 
+$(COMPONENT_DIRS):
+	py.test $@
+
 pytest:
-	# run pytest with tox.ini from the root
-	for dir in $(COMPONENT_DIRS); do py.test $$dir; done
+	make $(COMPONENT_DIRS)
 
 pytest-hook:
 	# run pytest in all folders that have a configuration for it:
@@ -52,4 +54,4 @@ versioning-great-again:
 
 all: travis test
 
-.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again
+.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again $(COMPONENT_DIRS)
