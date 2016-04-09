@@ -1,3 +1,11 @@
+""" Git hooks wipe command.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(wipe_hooks, ['--yes', '--noop'])
+    >>> result.exit_code
+    0
+"""
 import os
 import shutil
 import sys
@@ -9,7 +17,8 @@ from flowtool_githooks.manager import hook_specs
 @click.command()
 @click.argument('name', nargs=-1)
 @click.option('-y', '--yes', is_flag=True, help='Answer yes to all questions.')
-def wipe_hooks(yes=None, name=()):
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
+def wipe_hooks(yes=None, name=(), noop=None):
     """ Remove git hooks and scripts. """
     name = ''.join(name)
     chosen = [h for h in hook_specs if name.lower() in h]
@@ -36,7 +45,7 @@ def wipe_hooks(yes=None, name=()):
 
         if os.path.isfile(hook_file):
             if yes or click.confirm('Delete this hook?'):
-                os.unlink(hook_file)
+                noop or os.unlink(hook_file)
                 echo.cyan('Removed', hook_name, 'hook script.')
             else:
                 echo.cyan(hook_name, 'was preserved.')
@@ -45,7 +54,7 @@ def wipe_hooks(yes=None, name=()):
         if os.path.isdir(hook_dir):
             echo.yellow('->', os.listdir(hook_dir))
             if yes or click.confirm('Delete hook folder recursively?'):
-                shutil.rmtree(hook_dir)
+                noop or shutil.rmtree(hook_dir)
                 echo.cyan('Removed', hook_name, 'hook dir.')
             else:
                 echo.cyan(hook_name, 'scripts were preserved.')

@@ -1,5 +1,4 @@
-""" Versioning deployment.
-    Installs the versioning into your (python) project.
+""" Basic things to ease git flows.
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
@@ -7,6 +6,16 @@
     >>> result.exit_code
     0
     >>> result.output.startswith("No branch in your current repo matches ")
+    True
+    >>> result = runner.invoke(checkout_branch, ['aster'])
+    >>> result.exit_code
+    0
+    >>> 'master' in result.output
+    True
+    >>> result = runner.invoke(checkout_branch, ['--noop', ''])
+    >>> result.exit_code
+    0
+    >>> result.output == ''
     True
 """
 import click
@@ -35,8 +44,9 @@ def checkout(branch, repo=None):
 
 
 @click.command()
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('pattern', default='')
-def checkout_branch(pattern):
+def checkout_branch(pattern, noop=None):
     """ Check out branches via substrings. """
 
     repo = local_repo()
@@ -48,7 +58,7 @@ def checkout_branch(pattern):
 
     elif len(possible) == 1:
         branch = possible.pop()
-        checkout(branch)
+        noop or checkout(branch)
 
     else:
         echo.bold('Multiple branch names match:\n')
@@ -62,8 +72,8 @@ def checkout_branch(pattern):
         )
         while not 0 < answer <= len(possible):
             echo.white('Choice out of range: %s' % answer)
-            answer = click.prompt(
+            answer = noop or click.prompt(
                 'Check out which branch [1-%s]?' % len(possible),
                 prompt_suffix=' ', type=int,
             )
-        checkout(possible[answer-1])
+        noop or checkout(possible[answer-1])

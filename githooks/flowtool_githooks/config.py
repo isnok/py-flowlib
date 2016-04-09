@@ -3,23 +3,21 @@
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
-    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit'])
-    >>> result.exit_code in (0, 1)
-    True
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit', '--activate'])
-    >>> result.exit_code in (0, 1)
-    True
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit', '--deactivate'])
-    >>> result.exit_code in (0, 1)
-    True
-    >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--add', 'some_script'])
-    >>> result.exit_code == 1
-    True
-    >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--remove', 'some_script'])
-    >>> result.exit_code == 1
-    True
+    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit'])
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--activate'])
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--deactivate'])
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--add', 'some_script'])
+    >>> result.exit_code
+    1
+    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--remove', 'some_script'])
+    >>> result.exit_code
+    1
 
     #>>> result = runner.invoke(config_hooks, ['--activate'], input='1\\n')
     #>>> result.exit_code in (0,)
@@ -40,9 +38,9 @@ from .manager import hook_specs, activate_hook, deactivate_hook
 from flowtool_git.common import local_repo
 
 @click.command()
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
 @click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
-@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 def config_hooks(hook, activate, noop):
     """ Interactively configure a hook. """
 
@@ -71,10 +69,11 @@ def config_hooks(hook, activate, noop):
 
 
 @click.command()
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
 @click.option('--add/--remove', default=None, help='Wether the scripts should be added ro removed')
 @click.argument('script_names', nargs=-1)
-def config_scripts(hook, add, script_names):
+def config_scripts(hook, add, script_names, noop):
     """ Interactively add or remove the scripts of a hook. """
 
     repo = local_repo()
@@ -131,7 +130,7 @@ def add_script(hook_info, script_fullpath, setup_entry):
     setup_entry('install')
     # if click.confirm('Also activate?', default=True):
     make_executable(dest)
-        # echo.cyan('Activated %s.' % arg)
+    # echo.cyan('Activated %s.' % arg)
 
 def remove_script(hook_info, script_fullpath, setup_entry):
     """ Remove script from hook. """
@@ -187,8 +186,16 @@ def remove_script(hook_info, script_fullpath, setup_entry):
 from pkg_resources import iter_entry_points
 import sys
 
-def select_scripts(info):
-    """ Add scripts to git hooks. """
+def select_scripts(info, noop=None):
+    """ Add scripts to git hooks.
+
+        >>> from collections import namedtuple
+        >>> Hook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
+        >>> select_scripts(Hook('test', False, '/some/path', False, '/tmp/test.d'), noop=True)
+        0 added scripts (test):
+        no more scripts to add automatically.
+        ...
+    """
 
     if not info.runner_dir:
         echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
@@ -218,7 +225,7 @@ def select_scripts(info):
         echo.white()
         choices.append(('quit', colors.blue('Done.')))
         echo.white('%4d - done' % (len(choices)))
-        answer = click.prompt(
+        answer = noop or click.prompt(
             colors.white('Choose action'),
             type=int,
         )
@@ -228,9 +235,9 @@ def select_scripts(info):
         action, arg = choices[answer - 1]
 
         if action == 'remove_script':
-            if click.confirm('remove %s' % arg):
+            if noop or click.confirm('remove %s' % arg):
                 script = os.sep.join([info.runner_dir, arg])
-                os.unlink(script)
+                noop or os.unlink(script)
                 echo.red('Removed %s.' % arg)
             else:
                 echo.red('Did not remove %s.' % arg)
@@ -239,11 +246,11 @@ def select_scripts(info):
                 info.runner_dir,
                 os.path.basename(arg),
             ])
-            os.symlink(arg, dest)
+            noop or os.symlink(arg, dest)
             echo.green('Added %s.' % arg)
             setup = [e.load() for e in available.values() if os.path.basename(arg) == e.name].pop()
             setup('install')
-            if click.confirm('Also activate?', default=True):
+            if noop or click.confirm('Also activate?', default=True):
                 make_executable(dest)
                 echo.cyan('Activated %s.' % arg)
         elif action == 'quit':

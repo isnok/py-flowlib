@@ -1,5 +1,24 @@
 # -*- coding: utf-8 -*-
-''' Work efficiently with feature branches. '''
+""" Work efficiently with feature branches.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(main, [])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith('Local branches')
+    True
+    >>> result = runner.invoke(commit, [])
+    >>> result.exit_code
+    1
+    >>> 'Please give a commit message' in result.output
+    True
+    >>> result = runner.invoke(commit, ['my', 'message'])
+    >>> result.exit_code
+    1
+    >>> 'does not look like' in result.output
+    True
+"""
 
 import re
 import sys

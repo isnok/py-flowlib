@@ -1,3 +1,24 @@
+""" Versioning deployment.
+    Installs the versioning into your (python) project.
+
+    >>> demo_setup('cmd')
+    demo-hook-setup: cmd
+    >>> demo_fail_setup('cmd')
+    demo-fail-setup: cmd
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(demo, ['/tmp'])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith('demo-hook:')
+    True
+    >>> result = runner.invoke(demo_fail, ['/tmp'])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith('demo-fail:')
+    True
+"""
 import os
 import sys
 import select
@@ -21,8 +42,9 @@ def read_stdin_nonblocking():
     #stdin_was_closed()
 
 @click.command()
+#@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('args', nargs=-1)
-def demo(args=()):
+def demo(args=(), noop=None):
     """ A demo git hook function.
         It tries to take all input a git hook can get and display it.
     """
@@ -41,6 +63,7 @@ def demo(args=()):
         echo.white(stdin, nl=False)
         echo.cyan('<<<stdin<<<')
 
+
 def demo_setup(cmd=None):
     """ Micro setup process to set up configs or uninstall them. """
     echo.white('demo-hook-setup:', cmd)
@@ -48,8 +71,9 @@ def demo_setup(cmd=None):
 
 
 @click.command()
+#@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('args', nargs=-1)
-def demo_fail(args=()):
+def demo_fail(args=(), noop=None):
     """ A hook that will always exit with a nonzero status. """
     echo.red('demo-fail: OaaH, this will crash!', args)
     stdin = ''.join(read_stdin_nonblocking())

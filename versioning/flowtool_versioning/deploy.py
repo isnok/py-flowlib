@@ -13,6 +13,12 @@
     1
     >>> result.output.startswith('setup.py found: None')
     True
+    >>> from os.path import dirname
+    >>> result = runner.invoke(init_versioning, ['--noop', '--yes', dirname(__file__)])
+    >>> result.output.startswith('setup.py found:')
+    True
+    >>> result.exit_code
+    0
 """
 import os, sys
 import click
@@ -42,11 +48,12 @@ GITATTRIBUTES_ADDON = '''
 
 @click.command()
 @click.argument('path', type=click.Path(), default=os.getcwd())
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.option(
     '-y', '--yes', is_flag=True, default=False,
     help="Update all components without asking."
 )
-def init_versioning(path=os.getcwd(), yes=None):
+def init_versioning(path=os.getcwd(), yes=None, noop=None):
     """Initialize or update versioning."""
 
     git_dir = find_parent_containing('.git', path, check='isdir')
@@ -73,7 +80,7 @@ def init_versioning(path=os.getcwd(), yes=None):
     versionfile = None
     modules = find_subdirs_containing('__init__.py', setup_dir)
     if modules:
-        if yes and len(modules) == 1:
+        if (yes and len(modules) == 1) or noop:
             chosen = modules[0]
         else:
             modules.append(None)
@@ -82,12 +89,13 @@ def init_versioning(path=os.getcwd(), yes=None):
                 choices=modules,
                 question='Include _version.py into which module?',
             )
+
         versionfile = None
         if chosen is not None:
             versionfile = os.path.join(chosen, '_version.py')
             init_py = os.path.join(chosen, '__init__.py')
             if not check_file(init_py, '__version__') and click.confirm('Update __init__.py?', default=True):
-                append_to_file(init_py, INIT_PY_SNIPPET)
+                noop or append_to_file(init_py, INIT_PY_SNIPPET)
 
     if versionfile is None and click.confirm('Enter versionfile manually?', default=True):
         versionfile = click.prompt('Deploy versionfile to')
@@ -98,13 +106,13 @@ def init_versioning(path=os.getcwd(), yes=None):
         else:
             echo.bold('Updating: %s' % versionfile)
             with open(versionfile_source, 'r') as src, open(versionfile, 'w') as dest:
-                dest.write(src.read())
+                noop or dest.write(src.read())
 
     # deploy .gitattributes
     gitattributes = os.path.join(setup_dir, '.gitattributes')
     rel_path = versionfile[len(setup_dir)+1:]
     if not check_file(gitattributes, rel_path + ' export-subst'):
-        append_to_file(gitattributes, GITATTRIBUTES_ADDON.format(rel_path))
+        noop or append_to_file(gitattributes, GITATTRIBUTES_ADDON.format(rel_path))
 
 
     # setup.cfg (needed for cmdclass import!)
@@ -129,7 +137,7 @@ def init_versioning(path=os.getcwd(), yes=None):
                     guessed_location=build_versionfile,
                     tag_prefix=click.prompt('Use which tag prefix?')
                 )
-                append_to_file(setup_cfg, version_config)
+                noop or append_to_file(setup_cfg, version_config)
 
 
     from flowtool_versioning.dropins.cmdclass import __file__ as setupextension_source
@@ -144,8 +152,8 @@ def init_versioning(path=os.getcwd(), yes=None):
     else:
         echo.bold('Updating: %s' % setup_extension)
         with open(setupextension_source, 'r') as src, open(setup_extension, 'w') as dest:
-            dest.write(src.read())
-        make_executable(setup_extension)
+            noop or dest.write(src.read())
+        noop or make_executable(setup_extension)
 
     echo.green('Installation / Update complete.')
     echo.cyan('If this is the initial installation, you can now go ahead and add something like:')
