@@ -51,9 +51,6 @@ def add_main_group_options():
         flowtool_main_group = option(flowtool_main_group)
         extension_handlers[entry_point.name] = handler
 
-add_main_group_options()
-
-
 
 def add_commands(*names):
     """ Add the installed commands to the main command group.
@@ -66,10 +63,9 @@ def add_commands(*names):
             func = entry_point.load()
             flowtool_main_group.add_command(func, name=entry_point.name)
 
-add_commands(
-    'flowtool_commands',
-    # 'turnstile.commands',
-)
+
+add_main_group_options()
+add_commands('flowtool_commands')
 
 if __name__ == '__main__':
     flowtool_main_group()
