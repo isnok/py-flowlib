@@ -74,7 +74,7 @@ def do_publish(tag):
     echo.bold(colors.green('Git tags published.'))
 
     do_release_step(
-        './setup.py sdist upload', tag,
+        './setup.py sdist bdist bdist_wheel upload', tag,
         no_rollback='Not rolling back tag %r since it is already pusblished.' % tag,
     )
     echo.bold(colors.green('New release published on PyPI.'))
