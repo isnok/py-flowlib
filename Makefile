@@ -16,7 +16,7 @@ demo-hook:
 
 pytest:
 	# run pytest with tox.ini from the root
-	py.test
+	for dir in $(COMPONENT_DIRS); do py.test $$dir; done
 
 pytest-hook:
 	# run pytest in all folders that have a configuration for it:
