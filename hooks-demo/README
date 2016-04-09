@@ -1,3 +1,7 @@
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/flowtool-githooks-demo.svg)](https://pypi.python.org/pypi/flowtool-githooks-demo)
+[![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-githooks-demo.svg)](https://pypi.python.org/pypi/flowtool-githooks-demo)
+[![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-githooks-demo.svg)](https://pypi.python.org/pypi/flowtool-githooks-demo)
+
 # flowtool-githooks-demo
 
 This package contains some example git hooks.

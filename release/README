@@ -1,3 +1,7 @@
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/flowtool-releasing.svg)](https://pypi.python.org/pypi/flowtool-releasing)
+[![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-releasing.svg)](https://pypi.python.org/pypi/flowtool-releasing)
+[![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-releasing.svg)](https://pypi.python.org/pypi/flowtool-releasing)
+
 # flowtool-releasing
 
 An automated workflow for releasing Python Packages to PyPI and github.

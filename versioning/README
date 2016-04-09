@@ -1,3 +1,7 @@
+[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/flowtool-versioning.svg)](https://pypi.python.org/pypi/flowtool-versioning)
+[![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-versioning.svg)](https://pypi.python.org/pypi/flowtool-versioning)
+[![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-versioning.svg)](https://pypi.python.org/pypi/flowtool-versioning)
+
 # flowtool-versioning
 
 Automatic versions from git tags.
