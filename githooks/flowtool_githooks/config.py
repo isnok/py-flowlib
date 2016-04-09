@@ -12,10 +12,10 @@
     >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--deactivate'])
     >>> result.exit_code
     0
-    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--add', 'some_script'])
+    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--add', 'addable'])
     >>> result.exit_code
     1
-    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--remove', 'some_script'])
+    >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--remove', 'added'])
     >>> result.exit_code
     1
 
@@ -192,8 +192,7 @@ def select_scripts(info, noop=None):
         >>> from collections import namedtuple
         >>> Hook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
         >>> select_scripts(Hook('test', False, '/some/path', False, '/tmp/test.d'), noop=True)
-        0 added scripts (test):
-        no more scripts to add automatically.
+        1 added scripts (test):
         ...
     """
 
@@ -204,7 +203,7 @@ def select_scripts(info, noop=None):
     available = find_entry_scripts(info.name)
 
     while True:
-        added = sorted(os.listdir(info.runner_dir))
+        added = ['added'] if noop else sorted(os.listdir(info.runner_dir))
         debug.cyan(info.name, added, available)
 
         echo.white('%d added scripts (%s):' % (len(added), info.name))
@@ -213,7 +212,7 @@ def select_scripts(info, noop=None):
             choices.append(('remove_script', script))
             echo.cyan('%4d - %s' % (len(choices), script))
 
-        addable = sorted(s for s in available if not os.path.basename(s) in added)
+        addable = ['addable'] if noop else sorted(s for s in available if not os.path.basename(s) in added)
         if not addable:
             echo.white('no more scripts to add automatically.')
         else:
@@ -258,3 +257,6 @@ def select_scripts(info, noop=None):
             return
         else:
             echo.yellow('Invalid action.')
+
+        if noop:
+            break
