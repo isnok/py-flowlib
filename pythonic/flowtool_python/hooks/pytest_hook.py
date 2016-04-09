@@ -1,3 +1,14 @@
+""" A git hook that runs pytest in your repo.
+    The invocation strategy needs to be defined better.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(pytest_hook, ('--noop',))
+    >>> result.exit_code
+    1
+    >>> bool(result.output)
+    True
+"""
 import os
 import sys
 import git
@@ -30,8 +41,9 @@ PYTEST_CONFIGS = ['pytest.ini', 'tox.ini']
 
 
 @click.command()
+@click.option('--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('args', nargs=-1)
-def pytest_hook(args=()):
+def pytest_hook(args=(), noop=None):
     """ Run pytest in discovered directories. """
 
     locations = list(find_files_named_in_project(PYTEST_CONFIGS))
@@ -52,7 +64,7 @@ def pytest_hook(args=()):
     for loc in locations:
         echo.white('->', colors.cyan(loc))
         os.chdir(loc)
-        returncode = run_pytest(loc)
+        returncode = noop or run_pytest(loc)
         if returncode:
             fails += 1
             hook_return |= returncode
