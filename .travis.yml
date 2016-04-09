@@ -14,7 +14,7 @@ before_install:
     # - sudo apt-get install -y cabal-install
     # - cabal update
     # - cabal install shellcheck
-    - pip install -U pytest pytest-cov coveralls
+    - pip install -U pytest pytest-cov coveralls wheel
     # - pip install coveralls
 install:
     - pip install -e ./base
