@@ -34,13 +34,15 @@ def parse_pep440(version_string):
 
         >>> parse_pep440('1.2.3.4')['release']
         (1, 2, 3, 4)
-        >>> v = parse_pep440('0!1.2.3.4.b5.post6.dev')
+        >>> v = parse_pep440('0!1.2.3.4.b5.post6.dev7')
         >>> v['release']
         (1, 2, 3, 4)
         >>> v['pre_release']
         ('b', 5)
         >>> v['post_release']
         6
+        >>> v['dev_release']
+        7
         >>> v['epoch']
         '0'
     """
