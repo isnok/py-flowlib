@@ -1,3 +1,15 @@
+""" Self-update mechanism of flowtool.
+    Basically runs pip and saves you typing that over and over.
+    May be extended to upgrade the whole virtualenv some day...
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(update_installed, ['-y'])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith('pip --no-cache-dir install --upgrade flowtool-')
+    True
+"""
 import click
 import pip
 import sys

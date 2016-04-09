@@ -1,22 +1,17 @@
 """ Git hook configuration management.
     This file contains the main routines to configure git hooks interacitvely.
 
-    >>> import sys
-    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--activate']
-    >>> config_hooks()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 2
-    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--add', 'some_script']
-    >>> config_scripts()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 2
-    >>> sys.argv = ['some_name', '--hook', 'post-fail', '--remove', 'some_script']
-    >>> config_scripts()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 2
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit', '--activate'])
+    >>> result.exit_code in (0, 1)
+    True
+    >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--add', 'some_script'])
+    >>> result.exit_code == 1
+    True
+    >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--remove', 'some_script'])
+    >>> result.exit_code == 1
+    True
 """
 import os
 import click

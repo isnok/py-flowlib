@@ -1,12 +1,11 @@
 """ Automated releasing.
     This file contains the functions for the bump+release cycle.
 
-    #>>> import sys
-    #>>> sys.argv = ['some_name']
-    #>>> do_release()
-    #Traceback (most recent call last):
-    #...
-    #FileNotFoundError: [Errno 2] No such file or directory: './versioning.py'
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(do_release, ())
+    >>> result.output
+    ''
 """
 import sys
 import click
@@ -16,13 +15,8 @@ from flowtool.ui import abort
 
 
 def version_or_exit():
-    """ Get the current version or exit the process.
+    """ Get the current version or exit the process. """
 
-        #>>> version_or_exit()
-        #Traceback (most recent call last):
-        #...
-        #SystemExit: 1
-    """
     get_version = run_command('./versioning.py')
     if get_version.returncode:
         abort(colors.red('versioning.py') + ' was not found in current directory.')

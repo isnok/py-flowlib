@@ -1,12 +1,13 @@
 """ Versioning deployment.
     Installs the versioning into your (python) project.
 
-    >>> import sys
-    >>> sys.argv = ['some_name', '-y', '/tmp']
-    >>> init_versioning()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 1
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(init_versioning, ['/tmp'])
+    >>> result.exit_code
+    1
+    >>> result.output
+    '/tmp is not under git version control.\\n'
 """
 import os, sys
 import click

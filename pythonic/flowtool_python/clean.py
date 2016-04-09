@@ -1,3 +1,13 @@
+""" Clean up python temporary files command.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(clean, ['--yes'])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith('='*30) and result.output.endswith('Done.\\n')
+    True
+"""
 import os
 import fnmatch
 import click
@@ -75,7 +85,11 @@ def confirm_clean(files_to_delete, dirs_to_remove):
 
 @click.command()
 @click.argument('directory', type=click.Path(exists=True), default=os.getcwd())
-def clean(directory):
+@click.option(
+    '-y', '--yes', is_flag=True, default=False,
+    help="Clean up without asking for confirmation."
+)
+def clean(directory=os.getcwd(), yes=None):
     """ Recursively clean python temporary files. """
 
     echo.white('==============================\n= python temp files cleaning =\n==============================')
@@ -88,7 +102,7 @@ def clean(directory):
         dirs_to_remove.extend(dirs)
         files_to_delete.extend(files)
 
-    if confirm_clean(files_to_delete, dirs_to_remove):
+    if yes or confirm_clean(files_to_delete, dirs_to_remove):
         for fname in files_to_delete:
             try:
                 os.unlink(fname)

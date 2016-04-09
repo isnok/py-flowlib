@@ -1,3 +1,18 @@
+""" The pylint-minimal git hook.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(universal_hook, ('--noop',))
+    >>> result.exit_code
+    0
+    >>> result.output
+    ''
+    >>> result = runner.invoke(pylint_pre_push, ('remote', 'login', '--noop',))
+    >>> result.exit_code
+    0
+    >>> result.output
+    ''
+"""
 import os
 import sys
 import click
@@ -43,7 +58,7 @@ def get_config_name(repo=None):
         PYLINT_CONFIG,
     ])
     local_git_command().config(GITCONFIG_KEY, configfile)
-    echo.cyan(
+    debug.cyan(
         'configured',
         colors.yellow(GITCONFIG_KEY),
         'to',
@@ -101,10 +116,14 @@ minimal_pylint_checks = [
 
 
 def pylint_setup(cmd=None):
-    """ Setup function for pylint hook(s). """
+    """ Setup function for pylint hook(s).
+
+        >>> pylint_setup('install')
+        >>> pylint_setup('uninstall')
+    """
     repo = local_repo()
     if cmd == 'uninstall':
-        echo.cyan(
+        debug.cyan(
             'pylint-hook-setup:',
             'unsetting',
             colors.yellow(GITCONFIG_KEY),
@@ -113,7 +132,7 @@ def pylint_setup(cmd=None):
         return
     config_file = get_config_name(repo)
     if os.path.exists(config_file):
-        echo.cyan(
+        debug.cyan(
             'pylint-hook-setup:',
             os.path.basename(config_file),
             'exists',
@@ -127,7 +146,7 @@ def pylint_setup(cmd=None):
         ).stdout
         with open(config_file, 'w') as fh:
             fh.write(minimal_config)
-        echo.cyan('pyints-hook-setup: created', os.path.basename(config_file))
+        debug.cyan('pyints-hook-setup: created', os.path.basename(config_file))
 
 
 
@@ -175,8 +194,9 @@ def run_hook(check_these, cfg=None, continues=5):
 from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
 
 @click.command()
+@click.option('--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('args', nargs=-1)
-def universal_hook(args=()):
+def universal_hook(args=(), noop=None):
     """ Determine what files to check depending on the hook type
         we are being run as.
     """
@@ -194,7 +214,7 @@ def universal_hook(args=()):
     else:
         check_these = find_suffix_files_in_project(SUFFIX)
 
-    if check_these:
+    if check_these and not noop:
         run_hook(check_these)
 
 
@@ -215,9 +235,10 @@ def universal_hook(args=()):
         #run_hook(check_these, cfg)
 
 @click.command()
+@click.option('--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('remote', nargs=1)
 @click.argument('address', nargs=1)
-def pylint_pre_push(remote='', address=''):
+def pylint_pre_push(remote='', address='', noop=None):
     """ Run pylint as pre-push hook. Soon to be deprecated - universal hook is already better. """
 
     repo = local_repo()
@@ -226,6 +247,5 @@ def pylint_pre_push(remote='', address=''):
         pylint_setup('install')
 
     check_these = discover_changed_files('.py')
-    if check_these:
+    if check_these and not noop:
         run_hook(check_these, cfg)
-

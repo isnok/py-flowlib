@@ -1,11 +1,10 @@
 """ Tag cleanup for the auto release mechanism.
 
-    >>> import sys
-    >>> sys.argv = ['some_name', '--all', '--yes', 'test-prefix-']
-    >>> local_tag_cleanup()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 2
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(local_tag_cleanup, ('--yes', '--all'))
+    >>> result.output.startswith('setup.cfg from /')
+    True
 """
 
 import os

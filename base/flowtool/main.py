@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """ The flowtool main command.
 
-    >>> import sys
-    >>> sys.argv = []
-    >>> flowtool_main_group()
-    Traceback (most recent call last):
-    ...
-    SystemExit: 0
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(flowtool_main_group, ())
+    >>> result.exit_code == 0
+    True
+    >>> 'flowtool' in result.output
+    True
 """
 
 from pkg_resources import iter_entry_points

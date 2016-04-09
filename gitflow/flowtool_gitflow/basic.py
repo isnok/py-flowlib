@@ -1,3 +1,14 @@
+""" Versioning deployment.
+    Installs the versioning into your (python) project.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(checkout_branch, ['/not_a_branch/'])
+    >>> result.exit_code
+    0
+    >>> result.output.startswith("No branch in your current repo matches '/not_a_branch/'.\\nBranches in this repo: ['")
+    True
+"""
 import click
 from flowtool.style import echo, colors
 from flowtool_git.common import local_repo

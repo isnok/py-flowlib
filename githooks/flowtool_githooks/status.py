@@ -1,3 +1,11 @@
+""" Get git hooks status.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(show_status, ())
+    >>> result.output.startswith('git hooks status (')
+    True
+"""
 import os
 import sys
 import click
@@ -9,11 +17,8 @@ from flowtool_git.common import local_repo
 from flowtool_githooks.manager import find_entry_scripts, gather_hooks
 
 def status(repo=None, file_hooks=None):
-    """ Draw a nice summary of the git hook status.
+    """ Draw a nice summary of the git hook status. """
 
-        #>>> status()
-        #git hooks status (...)
-    """
     if repo is None:
         repo = local_repo()
 
