@@ -12,6 +12,10 @@
     >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--remove', 'some_script'])
     >>> result.exit_code == 1
     True
+
+    #>>> result = runner.invoke(config_hooks, ['--activate'], input='1\\n')
+    #>>> result.exit_code in (0,)
+    #True
 """
 import os
 import click

@@ -54,7 +54,19 @@ def find_entry_scripts(hook_name):
     return entrypoint_scripts
 
 
-def install_hook(info, repo):
+def install_hook(info, repo=None):
+    """ Install a hook.
+
+        >>> infos = sorted(gather_hooks())
+        >>> for info in infos:
+        ...     install_hook(info)
+        >>> for info in infos:
+        ...     install_hook(info)
+    """
+
+    if repo is None:
+        repo = local_repo()
+
     name = info.name
     hook_file = os.path.join(repo.git_dir, 'hooks', name)
 
@@ -81,6 +93,7 @@ def install_hook(info, repo):
             os.link(hook_file, backup)
             os.unlink(hook_file)
             install()
+
 
 def gather_file_hooks(repo=None):
     """ Gather information on installed git hook files.
