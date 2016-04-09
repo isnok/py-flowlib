@@ -4,7 +4,7 @@
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
-    >>> result = runner.invoke(update_installed, ['-y'])
+    >>> result = runner.invoke(update_installed, ['--yes', '--not-really'])
     >>> result.exit_code
     0
     >>> result.output.startswith('pip --no-cache-dir install --upgrade flowtool-')
@@ -28,8 +28,12 @@ from flowtool.python import contains_any_filter
     '-r', '--reinstall', is_flag=True, default=False,
     help="Also uninstall before reinstalling. (Defunct.)"
 )
+@click.option(
+    '-n', '--not-really', is_flag=True, default=False,
+    help="Do not install packages, just show the commands."
+)
 @click.argument('identifiers', nargs=-1)
-def update_installed(yes=None, reinstall=None, identifiers=()):
+def update_installed(yes=None, reinstall=None, not_really=None, identifiers=()):
     """ Update all installed flowtool components. """
 
     if identifiers:
@@ -73,6 +77,6 @@ def update_installed(yes=None, reinstall=None, identifiers=()):
     echo.bold(colors.green(
         ' '.join(['pip'] + pip_args)
     ))
-    sys.exit(
+    not_really or sys.exit(
         pip.main(pip_args)
     )
