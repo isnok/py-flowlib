@@ -89,7 +89,7 @@ def discover_changed_files(
         submodule, ...) changed (T), are Unmerged (U), are Unknown (X), or have
         had their pairing Broken (B).
 
-        >>> type(discover_changed_files()) == list
+        >>> type(discover_changed_files(reference_branch='master')) == list
         True
     """
 
