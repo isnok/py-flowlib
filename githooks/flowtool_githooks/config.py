@@ -3,7 +3,15 @@
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
+    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit'])
+    >>> result.exit_code in (0, 1)
+    True
+    >>> runner = CliRunner()
     >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit', '--activate'])
+    >>> result.exit_code in (0, 1)
+    True
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(config_hooks, ['--hook', 'pre-commit', '--deactivate'])
     >>> result.exit_code in (0, 1)
     True
     >>> result = runner.invoke(config_scripts, ['--hook', 'pre-commit', '--add', 'some_script'])
@@ -34,7 +42,8 @@ from flowtool_git.common import local_repo
 @click.command()
 @click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
 @click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
-def config_hooks(hook, activate):
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
+def config_hooks(hook, activate, noop):
     """ Interactively configure a hook. """
 
     repo = local_repo()
@@ -49,16 +58,16 @@ def config_hooks(hook, activate):
                 hook_idx = idx
                 break
         else:
-            abort('not a managed git hook: %s' % hook)
+            noop or abort('not a managed git hook: %s' % hook)
 
     if activate is None:
         echo.bold(colors.blue('=== Hook On / Off ==='))
-        toggle_hook(file_hooks[hook_idx], repo)
+        noop or toggle_hook(file_hooks[hook_idx], repo)
     else:
         if activate:
-            activate_hook(file_hooks[hook_idx])
+            noop or activate_hook(file_hooks[hook_idx])
         else:
-            deactivate_hook(file_hooks[hook_idx])
+            noop or deactivate_hook(file_hooks[hook_idx])
 
 
 @click.command()

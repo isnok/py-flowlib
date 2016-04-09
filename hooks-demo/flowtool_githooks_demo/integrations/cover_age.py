@@ -45,7 +45,7 @@ def hook_setup(cmd=None):
         return
 
 
-def run_hook(check_these, continues=4):
+def run_hook(check_these, continues=4, noop=None):
     """ Run the checker command on all touched files with suffix.
         Continue up to 'continues' times if one run fails still, to show possibly
         more errors that you can fix easily in one go when checking a lot of files.
@@ -109,4 +109,4 @@ def universal_hook(args=(), noop=None):
         check_these = merge_found(*[find_suffix_files_in_project(s) for s in SUFFIXES])
 
     if check_these and not noop:
-        run_hook(check_these)
+        run_hook(check_these, noop=noop)
