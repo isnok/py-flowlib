@@ -34,7 +34,7 @@ yamllint:
 
 coverage:
 	# check the coverage with pytest-cov
-	py.test --cov=.
+	# py.test --cov=.
 	for dir in $(COMPONENT_DIRS); do py.test --cov=. --cov-append $$dir; done
 
 coverage-hook:
