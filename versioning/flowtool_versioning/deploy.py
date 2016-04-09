@@ -1,3 +1,13 @@
+""" Versioning deployment.
+    Installs the versioning into your (python) project.
+
+    >>> import sys
+    >>> sys.argv = ['some_name', '-y', '/tmp']
+    >>> init_versioning()
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+"""
 import os, sys
 import click
 from flowtool.style import colors, echo, debug

@@ -1,3 +1,13 @@
+""" Automated releasing.
+    This file contains the functions for the bump+release cycle.
+
+    >>> import sys
+    >>> sys.argv = ['some_name']
+    >>> do_release()
+    Traceback (most recent call last):
+    ...
+    FileNotFoundError: [Errno 2] No such file or directory: './versioning.py'
+"""
 import sys
 import click
 from flowtool.execute import run_command

@@ -1,3 +1,13 @@
+""" Tag cleanup for the auto release mechanism.
+
+    >>> import sys
+    >>> sys.argv = ['some_name', '--all', '--yes', 'test-prefix-']
+    >>> local_tag_cleanup()
+    Traceback (most recent call last):
+    ...
+    SystemExit: 2
+"""
+
 import os
 import re
 import sys
@@ -22,6 +32,18 @@ def parse_pep440(version_string):
         Pre-release segment: {a|b|rc}N
         Post-release segment: .postN
         Development release segment: .devN
+
+        >>> parse_pep440('1.2.3.4')['release']
+        (1, 2, 3, 4)
+        >>> v = parse_pep440('0!1.2.3.4.b5.post6.dev')
+        >>> v['release']
+        (1, 2, 3, 4)
+        >>> v['pre_release']
+        ('b', 5)
+        >>> v['post_release']
+        6
+        >>> v['epoch']
+        '0'
     """
 
     PYTHON3 = sys.version_info[0] == 3

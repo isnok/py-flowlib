@@ -1,3 +1,23 @@
+""" Git hook configuration management.
+    This file contains the main routines to configure git hooks interacitvely.
+
+    >>> import sys
+    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--activate']
+    >>> config_hooks()
+    Traceback (most recent call last):
+    ...
+    SystemExit: 0
+    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--add', 'some_script']
+    >>> config_scripts()
+    Traceback (most recent call last):
+    ...
+    SystemExit: 0
+    >>> sys.argv = ['some_name', '--hook', 'pre-commit', '--remove', 'some_script']
+    >>> config_scripts()
+    Traceback (most recent call last):
+    ...
+    SystemExit: 0
+"""
 import os
 import click
 
