@@ -155,14 +155,10 @@ class cmd_version_info(Command):
     user_options = []
     boolean_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
+    def initialize_options(self): pass
+    def finalize_options(self): pass
 
     def run(self):
-
         parser = parse_setup_cfg()
 
         pretty_version_info = pformat(dict(parser.items('versioning')))
@@ -253,14 +249,9 @@ class cmd_version_bump(Command):
     user_options = []
     boolean_options = []
 
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        do_bump()
+    def initialize_options(self): pass
+    def finalize_options(self): pass
+    def run(self): do_bump()
 
 
 #class cmd_update_versionfile(Command):
@@ -370,12 +361,10 @@ def add_to_sdist(base_dir):
 class cmd_sdist(_sdist):
 
     def run(self):
-        versionfile = setup_versioning()
-        self.distribution.metadata.version = versionfile.get_version()
+        self.distribution.metadata.version = setup_versioning().get_version()
         return _sdist.run(self)
 
     def make_release_tree(self, base_dir, files):
-        versionfile = setup_versioning()
         _sdist.make_release_tree(self, base_dir, files)
         add_to_sdist(base_dir)
 
