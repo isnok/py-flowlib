@@ -94,11 +94,14 @@ def discover_changed_files(
     """
 
     repo = local_repo()
-    changed = repo.git.diff(
-        '--name-status',
-        '--diff-filter=%s' % diff_filter,
-        reference_branch,
-    ).split('\n')
+    try:
+        changed = repo.git.diff(
+            '--name-status',
+            '--diff-filter=%s' % diff_filter,
+            reference_branch,
+        ).split('\n')
+    except:
+        changed = ()
     parsed = [l.split('\t', 1) for l in changed if l]
 
     return [f[1] for f in parsed if f[1].endswith(suffix)]
