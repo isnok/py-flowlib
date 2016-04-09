@@ -3,6 +3,11 @@ from collections import namedtuple, defaultdict
 from .common import local_git_command
 
 def list_config(local=False):
+    """ A very simple getter for the local git config.
+
+        >>> len(list_config(True)) <= len(list_config())
+        True
+    """
     if local:
         return local_git_command().config('--local', '--list')
     else:
@@ -10,6 +15,11 @@ def list_config(local=False):
 
 
 def getconfig_simple(local=True):
+    """ A very simple parser for the output of `git config --list`.
+
+        >>> isinstance(getconfig_simple(True), dict)
+        True
+    """
     dump = list_config(local)
     config = defaultdict(dict)
     for line in dump.split('\n'):

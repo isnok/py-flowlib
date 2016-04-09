@@ -5,6 +5,24 @@ from flowtool_git.common import local_repo
 # from flowtool.style import debug
 
 
+def checkout(branch, repo=None):
+    """ Check out a branch and give an appropriate message.
+
+        >>> from flowtool_git.common import local_repo
+        >>> checkout(local_repo().active_branch)
+        Already on 'master'.
+    """
+
+    if repo is None:
+        repo = local_repo()
+
+    if repo.active_branch == branch:
+        echo.green('Already on %r.' % branch.name)
+    else:
+        echo.green('Switching to %r.' % branch.name)
+        branch.checkout()
+
+
 @click.command()
 @click.argument('pattern', default='')
 def checkout_branch(pattern):
@@ -13,19 +31,14 @@ def checkout_branch(pattern):
     repo = local_repo()
     possible = [b for b in repo.branches if pattern in b.name]
 
-    def checkout(branch):
-        if repo.active_branch == branch:
-            echo.green('Already on %r.' % branch.name)
-        else:
-            echo.green('Switching to %r.' % branch.name)
-            branch.checkout()
-
     if not possible:
         echo.red('No branch in your current repo matches %r.' % pattern)
         echo.white('Branches in this repo:', [b.name for b in repo.branches])
+
     elif len(possible) == 1:
         branch = possible.pop()
         checkout(branch)
+
     else:
         echo.bold('Multiple branch names match:\n')
         for idx, branch in enumerate(possible):

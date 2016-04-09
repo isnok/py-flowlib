@@ -10,6 +10,9 @@ from flowtool.style import echo, colors
 from flowtool.style import debug
 from flowtool.files import is_executable, make_executable, make_not_executable
 
+from flowtool_git.common import local_repo
+
+
 # a reminder/description of what git hooks (can) take as input
 #  - stdin not yet supported, not needed yet
 #  - are there hooks whose stdout is used?
@@ -32,6 +35,11 @@ RUNNER = os.sep.join([
 InstalledHook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
 
 def find_entry_scripts(hook_name):
+    """ Find managed git hooks via the entry points for the respective hooks.
+
+        >>> find_entry_scripts('unknown-hook')
+        {}
+    """
     group = 'flowtool_githooks.' + hook_name.replace('-', '_')
     scripts = {e.name: e for e in iter_entry_points(group)}
 
@@ -74,7 +82,16 @@ def install_hook(info, repo):
             os.unlink(hook_file)
             install()
 
-def gather_file_hooks(repo):
+def gather_file_hooks(repo=None):
+    """ Gather information on installed git hook files.
+
+        >>> type(gather_file_hooks()) == list
+        True
+    """
+
+    if repo is None:
+        repo = local_repo()
+
     hook_dir = os.path.join(repo.git_dir, 'hooks')
     files = os.listdir(hook_dir)
     hooks = [os.path.join(hook_dir,f) for f in files if f in hook_specs]
@@ -92,8 +109,16 @@ def gather_file_hooks(repo):
         found.append(info)
     return sorted(found)
 
-def gather_hooks(repo):
-    """ Gather information on active git hooks. """
+
+def gather_hooks(repo=None):
+    """ Gather information on active git hooks.
+
+        >>> gather_hooks() == gather_file_hooks()
+        True
+    """
+
+    if repo is None:
+        repo = local_repo()
 
     debug.cyan('Collecting information on installed hooks in', repo.git_dir)
     # config_hooks = gather_config_hooks(repo)
@@ -113,19 +138,22 @@ def choose_hook(file_hooks):
         )
     return answer - 1
 
+
 def activate_hook(info):
     """ Activate hook """
+
     make_executable(info.file)
     echo.green('Activated %s.' % info.name)
 
 def deactivate_hook(info):
     """ Deactivate hook """
+
     make_not_executable(info.file)
     echo.yellow('Deactivated %s.' % info.name)
 
 
 def toggle_hook(info, repo):
-    """ Toggle 'whole' git hooks. """
+    """ Toggle 'whole' git hooks interactively. """
 
     if not info.is_runner and click.confirm(
             '%s is not up to date. reinstall?' % info.name

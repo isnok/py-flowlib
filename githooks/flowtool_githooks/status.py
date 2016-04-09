@@ -8,7 +8,17 @@ from flowtool.files import is_executable
 from flowtool_git.common import local_repo
 from flowtool_githooks.manager import find_entry_scripts, gather_hooks
 
-def status(repo, file_hooks):
+def status(repo=None, file_hooks=None):
+    """ Draw a nice summary of the git hook status.
+
+        #>>> status()
+        #git hooks status (...)
+    """
+    if repo is None:
+        repo = local_repo()
+
+    if file_hooks is None:
+        file_hooks = gather_hooks()
 
     echo.bold('git hooks status (%s):' % repo.git_dir)
     for number, info in enumerate(file_hooks):
