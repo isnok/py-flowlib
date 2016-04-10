@@ -27,7 +27,7 @@ from pprint import pformat
 def render_static_file():
     """ Render the version information into the static file template.
 
-        >>> type(render_static_file()) == str
+        >>> render_static_file().startswith(template[:100])
         True
     """
     global VERSION_INFO
