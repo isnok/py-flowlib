@@ -137,12 +137,13 @@ def setup_versioning():
 
     source_versionfile, build_versionfile = read_setup_cfg()
 
-    versionfile = None if source_versionfile is None else import_file('_version', source_versionfile)
+    versionfile = import_file('_version', source_versionfile) if isfile(source_versionfile) else None
 
     get_version = versionfile.get_version if hasattr(versionfile, 'get_version') else get_version
 
     return versionfile
 
+versionfile = setup_versioning()
 
 def print_version_info():
     """ Testable body of a setuptools/distutils command.
@@ -156,7 +157,6 @@ def print_version_info():
     pretty_version_info = pformat(dict(parser.items('versioning')))
     print('== Version-Config (setup.cfg):\n' + pretty_version_info)
 
-    versionfile = setup_versioning()
     if versionfile is not None and hasattr(versionfile, 'VERSION_INFO'):
         print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
 
@@ -236,7 +236,6 @@ def do_bump(not_really=None):
         ...
         SystemExit: 1
     """
-    versionfile = setup_versioning()
     vcs_info = versionfile.VERSION_INFO['vcs_info'] if not_really is None else not_really
     tag_info = bump_version(vcs_info['tag_version'])
     print('== Next Version: %s' % pformat(tag_info))
@@ -349,8 +348,7 @@ def add_to_sdist(base_dir):
 
     source_versionfile, build_versionfile = read_setup_cfg()
     target_versionfile = os.path.join(base_dir, build_versionfile)
-    versionfile = setup_versioning()
-    static_versionfile = versionfile.render_static_file()
+    static_versionfile = versionfile.render_static_file() if versionfile else 'test_content'
     print("== Rendering:\n%s\n== To Versionfile: %s" % (static_versionfile, target_versionfile))
 
     try:
@@ -363,7 +361,7 @@ def add_to_sdist(base_dir):
         print("=== Could not render static _version.py to sdist!")
 
     self_target = join(base_dir, basename(__file__))
-    print("== Updating:\n%s" % self_target)
+    print("== Updating: %s" % self_target)
     if not os.path.exists(self_target):
         try:
             os.link(__file__, self_target)
@@ -442,7 +440,6 @@ def main():
         >>> main()
         no_version
     """
-    versionfile = setup_versioning()
     print(get_version())
 
 if __name__ == '__main__':

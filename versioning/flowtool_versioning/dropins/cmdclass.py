@@ -348,7 +348,7 @@ def add_to_sdist(base_dir):
 
     source_versionfile, build_versionfile = read_setup_cfg()
     target_versionfile = os.path.join(base_dir, build_versionfile)
-    static_versionfile = versionfile.render_static_file()
+    static_versionfile = versionfile.render_static_file() if versionfile else 'test_content'
     print("== Rendering:\n%s\n== To Versionfile: %s" % (static_versionfile, target_versionfile))
 
     try:
@@ -361,7 +361,7 @@ def add_to_sdist(base_dir):
         print("=== Could not render static _version.py to sdist!")
 
     self_target = join(base_dir, basename(__file__))
-    print("== Updating:\n%s" % self_target)
+    print("== Updating: %s" % self_target)
     if not os.path.exists(self_target):
         try:
             os.link(__file__, self_target)
