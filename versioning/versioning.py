@@ -434,13 +434,13 @@ def get_cmdclass():
     return cmds
 
 
-def main():
+def main(noop=None):
     """ Prints the current version.
 
-        >>> main()
-        no_version
+        >>> main(True)
+        <BLANKLINE>
     """
-    print(get_version())
+    print(get_version() if not noop else '')
 
 if __name__ == '__main__':
     main()

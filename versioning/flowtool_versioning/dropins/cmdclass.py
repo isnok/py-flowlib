@@ -438,8 +438,9 @@ def main(noop=None):
     """ Prints the current version.
 
         >>> main(True)
+        <BLANKLINE>
     """
-    noop or print(get_version())
+    print(get_version() if not noop else '')
 
 if __name__ == '__main__':
     main()
