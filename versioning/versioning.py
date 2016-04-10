@@ -299,12 +299,27 @@ class cmd_version_bump(Command):
             #f_out.write(f_in.read())
 
 
+# we override different commands for both environments
+_sdist = _build_py = _upload = None
 
-if "setuptools" in sys.modules:
-    from setuptools.command.build_py import build_py as _build_py
-else:
-    from distutils.command.build_py import build_py as _build_py
+def import_commands_to_override(oldschool=False):
+    """ Import the command classes to override either
+        from setuptools or distutils.
 
+        >>> import_commands_to_override()
+        >>> import_commands_to_override(True)
+    """
+    global _sdist, _build_py, _upload
+    from distutils.command.upload import upload as _upload
+
+    if not oldschool and "setuptools" in sys.modules:
+        from setuptools.command.sdist import sdist as _sdist
+        from setuptools.command.build_py import build_py as _build_py
+    else:
+        from distutils.command.sdist import sdist as _sdist
+        from distutils.command.build_py import build_py as _build_py
+
+import_commands_to_override()
 
 class cmd_build_py(_build_py):
     """ It seems as if build_py is executed when the distributed package is installed. """
@@ -344,11 +359,6 @@ class cmd_build_py(_build_py):
     #cmds["build_exe"] = cmd_build_exe
     #del cmds["build_py"]
 
-# we override different "sdist" commands for both environments
-if "setuptools" in sys.modules:
-    from setuptools.command.sdist import sdist as _sdist
-else:
-    from distutils.command.sdist import sdist as _sdist
 
 def add_to_sdist(self=None, base_dir=os.curdir, files=()):
     """ The custom part of the sdist command.
@@ -373,10 +383,8 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
 
     try:
         # handles the hard link case correctly
-        if os.path.exists(target_versionfile):
-            os.unlink(target_versionfile)
-        with open(target_versionfile, 'w') as fh:
-            fh.write(static_versionfile)
+        os.path.exists(target_versionfile) and os.unlink(target_versionfile)
+        with open(target_versionfile, 'w') as fh: fh.write(static_versionfile)
     except:
         print("=== Could not render static _version.py to sdist!")
 
@@ -401,8 +409,6 @@ class cmd_sdist(_sdist):
     run = sdist_run
     make_release_tree = add_to_sdist
 
-
-from distutils.command.upload import upload as _upload
 
 def protected_upload(self=None):
     """ Allow only uploads with Python 3.
@@ -470,5 +476,4 @@ def main(noop=None):
     """
     print(get_version() if not noop else '')
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__main__': main()
