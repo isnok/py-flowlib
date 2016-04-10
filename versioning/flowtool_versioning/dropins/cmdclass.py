@@ -373,20 +373,17 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
 
     try:
         # handles the hard link case correctly
-        if os.path.exists(target_versionfile):
-            os.unlink(target_versionfile)
-        with open(target_versionfile, 'w') as fh:
-            fh.write(static_versionfile)
+        os.path.exists(target_versionfile) and os.unlink(target_versionfile)
+        with open(target_versionfile, 'w') as fh: fh.write(static_versionfile)
     except:
         print("=== Could not render static _version.py to sdist!")
 
     self_target = join(base_dir, basename(__file__))
     print("== Updating: %s" % self_target)
-    if not os.path.exists(self_target):
-        try:
-            os.link(__file__, self_target)
-        except OSError:
-            print("=== Could not add %s to sdist!" % basename(__file__))
+    try:
+        os.link(__file__, self_target)
+    except OSError:
+        print("=== Could not add %s to sdist!" % basename(__file__))
 
 def sdist_run(self=None):
     """ A mere fake when run as a test... but 199% covered!
@@ -470,5 +467,4 @@ def main(noop=None):
     """
     print(get_version() if not noop else '')
 
-if __name__ == '__main__':
-    main()
+if __name__ == '__main__': main()
