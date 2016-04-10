@@ -364,12 +364,11 @@ def add_to_sdist(base_dir):
 
     self_target = join(base_dir, basename(__file__))
     print("== Updating:\n%s" % self_target)
-    if os.path.exists(self_target):
-        os.unlink(self_target)
-    try:
-        os.link(__file__, self_target)
-    except OSError:
-        print("=== Could not add %s to sdist!" % basename(__file__))
+    if not os.path.exists(self_target):
+        try:
+            os.link(__file__, self_target)
+        except OSError:
+            print("=== Could not add %s to sdist!" % basename(__file__))
 
 
 class cmd_sdist(_sdist):
