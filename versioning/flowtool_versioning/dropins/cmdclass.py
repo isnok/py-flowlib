@@ -143,7 +143,7 @@ def setup_versioning():
 
     return versionfile
 
-setup_versioning()
+versionfile = setup_versioning()
 
 def print_version_info():
     """ Testable body of a setuptools/distutils command.
@@ -157,7 +157,6 @@ def print_version_info():
     pretty_version_info = pformat(dict(parser.items('versioning')))
     print('== Version-Config (setup.cfg):\n' + pretty_version_info)
 
-    versionfile = setup_versioning()
     if versionfile is not None and hasattr(versionfile, 'VERSION_INFO'):
         print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
 
@@ -237,7 +236,6 @@ def do_bump(not_really=None):
         ...
         SystemExit: 1
     """
-    versionfile = setup_versioning()
     vcs_info = versionfile.VERSION_INFO['vcs_info'] if not_really is None else not_really
     tag_info = bump_version(vcs_info['tag_version'])
     print('== Next Version: %s' % pformat(tag_info))
@@ -350,7 +348,6 @@ def add_to_sdist(base_dir):
 
     source_versionfile, build_versionfile = read_setup_cfg()
     target_versionfile = os.path.join(base_dir, build_versionfile)
-    versionfile = setup_versioning()
     static_versionfile = versionfile.render_static_file()
     print("== Rendering:\n%s\n== To Versionfile: %s" % (static_versionfile, target_versionfile))
 
@@ -443,7 +440,6 @@ def main():
         >>> main()
         no_version
     """
-    versionfile = setup_versioning()
     print(get_version())
 
 if __name__ == '__main__':
