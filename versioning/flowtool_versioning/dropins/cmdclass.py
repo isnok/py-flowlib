@@ -137,12 +137,13 @@ def setup_versioning():
 
     source_versionfile, build_versionfile = read_setup_cfg()
 
-    versionfile = None if source_versionfile is None else import_file('_version', source_versionfile)
+    versionfile = import_file('_version', source_versionfile) if isfile(source_versionfile) else None
 
     get_version = versionfile.get_version if hasattr(versionfile, 'get_version') else get_version
 
     return versionfile
 
+setup_versioning()
 
 def print_version_info():
     """ Testable body of a setuptools/distutils command.
