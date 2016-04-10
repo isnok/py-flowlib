@@ -11,7 +11,7 @@
 """
 
 from pkg_resources import iter_entry_points
-from pkg_resources import load_entry_point
+from pkg_resources import load_entry_point, DistributionNotFound
 
 import click
 
@@ -59,9 +59,11 @@ def add_commands(*names):
     """
     for name in names:
         for entry_point in iter_entry_points(name):
-            name = entry_point.name
-            func = entry_point.load()
-            flowtool_main_group.add_command(func, name=entry_point.name)
+            try:
+                func = entry_point.load()
+                flowtool_main_group.add_command(func, name=entry_point.name)
+            except DistributionNotFound:
+                style.debug.yellow('Unistalled component? - %r' % entry_point.name)
 
 
 add_main_group_options()
