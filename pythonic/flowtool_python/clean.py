@@ -106,12 +106,12 @@ def clean(directory=os.getcwd(), yes=None):
         for fname in files_to_delete:
             try:
                 os.unlink(fname)
-            except FileNotFoundError:  # pylint: disable=E0602
+            except OSError:
                 pass
         for dirname in dirs_to_remove:
             try:
                 shutil.rmtree(dirname)
-            except FileNotFoundError:  # pylint: disable=E0602
+            except OSError:
                 pass
 
     echo.white('Done.')
