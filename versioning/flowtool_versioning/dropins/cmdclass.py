@@ -295,7 +295,7 @@ class cmd_version_bump(Command):
 
 
 # we override different commands for both environments
-_sdist = _build_py = _upload = None
+_sdist = _build_py = _upload = object
 
 def import_commands_to_override(oldschool=False):
     """ Import the command classes to override either
@@ -361,6 +361,13 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
         >>> add_to_sdist(base_dir='/tmp')
         == Rendering:
         ...
+        >>> add_to_sdist(base_dir='/tmp')
+        == Rendering:
+        ...
+        >>> def boom(file=None):
+        ...     raise OSError('File not found.')
+        >>> import os
+        >>> os.path.exists = boom
         >>> add_to_sdist(base_dir='/tmp')
         == Rendering:
         ...
