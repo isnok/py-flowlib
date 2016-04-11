@@ -66,18 +66,19 @@ def find_source_directory(fake_link=None, fake_absolute=None):
     else:
         return dirname(__file__)
 
-def get_setup_cfg():
+def get_setup_cfg(name='setup.cfg'):
     """ Return the nearest directory in the parent dirs,
         that contains a setup.cfg, or None if no such
         parent dir exists.
 
         >>> hasattr(get_setup_cfg(), 'get')
         True
+        >>> get_setup_cfg('_unFinDaBle__fIle_')
     """
 
     current = find_source_directory()
 
-    while not isfile(join(current, 'setup.cfg')):
+    while not isfile(join(current, name)):
         old = current
         current = dirname(current)
         if old == current:
@@ -88,7 +89,7 @@ def get_setup_cfg():
         # loop was left without a break,
         # so there was a file with the name
         parser = configparser.ConfigParser()
-        parser.read(join(current, 'setup.cfg'))
+        parser.read(join(current, name))
         return parser
 
 
