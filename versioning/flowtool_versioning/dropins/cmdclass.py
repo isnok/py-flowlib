@@ -367,10 +367,12 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
         >>> def boom(file=None):
         ...     raise OSError('File not found.')
         >>> import os
+        >>> _exists = os.path.exists
         >>> os.path.exists = boom
         >>> add_to_sdist(base_dir='/tmp')
         == Rendering:
         ...
+        >>> os.path.exists = _exists
     """
     # now locate _version.py in the new base_dir directory
     # (remembering that it may be a hardlink) and replace it with an

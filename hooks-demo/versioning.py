@@ -118,13 +118,8 @@ def import_file(name, path):
     return module
 
 
-def get_version():
-    """ Fallback & Test version function.
-
-        >>> get_version()
-        'no_version'
-    """
-    return 'no_version'
+# this will be overriden later
+def get_version(): return 'no_version'
 
 
 def setup_versioning():
@@ -300,7 +295,7 @@ class cmd_version_bump(Command):
 
 
 # we override different commands for both environments
-_sdist = _build_py = _upload = None
+_sdist = _build_py = _upload = object
 
 def import_commands_to_override(oldschool=False):
     """ Import the command classes to override either
@@ -369,6 +364,15 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
         >>> add_to_sdist(base_dir='/tmp')
         == Rendering:
         ...
+        >>> def boom(file=None):
+        ...     raise OSError('File not found.')
+        >>> import os
+        >>> _exists = os.path.exists
+        >>> os.path.exists = boom
+        >>> add_to_sdist(base_dir='/tmp')
+        == Rendering:
+        ...
+        >>> os.path.exists = _exists
     """
     # now locate _version.py in the new base_dir directory
     # (remembering that it may be a hardlink) and replace it with an
@@ -390,11 +394,10 @@ def add_to_sdist(self=None, base_dir=os.curdir, files=()):
 
     self_target = join(base_dir, basename(__file__))
     print("== Updating: %s" % self_target)
-    if not os.path.exists(self_target):
-        try:
-            os.link(__file__, self_target)
-        except OSError:
-            print("=== Could not add %s to sdist!" % basename(__file__))
+    try:
+        os.path.exists(self_target) or os.link(__file__, self_target)
+    except OSError:
+        print("=== Could not add %s to sdist!" % basename(__file__))
 
 def sdist_run(self=None):
     """ A mere fake when run as a test... but 199% covered!

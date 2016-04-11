@@ -36,10 +36,10 @@ def render_static_file():
 import os
 from os.path import join, dirname, isfile
 
-try:
-    from configparser import ConfigParser
-except:
-    from ConfigParser import ConfigParser
+import sys
+PYTHON = sys.version_info
+configparser_module = 'ConfigParser' if PYTHON.major == 2 else 'configparser'
+configparser = __import__(configparser_module)
 
 
 def find_source_directory():
@@ -83,7 +83,7 @@ def get_setup_cfg():
     else:
         # loop was left without a break,
         # so there was a file with the name
-        parser = ConfigParser()
+        parser = configparser.ConfigParser()
         parser.read(join(current, 'setup.cfg'))
         return parser
 
