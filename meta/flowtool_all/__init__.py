@@ -2,21 +2,29 @@
 
     Let's try some 'integration tests' :-)
 
-    >>> subdistributions = (
-    ...     'base',
-    ...     'git',
-    ...     'gitflow',
-    ...     'githooks',
-    ...     'githooks-demo',
-    ...     'python',
-    ...     'releasing',
-    ...     'stages',
-    ...     'versioning',
+    >>> commands = (
+    ...    'ci',
+    ...    'clean-pycs',
+    ...    'clean-tags',
+    ...    'co',
+    ...    'feature',
+    ...    'githooks-config',
+    ...    'githooks-install',
+    ...    'githooks-introduce',
+    ...    'githooks-scripts',
+    ...    'githooks-status',
+    ...    'githooks-wipe',
+    ...    'release-now',
+    ...    'run-githook',
+    ...    'self-info',
+    ...    'self-update',
+    ...    'versioning-init',
+    ...    'versioning-update',
     ... )
     >>> from pkg_resources import iter_entry_points
-    >>> def check_subdistro(name):
-    ...     return bool(list(iter_entry_points('flowtool-'+name)))
-    >>> all(check_subdistro(name) for name in subdistributions)
+    >>> installed = list(iter_entry_points('flowtool_commands'))
+    >>> names = [e.name for e in installed]
+    >>> all(cmd in names for cmd in commands)
     True
 """
 
