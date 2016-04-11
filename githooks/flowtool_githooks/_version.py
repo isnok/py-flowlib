@@ -42,7 +42,7 @@ configparser_module = 'ConfigParser' if PYTHON.major == 2 else 'configparser'
 configparser = __import__(configparser_module)
 
 
-def find_source_directory(fake_link=None, fake_relative=None):
+def find_source_directory(fake_link=None, fake_absolute=None):
     """ Find a directory in the source tree.
 
         >>> from os.path import isdir
@@ -55,14 +55,14 @@ def find_source_directory(fake_link=None, fake_relative=None):
     """
 
     if os.path.islink(__file__) or fake_link:
-        link_target = os.readlink(__file__) if not fake_link else 'test_relative'
+        link_target = os.readlink(__file__) if not fake_link else 'test_absolute'
         if link_target.startswith(os.sep) or fake_absolute:
             return link_target
         else:
             return os.path.join(
                 dirname(__file__),
                 link_target,
-            ) if not fake_link else 'test_absolute'
+            ) if not fake_link else 'test_relative'
     else:
         return dirname(__file__)
 
