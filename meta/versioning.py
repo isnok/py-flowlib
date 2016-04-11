@@ -144,6 +144,18 @@ def setup_versioning():
 versionfile = setup_versioning()
 
 
+def pretty_version_info(versionfile=versionfile):
+    """ Testable body of a setuptools/distutils command.
+
+        >>> pretty_version_info.VERSION_INFO = {}
+        >>> pretty_version_info(pretty_version_info)
+        '{}'
+    """
+    versioning_worked = versionfile is not None and hasattr(versionfile, 'VERSION_INFO')
+    version_info = versionfile.VERSION_INFO if versioning_worked else None
+    return pformat(version_info)
+
+
 def print_version_info(self=None):
     """ Testable body of a setuptools/distutils command.
 
@@ -153,11 +165,9 @@ def print_version_info(self=None):
     """
     parser = parse_setup_cfg()
 
-    pretty_version_info = pformat(dict(parser.items('versioning')))
-    print('== Version-Config (setup.cfg):\n' + pretty_version_info)
-
-    if versionfile is not None and hasattr(versionfile, 'VERSION_INFO'):
-        print('== Version-Info:\n' + pformat(versionfile.VERSION_INFO))
+    pretty_version_config = pformat(dict(parser.items('versioning')))
+    print('== Version-Config (setup.cfg):\n' + pretty_version_config)
+    print('== Version-Info:\n' + pretty_version_info())
 
 
 
