@@ -2,23 +2,22 @@
 
     Let's try some 'integration tests' :-)
 
-    >>> command_names = (
-    ...     'clean-pycs',
-    ...     'feature',
+    >>> subdistributions = (
+    ...     'base',
+    ...     'git',
+    ...     'gitflow',
     ...     'githooks',
-    ...     'release',
-    ...     'self',
-    ...     'stage',
+    ...     'githooks-demo',
+    ...     'python',
+    ...     'releasing',
+    ...     'stages',
     ...     'versioning',
     ... )
-    >>> from flowtool.execute import run_command
-    >>> result = run_command('flowtool')
-    >>> result.returncode
-    0
-    >>> all(pkg in result.stdout for pkg in command_names)
+    >>> from pkg_resources import iter_entry_points
+    >>> def check_subdistro(name):
+    ...     return bool(list(iter_entry_points('flowtool-'+name)))
+    >>> all(check_subdistro(name) for name in subdistributions)
     True
-    >>> bool(result.stderr)
-    False
 """
 
 from ._version import get_version
