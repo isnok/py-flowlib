@@ -127,7 +127,7 @@ def parse_pep440(version_string):
         Post-release segment: .postN
         Development release segment: .devN
 
-        >>> parse_pep440('1.2.3-4')
+        >>> parse_pep440('no_version')
         >>> parse_pep440('1.2.3.4')['release']
         (1, 2, 3, 4)
         >>> v = parse_pep440('0!1.2.3.4.b5.post6.dev7')
