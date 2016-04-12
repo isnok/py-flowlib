@@ -1,4 +1,5 @@
 COMPONENT_DIRS = base git gitflow githooks hooks-demo pythonic versioning release stages meta
+COMPONENT_COVERAGE = $(foreach name, $(COMPONENT_DIRS), $(name)-coverage)
 
 travis: main-command demo-hook pytest coverage
 
@@ -32,10 +33,11 @@ yamllint:
 	# check all .yml/.yaml files in the repo with yamllint
 	_flowtool_githooks.yamllint
 
-coverage:
+$(COMPONENT_COVERAGE):
 	# check the coverage with pytest-cov
-	# py.test --cov=.
-	for dir in $(COMPONENT_DIRS); do py.test --cov=. --cov-append $$dir; done
+	py.test --cov=. --cov-append $(subst -coverage,,$@)
+
+coverage: $(COMPONENT_COVERAGE)
 
 coverage-hook:
 	# check all dirs with pytest.ini/tox.ini using `coverage -m py.test ...`
@@ -54,4 +56,4 @@ versioning-great-again:
 
 all: travis test
 
-.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again $(COMPONENT_DIRS)
+.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again $(COMPONENT_DIRS) $(COMPONENT_COVERAGE)
