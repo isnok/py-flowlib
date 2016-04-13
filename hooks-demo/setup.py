@@ -48,8 +48,6 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'console_scripts': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:universal_hook',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:universal_hook',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:universal_hook',
@@ -57,8 +55,6 @@ setup_args.update(
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:universal_hook',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
@@ -66,8 +62,6 @@ setup_args.update(
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
@@ -75,8 +69,6 @@ setup_args.update(
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
         ],
         'flowtool_githooks.pre_push': [
-            '_flowtool_githooks.demo = flowtool_githooks_demo.hooks:demo_setup',
-            '_flowtool_githooks.demo_fail = flowtool_githooks_demo.hooks:demo_fail_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.integrations.yaml_linter:hook_setup',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',

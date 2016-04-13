@@ -14,10 +14,10 @@
     0
     >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--add', 'addable'])
     >>> result.exit_code
-    1
+    0
     >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--remove', 'added'])
     >>> result.exit_code
-    1
+    0
 
     #>>> result = runner.invoke(config_hooks, ['--activate'], input='1\\n')
     #>>> result.exit_code in (0,)

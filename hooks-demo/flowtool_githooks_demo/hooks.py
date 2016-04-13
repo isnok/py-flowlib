@@ -1,5 +1,4 @@
-""" Versioning deployment.
-    Installs the versioning into your (python) project.
+""" Demo git hooks. (To be deprecated)
 
     >>> demo_setup('cmd')
     demo-hook-setup: cmd

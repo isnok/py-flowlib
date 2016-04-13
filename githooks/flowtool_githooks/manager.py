@@ -57,11 +57,14 @@ def find_entry_scripts(hook_name):
 def install_hook(info, repo=None):
     """ Install a hook.
 
-        >>> infos = sorted(gather_hooks())
-        >>> for info in infos:
-        ...     install_hook(info)
-        >>> for info in infos:
-        ...     install_hook(info)
+        #>>> infos = sorted(gather_hooks())
+        #>>> for info in infos:
+        #...     install_hook(info)
+        #>>> for info in infos:
+        #...     install_hook(info)
+        #Runner already installed as 'commit-msg'.
+        #Runner already installed as 'pre-commit'.
+        #Runner already installed as 'pre-push'.
     """
 
     if repo is None:

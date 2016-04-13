@@ -70,9 +70,12 @@ def probe(args=()):
     """ A probing command function, to be run as a standalone (shell) command.
         It tries to take all input a git hook can get and display it.
     """
-    echo.bold('probing-hook:', colors.cyan(sys.argv[0]), args)
-    echo.white('running in:', colors.magenta(os.getcwd()))
-    dump_stdin_nonblocking()
+    try:
+        echo.bold('probing-hook:', colors.cyan(sys.argv[0]), args)
+        echo.white('running in:', colors.magenta(os.getcwd()))
+        dump_stdin_nonblocking()
+    except Exception as ex:
+        echo.bold(type(ex), str(ex))
 
 
 @click.command()
