@@ -40,7 +40,7 @@ def read_stdin_nonblocking(**kwd):
             # exiting on the while condition means there was no stdin
             return
         # exiting on break continued
-    except ValueError:
+    except (ValueError, TypeError) as ex:
         if 'on_error' in kwd:
             yield kwd['on_error']
         if not 'ignore_error' in kwd or not kwd['ignore_error']:
