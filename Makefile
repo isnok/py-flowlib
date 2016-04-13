@@ -14,7 +14,7 @@ main-command: installed
 
 demo-hook: installed
 	# test if the hooks are executable:
-	_flowtool_githooks.demo
+	_flowtool_githooks.probe
 
 $(COMPONENTS):
 	py.test $@
