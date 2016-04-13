@@ -9,8 +9,9 @@ Welcome to flowtool-githooks's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
+    flowtool_githooks
 
 
 Indices and tables
