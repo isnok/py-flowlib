@@ -60,6 +60,23 @@ setup_args.update(
             'githooks-introduce = flowtool_githooks.insert:introduce_githook',
             'githooks-wipe = flowtool_githooks.uninstall:wipe_hooks',
             'run-githook = flowtool_githooks.runner:run_hook',
+
+        ],
+        'console_scripts': [
+            '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.probe_hooks:probe_fail',
+        ],
+        'flowtool_githooks.pre_commit': [
+            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
+        ],
+        'flowtool_githooks.commit_msg': [
+            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
+        ],
+        'flowtool_githooks.pre_push': [
+            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
         ],
     },
 )

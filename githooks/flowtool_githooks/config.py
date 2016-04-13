@@ -39,7 +39,7 @@ from flowtool_git.common import local_repo
 
 @click.command()
 @click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
-@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
+@click.option('-h', '--hook', type=click.Choice(sorted(hook_specs)), default=None, help='Specify what hook to configure.')
 @click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
 def config_hooks(hook, activate, noop):
     """ Interactively configure a hook. """
@@ -56,7 +56,7 @@ def config_hooks(hook, activate, noop):
                 hook_idx = idx
                 break
         else:
-            noop or abort('not a managed git hook: %s' % hook)
+            noop or abort('No hook information found for %r.' % hook)
 
     if activate is None:
         echo.bold(colors.blue('=== Hook On / Off ==='))
@@ -70,7 +70,7 @@ def config_hooks(hook, activate, noop):
 
 @click.command()
 @click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
-@click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to configure.')
+@click.option('-h', '--hook', type=click.Choice(sorted(hook_specs)), default=None, help='Specify what hook to configure.')
 @click.option('--add/--remove', default=None, help='Wether the scripts should be added ro removed')
 @click.argument('script_names', nargs=-1)
 def config_scripts(hook, add, script_names, noop):
@@ -88,7 +88,7 @@ def config_scripts(hook, add, script_names, noop):
                 hook_idx = idx
                 break
         else:
-            abort('not a managed git hook:', hook)
+            abort('not a managed git hook: %s' % hook)
 
     info = file_hooks[hook_idx]
     if not script_names:
