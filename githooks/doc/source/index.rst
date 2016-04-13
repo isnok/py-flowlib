@@ -11,7 +11,8 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    flowtool_githooks
+    ReadMe.txt
+    docstrings/index
 
 
 Indices and tables

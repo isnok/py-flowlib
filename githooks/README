@@ -2,7 +2,8 @@
 [![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-githooks.svg)](https://pypi.python.org/pypi/flowtool-githooks)
 [![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-githooks.svg)](https://pypi.python.org/pypi/flowtool-githooks)
 
-# flowtool-githooks
+flowtool-githooks
+=================
 
 Some functionality to use granular git hooks.
 

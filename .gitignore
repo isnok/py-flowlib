@@ -8,3 +8,4 @@ build
 .cache
 .tox
 .coverage
+*/doc/source/docstrings
