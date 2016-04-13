@@ -30,8 +30,51 @@ def make_item(name, *values):
         name = name[0]
     return ChoiceItem(str(name), (name,) + values)
 
-def ask_choice(heading, choices, question):
-    """ Ask the User for a choice from a list through numeric selection. """
+def ask_choice(heading, choices, question, answer=None):
+    """ Ask the User for a choice from a list through numeric selection.
+
+        >>> ask_choice(
+        ...     'What is the question?',
+        ...     ['hah?', 'hum?', 'i dont understand...'],
+        ...     'Your choice',
+        ...     answer=2,
+        ... )
+        What is the question?
+        1     hah?
+        2     hum?
+        3     i dont understand...
+        'hum?'
+        >>> ask_choice(
+        ...     'What is the question?',
+        ...     [
+        ...         ('hah?', 'c1'),
+        ...         ('hum?', 'c2'),
+        ...         ('i dont understand...', 'c3'),
+        ...     ],
+        ...     'Your choice',
+        ...     answer=2,
+        ... )
+        What is the question?
+        1     hah?
+        2     hum?
+        3     i dont understand...
+        'c2'
+        >>> ask_choice(
+        ...     'What is the question?',
+        ...     [
+        ...         ('hah?', 'c1', 'args'),
+        ...         ('hum?', 'c2', 'args'),
+        ...         ('i dont understand...', 'c3', 'args'),
+        ...     ],
+        ...     'Your choice',
+        ...     answer=2,
+        ... )
+        What is the question?
+        1     hah?
+        2     hum?
+        3     i dont understand...
+        ('hum?', 'c2', 'args')
+    """
     lst = list(choices)
     if not isinstance(lst[0], ChoiceItem):
         lst = [make_item(x) for x in lst]
@@ -39,11 +82,11 @@ def ask_choice(heading, choices, question):
     echo.white(heading)
     for idx, (name, args) in enumerate(lst):
         echo.white('%-5d %s' % (idx+1, name))
-    answer = None
-    while not answer in range(1, 1+len(lst)):
-        answer = click.prompt(
+    answered = None
+    while not answered in range(1, 1+len(lst)):
+        answered = click.prompt(
             colors.bold(question), type=int
-        )
+        ) if answer is None else answer
     chosen = lst[answer-1]
     if len(chosen.args) == 1:
         return chosen.args[0]
