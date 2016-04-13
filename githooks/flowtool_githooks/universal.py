@@ -65,13 +65,90 @@ def capture_command(*cmdline):
     return result
 
 
+
 class UniversalGithook(object):
+    """ The most simple form of a universal git hook.
+
+        >>> tst = UniversalGithook()
+    """
 
     HOOK_EXECUTABLE = 'file'
-    GITCONFIG_KEY = 'universal-hook.configfile'
-    CONFIG_FILE = '.universal.cfg'
     SUFFIX = '.py'
+
     repo = local_repo()
+
+    @classmethod
+    def hook_setup(cls, cmd=None):
+        """ Setup function for the hook
+
+            >>> UniversalGithook.hook_setup('install')
+            >>> UniversalGithook.hook_setup('uninstall')
+        """
+
+
+class ConfiguredGithook(UniversalGithook):
+    """ A git hook that brings some configuration stored in the
+        local git repositories configuration. This means the file
+        .git/config, accessible via `git config --local`.
+
+        >>> tst = ConfiguredGithook()
+    """
+
+    GITCONFIG_SECTION = None
+    GITCONFIG_DEFAULT = dict()
+
+    def set_gitconfig(self, key, value):
+        """ Set a key in the GITCONFIG_SECTION of this hook.
+
+            >>> tst = ConfiguredGithook()
+            >>> tst.GITCONFIG_SECTION
+            >>> tst.set_gitconfig('foo', 'bar')
+        """
+        if self.GITCONFIG_SECTION:
+            gitconfig_key = '.'.join([self.GITCONFIG_SECTION, key])
+            result = self.repo.git.config(gitconfig_key, value)
+            return result
+
+    def get_gitconfig(self, key=None):
+        """ Get a key from the GITCONFIG_SECTION of this hook.
+
+            >>> tst = ConfiguredGithook()
+            >>> tst.GITCONFIG_SECTION
+            >>> tst.get_gitconfig()
+            >>> tst.get_gitconfig('foo')
+        """
+        if self.GITCONFIG_SECTION:
+            cfg_section = getconfig_simple()[self.GITCONFIG_SECTION]
+
+            if key is None:
+                return cfg_section
+
+            return cfg_section.get(key)
+
+
+    def setup_gitconfig(self):
+        """ Set up the git config section using the default values.
+
+            >>> tst = ConfiguredGithook()
+            >>> tst.GITCONFIG_DEFAULT
+            {}
+            >>> tst.setup_gitconfig()
+        """
+        for key, value in self.GITCONFIG_DEFAULT.items():
+            self.set_gitconfig(key, value)
+
+    def hook_setup(self, cmd=None):
+        """ Setup function for the hook
+
+            >>> ConfiguredGithook.hook_setup('install')
+            >>> ConfiguredGithook.hook_setup('uninstall')
+        """
+        if cmd == 'install':
+            self.setup_gitconfig()
+        elif cmd == 'uninstall':
+            self.clean_gitconfig()
+
+
 
     @classmethod
     def get_config_name(cls, key):
@@ -98,19 +175,6 @@ class UniversalGithook(object):
             'in local git repository',
         )
         return configfile
-
-
-    @classmethod
-    def hook_setup(cls, cmd=None):
-        """ Setup function for the hook
-
-            >>> UniversalGithook.hook_setup('install')
-            >>> UniversalGithook.hook_setup('uninstall')
-        """
-        if cmd == 'uninstall':
-            cls.repo.git.config('--unset', cls.GITCONFIG_KEY)
-        elif cmd == 'install':
-            cls.create_config()
 
 
     @classmethod
@@ -196,3 +260,12 @@ class UniversalGithook(object):
 
         if check_these and not noop:
             run_hook(check_these)
+
+
+class ConfigFileHook(ConfiguredGithook):
+    """ A git hook that ships and utilizes a config file.
+
+        The config file can be configured through a git config key.
+    """
+    CONFIG_KEY = 'configfile'
+    CONFIG_FILE = '.universal.cfg'
