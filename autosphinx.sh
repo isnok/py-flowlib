@@ -3,10 +3,15 @@
 # autosphinx.sh - automatically generate the sphinx code documentation
 #                 for a flowtool component
 #
+# CAVEAT: (currently) only works inside the project dirs (base/dirname foo...)
+# TODO: fix that.
+#
+
+set -e
 
 docname () {
     pyfile="$1"
-    pyname="$(basename $pyfile)"
+    pyname=$(basename "$pyfile")
     module="${pyname%%.py}"
 
     if [[ "$pyfile" =~ flowtool ]]; then
@@ -22,13 +27,15 @@ docname () {
 
 
 findmods () {
-    find $1 -name "*.py" | while read pyfile; do
+    find "$1" -name "*.py" | while read pyfile; do
         docname "$pyfile"
     done
 }
 
+# shellcheck disable=SC2046,SC2086
 genrst () {
-    stars=$(printf '*%.0s' $(seq 1 ${#1}))
+    star_seq=$(seq 1 "${#1}")
+    stars=$(printf '*%.0s' ${star_seq})
     rst_content="Source Documentation: $1
 **********************$stars
 
@@ -42,8 +49,8 @@ genrst () {
 }
 
 
-AUTODOC_INDEX="./source/docstrings/index.rst"
-AUTODOC_DESTINATION=$(dirname $AUTODOC_INDEX)
+PROJECT_ROOT="${1:-.}"
+AUTODOC_INDEX="$PROJECT_ROOT/doc/source/docstrings/index.rst"
 
 gendocfiles () {
     searchdir="$1"
@@ -82,11 +89,11 @@ $toclines
 }
 
 gendocs () {
-    docdir="$2"
+    docdir=$(dirname "$2")
     generated=$(gendocfiles "$1" "$docdir" | sed 's#generated: .*/\([^/]*\).rst#\1#' | sort)
-    echo "==> Regenerated $AUTODOC_DESTINATION"
-    gentoc "$generated" > "$AUTODOC_INDEX"
-    echo "==> Refreshed $AUTODOC_INDEX"
+    echo "==> Regenerated $docdir"
+    gentoc "$generated" > "$2"
+    echo "==> Refreshed $2"
 }
 
-gendocs "${1:-..}" "$AUTODOC_DESTINATION"
+gendocs "$PROJECT_ROOT" "$AUTODOC_INDEX"
