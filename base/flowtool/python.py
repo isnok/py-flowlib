@@ -3,7 +3,7 @@
 import sys
 import select
 
-def read_stdin_nonblocking():
+def read_stdin_nonblocking(**kwd):
     """ If there's input ready, do something, else do something
         else. Note timeout is zero so select won't block at all.
 
@@ -11,18 +11,41 @@ def read_stdin_nonblocking():
         Traceback (most recent call last):
         ...
         ValueError: redirected Stdin is pseudofile, has no fileno()
+        >>> list(read_stdin_nonblocking(on_nothing=True))
+        Traceback (most recent call last):
+        ...
+        ValueError: redirected Stdin is pseudofile, has no fileno()
+        >>> list(read_stdin_nonblocking(on_error='Whoopsie...'))
+        Traceback (most recent call last):
+        ...
+        ValueError: redirected Stdin is pseudofile, has no fileno()
+        >>> list(read_stdin_nonblocking(ignore_error=0))
+        Traceback (most recent call last):
+        ...
+        ValueError: redirected Stdin is pseudofile, has no fileno()
+        >>> list(read_stdin_nonblocking(ignore_error=True))
+        []
+        >>> list(read_stdin_nonblocking(on_error='Whoopsie...', ignore_error=True))
+        ['Whoopsie...']
     """
-    while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-        line = sys.stdin.readline()
-        if line:
-            yield line
+    try:
+        while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            line = sys.stdin.readline()
+            if line:
+                yield line
+            else:
+                # an empty line means stdin has been closed
+                break
         else:
-            # an empty line means stdin has been closed
-            break
-    else:
-        # exiting on the while condition means there was no stdin
-        return
-    # exiting on break continued
+            # exiting on the while condition means there was no stdin
+            return
+        # exiting on break continued
+    except ValueError:
+        if 'on_error' in kwd:
+            yield kwd['on_error']
+        if not 'ignore_error' in kwd or not kwd['ignore_error']:
+            raise
+
 
 
 
