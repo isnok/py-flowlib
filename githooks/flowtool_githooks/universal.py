@@ -40,7 +40,6 @@ from flowtool.style import debug
 
 from flowtool_git.common import local_repo, local_git_command
 from flowtool_git.common import short_status
-from flowtool_git.config import getconfig_simple
 
 from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
 
@@ -84,6 +83,31 @@ class UniversalGithook(object):
             >>> UniversalGithook.hook_setup('install')
             >>> UniversalGithook.hook_setup('uninstall')
         """
+
+
+def get_gitconfig_simple(repo=None, local=True):
+    """ A very simple parser for the output of `git config --list`.
+
+        >>> isinstance(get_gitconfig_simple(), dict)
+        True
+    """
+    if repo is None:
+        repo = local_repo()
+
+    config_args = ('--list',)
+    if local:
+        config_args += ('--local',)
+
+    dump = repo.git.config(*config_args)
+    config = dict()
+    for line in dump.split('\n'):
+        key, value = line.split('=', 1)
+        k1, k2 = key.split('.', 1)
+        if k1 in config:
+            config[k1][k2] = value
+        else:
+            config[k1] = {k2: value}
+    return config
 
 
 class ConfiguredGithook(UniversalGithook):
@@ -148,6 +172,7 @@ class ConfiguredGithook(UniversalGithook):
             gitconfig_key = '.'.join([self.GITCONFIG_SECTION, key])
             self.repo.git.config(gitconfig_key, value)
 
+
     def get_gitconfig(self, key=None):
         """ Get a key (or all) from the GITCONFIG_SECTION of this hook.
 
@@ -157,8 +182,9 @@ class ConfiguredGithook(UniversalGithook):
             {}
             >>> tst.get_gitconfig('foo')
         """
+
         if self.GITCONFIG_SECTION:
-            cfg_section = getconfig_simple()[self.GITCONFIG_SECTION]
+            cfg_section = get_gitconfig_simple().get(self.GITCONFIG_SECTION, {})
 
             if key is None:
                 return cfg_section
@@ -195,7 +221,7 @@ class ConfiguredGithook(UniversalGithook):
 
             keys = [key]
             if key is None:
-                keys = getconfig_simple()[self.GITCONFIG_SECTION]
+                keys = get_gitconfig_simple().get(self.GITCONFIG_SECTION, ())
 
             for key in keys:
                 del_key(key)
@@ -231,7 +257,7 @@ class ConfiguredGithook(UniversalGithook):
             or set it to its default in the repo config.
         """
 
-        cfg = getconfig_simple()
+        cfg = get_gitconfig_simple()
         section, key = cls.GITCONFIG_KEY.split('.')
         if section in cfg and key in cfg[section]:
             return cfg[section][key]
