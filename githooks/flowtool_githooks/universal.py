@@ -172,9 +172,9 @@ def get_gitconfig_simple(repo=None, local=True):
         key, value = line.split('=', 1)
         k1, k2 = key.split('.', 1)
         if k1 in config:
-            config[k1][k2] = value
+            config[str(k1)][str(k2)] = str(value)
         else:
-            config[k1] = {k2: value}
+            config[str(k1)] = {str(k2): str(value)}
     return config
 
 
@@ -296,7 +296,10 @@ class ConfiguredGithook(UniversalGithook):
                 del_key(key)
 
             if key is None:
-                self.repo.git.config('--remove-section', self.GITCONFIG_SECTION)
+                try:
+                    self.repo.git.config('--remove-section', self.GITCONFIG_SECTION)
+                except repo.git.exc.GitCommandError:
+                    pass
 
 
     def setup_gitconfig(self):
