@@ -39,15 +39,15 @@ y
 y
 "
 
-read -n1 -p "Press any key to update docs for $project_name ($project_version) ..."
+#read -n1 -p "Press any key to update docs for $project_name ($project_version) ..."
 sphinx-quickstart <<< "$quickstart_input"
 
 echo "Adding 'docstrings/index' to index.rst"
 docindex="$docdir/source/index.rst"
 if ! grep docstrings/index "$docindex"; then
     # shellcheck disable=SC1004
-    sed -i '12a\
-    docstrings/index' "$docindex"
+    sed -i '14a\
+   docstrings/index' "$docindex"
 fi
 
 echo "Done."

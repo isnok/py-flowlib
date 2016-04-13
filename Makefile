@@ -56,7 +56,7 @@ versioning-great-again:
 	for dir in $(COMPONENTS); do cd $${dir}; ft versioning-update -y; cd ..; done; git status --short
 
 $(COMPONENT_DOCUMENTATION):
-	# check the coverage with pytest-cov
+	# (re)build the html documenation with sphinx (experimental)
 	./sphinx-install.sh $(subst -docs,,$@)
 	cd $(subst -docs,,$@) && ../autosphinx.sh
 	$(MAKE) -C $(subst -docs,,$@)/doc html
