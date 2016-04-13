@@ -298,7 +298,7 @@ class ConfiguredGithook(UniversalGithook):
             if key is None:
                 try:
                     self.repo.git.config('--remove-section', self.GITCONFIG_SECTION)
-                except self.repo.git.exc.GitCommandError:
+                except self.repo.GitCommandError:
                     pass
 
 

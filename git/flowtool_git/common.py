@@ -33,7 +33,9 @@ import git as gitpython
 @cached
 def local_repo(or_exit=True):
     try:
-        return gitpython.Repo(search_parent_directories=True)
+        repo = gitpython.Repo(search_parent_directories=True)
+        repo.GitCommandError = gitpython.git.exc.GitCommandError
+        return repo
     except gitpython.repo.base.InvalidGitRepositoryError as ex:
         if or_exit:
             echo.red('The current directory is not under git version control:', ex)
