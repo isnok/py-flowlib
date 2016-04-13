@@ -92,29 +92,69 @@ class ConfiguredGithook(UniversalGithook):
         .git/config, accessible via `git config --local`.
 
         >>> tst = ConfiguredGithook()
+        >>> tst.GITCONFIG_SECTION = 'GitConfigSection'
+        Unsafe git config section 'GitConfigSection' corrected to 'gitconfigsection'.
+        >>> tst.GITCONFIG_SECTION
+        'gitconfigsection'
+        >>> del tst.GITCONFIG_SECTION
     """
 
-    GITCONFIG_SECTION = None
+    @property
+    def GITCONFIG_SECTION(self):
+        if hasattr(self, '_GITCONFIG_SECTION'):
+            return self._GITCONFIG_SECTION
+
+    @GITCONFIG_SECTION.setter
+    def GITCONFIG_SECTION(self, value):
+        lower_value = value.lower()
+        if lower_value != value:
+            echo.yellow('Unsafe git config section %r corrected to %r.' % (value, lower_value))
+        self._GITCONFIG_SECTION = lower_value
+
+    @GITCONFIG_SECTION.deleter
+    def GITCONFIG_SECTION(self):
+        del self._GITCONFIG_SECTION
+
     GITCONFIG_DEFAULT = dict()
 
     def set_gitconfig(self, key, value):
         """ Set a key in the GITCONFIG_SECTION of this hook.
 
             >>> tst = ConfiguredGithook()
+
+            Does not do anything if GITCONFIG_SECTION is not set:
+
             >>> tst.GITCONFIG_SECTION
             >>> tst.set_gitconfig('foo', 'bar')
+            >>> tst.get_gitconfig()
+
+            If the section is set (to a string hopefully), then we
+            can store a value (also a string hopefully):
+
+            >>> tst.GITCONFIG_SECTION = 'test-section-one'
+            >>> tst.GITCONFIG_SECTION
+            'test-section-one'
+            >>> tst.set_gitconfig('foo', 'bar')
+            >>> tst.get_gitconfig('foo')
+            'bar'
+
+            And we can also delete keys from there:
+
+            >>> tst.del_gitconfig('foo')
+            >>> tst.get_gitconfig()
+            {}
         """
         if self.GITCONFIG_SECTION:
             gitconfig_key = '.'.join([self.GITCONFIG_SECTION, key])
-            result = self.repo.git.config(gitconfig_key, value)
-            return result
+            self.repo.git.config(gitconfig_key, value)
 
     def get_gitconfig(self, key=None):
-        """ Get a key from the GITCONFIG_SECTION of this hook.
+        """ Get a key (or all) from the GITCONFIG_SECTION of this hook.
 
             >>> tst = ConfiguredGithook()
-            >>> tst.GITCONFIG_SECTION
+            >>> tst.GITCONFIG_SECTION = 'test-section-two'
             >>> tst.get_gitconfig()
+            {}
             >>> tst.get_gitconfig('foo')
         """
         if self.GITCONFIG_SECTION:
@@ -124,6 +164,41 @@ class ConfiguredGithook(UniversalGithook):
                 return cfg_section
 
             return cfg_section.get(key)
+
+    def del_gitconfig(self, key=None):
+        """ Delete a key from, or the whole GITCONFIG_SECTION of this hook.
+
+            >>> tst = ConfiguredGithook()
+            >>> tst.GITCONFIG_SECTION = 'test-section-three'
+            >>> tst.del_gitconfig()
+            >>> tst.get_gitconfig()
+            {}
+            >>> tst.set_gitconfig('foo', 'bar')
+            >>> tst.get_gitconfig()
+            {'foo': 'bar'}
+            >>> tst.set_gitconfig('bar', 'baz')
+            >>> sorted(tst.get_gitconfig().keys())
+            ['bar', 'foo']
+            >>> tst.del_gitconfig('foo')
+            >>> tst.get_gitconfig()
+            {'bar': 'baz'}
+            >>> tst.set_gitconfig('baz', 'foo')
+            >>> tst.del_gitconfig()
+            >>> tst.get_gitconfig()
+            {}
+        """
+        if self.GITCONFIG_SECTION:
+
+            def del_key(k):
+                gitconfig_key = '.'.join([self.GITCONFIG_SECTION, k])
+                self.repo.git.config('--unset-all', gitconfig_key)
+
+            keys = [key]
+            if key is None:
+                keys = getconfig_simple()[self.GITCONFIG_SECTION]
+
+            for key in keys:
+                del_key(key)
 
 
     def setup_gitconfig(self):
