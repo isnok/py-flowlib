@@ -67,16 +67,16 @@ setup_args.update(
             '_flowtool_githooks.probe_fail = flowtool_githooks.probe_hooks:probe_fail',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
-            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.probe_hooks:probe_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
-            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.probe_hooks:probe_setup',
         ],
         'flowtool_githooks.pre_push': [
-            '_flowtool_githooks.probe = flowtool_githooks.hooks:probe_setup',
-            '_flowtool_githooks.probe_fail = flowtool_githooks.hooks:probe_setup',
+            '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe_setup',
+            '_flowtool_githooks.probe_fail = flowtool_githooks.probe_hooks:probe_setup',
         ],
     },
 )
