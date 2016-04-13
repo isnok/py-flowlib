@@ -37,8 +37,8 @@ setup_args.update(
         'flowtool-githooks',
         'yamllint',
         #'pymarkdownlint',
-        'cclint',
-        'coverage',
+        #'cclint',
+        #'coverage',
     ],
 )
 

@@ -6,13 +6,13 @@ travis: main-command demo-hook pytest coverage
 
 test: shellcheck tox yamllint pylint
 
-main-command:
+main-command: installed
 	# check flowtool command:
 	flowtool
 	# and the quick-alias:
 	ft self-info
 
-demo-hook:
+demo-hook: installed
 	# test if the hooks are executable:
 	_flowtool_githooks.demo
 
@@ -63,7 +63,37 @@ $(COMPONENT_DOCUMENTATION):
 
 documentation: $(COMPONENT_DOCUMENTATION)
 
+dependencies:
+	# test dependencies
+	pip install -U pytest pytest-cov
+	# build/release dependencies
+	pip install -U wheel
+	# documenation build dependencies
+	pip install -U sphinx sphinxcontrib-autodoc-doxygen
+	# external tools
+	pip install -U pylint yamllint cclint coverage pymarkdownlint
+	# debian packages (require root...)
+	#command -v apt-get && apt-get install shellcheck
+
+install: dependencies
+	# install the tool into the current virtual environment
+	pip install -U flowtool-all
+
+installed:
+	# install the tool if not already installed
+	if ! command -v flowtool; then $(MAKE) install; fi
+
+uninstall:
+	# uninstall the tool from the current virtual environment
+	rm -vf $$VIRTUAL_ENV/lib/python*/site-packages/flowtool*-link
+	/bin/bash -c 'for egg in flowtool-{base,git,githooks{,-demo},gitflow,versioning,releasing,python,stages,all}; do pip uninstall -y $$egg; done' || true
+
 all: travis test documentation
 
-.PHONY : all test travis main-command demo-hook pytest pylint shellcheck versioning-great-again
-.PHONY : $(COMPONENTS) $(COMPONENT_COVERAGE) $(COMPONENT_DOCUMENTATION)
+.PHONY : all $(COMPONENTS) test travis
+.PHONY : pylint pytest shellcheck
+.PHONY : dependencies install uninstall installed
+.PHONY : main-command demo-hook
+.PHONY : versioning-great-again
+.PHONY : coverage $(COMPONENT_COVERAGE)
+.PHONY : documentation $(COMPONENT_DOCUMENTATION)
