@@ -34,7 +34,7 @@ import git as gitpython
 def local_repo(or_exit=True):
     try:
         repo = gitpython.Repo(search_parent_directories=True)
-        repo.GitCommandError = gitpython.git.exc.GitCommandError
+        repo.GitCommandError = gitpython.repo.git.exc.GitCommandError
         return repo
     except gitpython.repo.base.InvalidGitRepositoryError as ex:
         if or_exit:
