@@ -34,11 +34,14 @@ yamllint:
 	# check all .yml/.yaml files in the repo with yamllint
 	_flowtool_githooks.yamllint
 
-$(COMPONENT_COVERAGE):
+clean-coverage:
+	rm -f .coverage
+
+$(COMPONENT_COVERAGE): clean-coverage
 	# check the coverage with pytest-cov
 	py.test --cov=. --cov-append $(subst -coverage,,$@)
 
-coverage: $(COMPONENT_COVERAGE)
+coverage: clean-coverage $(COMPONENT_COVERAGE)
 
 coverage-hook:
 	# check all dirs with pytest.ini/tox.ini using `coverage -m py.test ...`
@@ -88,12 +91,16 @@ uninstall:
 	rm -vf $$VIRTUAL_ENV/lib/python*/site-packages/flowtool*-link
 	/bin/bash -c 'for egg in flowtool-{base,git,githooks{,-demo},gitflow,versioning,releasing,python,stages,all}; do pip uninstall -y $$egg; done' || true
 
+clean: clean-coverage
+	ft clean-pycs -y
+
 all: travis test documentation
 
-.PHONY : all $(COMPONENTS) test travis
+.PHONY : all $(COMPONENTS)
+.PHONY : test travis
 .PHONY : pylint pytest shellcheck
 .PHONY : dependencies install uninstall installed
 .PHONY : main-command demo-hook
-.PHONY : versioning-great-again
-.PHONY : coverage $(COMPONENT_COVERAGE)
+.PHONY : versioning-great-again clean
+.PHONY : coverage $(COMPONENT_COVERAGE) clean-coverage
 .PHONY : documentation $(COMPONENT_DOCUMENTATION)
