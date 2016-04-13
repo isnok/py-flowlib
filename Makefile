@@ -1,7 +1,6 @@
 COMPONENTS = base git gitflow githooks hooks-demo pythonic versioning release stages meta
 COMPONENT_COVERAGE = $(foreach name, $(COMPONENTS), $(name)-coverage)
-#COMPONENT_DOCUMENTATION = $(foreach name, $(COMPONENTS), $(name)-docs)
-COMPONENT_DOCUMENTATION = $(foreach name, githooks, $(name)-docs)
+COMPONENT_DOCUMENTATION = $(foreach name, $(COMPONENTS), $(name)-docs)
 
 travis: main-command demo-hook pytest coverage
 
@@ -58,6 +57,7 @@ versioning-great-again:
 
 $(COMPONENT_DOCUMENTATION):
 	# check the coverage with pytest-cov
+	./sphinx-install.sh $(subst -docs,,$@)
 	cd $(subst -docs,,$@) && ../autosphinx.sh
 	$(MAKE) -C $(subst -docs,,$@)/doc html
 
