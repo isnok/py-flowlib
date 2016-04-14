@@ -701,10 +701,9 @@ class ShellCommandHook(ConfigFileHook):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = ShellCommandHook()
-            >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
+            >>> tst.generate_checks = lambda: [tst.make_check('echo', 'Kowabunga!')]
             >>> tst.execute_progressbar()
             <BLANKLINE>
-            dummy-check: ('Kowabunga!',) {}
             0
         """
 
@@ -756,7 +755,11 @@ class ShellCommandHook(ConfigFileHook):
         fails = 0
         for check, result in results:
             if result is None:
-                pass
+                msg = "\n\nskipped: {tool} {args}".format(
+                    tool=check.args[0],
+                    args=' '.join(['"%s"' % x for x in check.args[1:]])
+                )
+                echo.yellow(msg)
             elif result.returncode:
                 fails += 1
                 returncode |= result.returncode
