@@ -17,6 +17,24 @@
     -1
     >>> result.output.startswith('demo-fail:')
     True
+
+    The newschool stuff:
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+
+    >>> githook = YAMLLintHook()
+    >>> githook.generate_checks = lambda: [githook.make_check('.travis.yml')]
+
+    >>> result = runner.invoke(githook.click_command, [])
+    >>> result.exception
+    >>> result.exit_code
+    0
+    >>> output_lines = result.output.split('\\n')[:-1]
+    >>> len(output_lines)
+    1
+    >>> bool(output_lines[0])
+    False
 """
 import os
 import sys
@@ -104,9 +122,10 @@ class YAMLLintHook(ShellCommandHook):
         >>> from click.testing import CliRunner
         >>> runner = CliRunner()
 
-        >>> yaml_lint_hook.generate_checks = lambda: [yaml_lint_hook.make_check('.travis.yml')]
+        >>> githook = YAMLLintHook()
+        >>> githook.generate_checks = lambda: [githook.make_check('.travis.yml')]
 
-        >>> result = runner.invoke(yamllint_progressbar, [])
+        >>> result = runner.invoke(githook.click_command, [])
         >>> result.exception
         >>> result.exit_code
         0
@@ -115,35 +134,12 @@ class YAMLLintHook(ShellCommandHook):
         1
         >>> bool(output_lines[0])
         False
-
-        >>> result = runner.invoke(yamllint_dotted, [])
-        >>> result.exception
-        >>> result.exit_code
-        0
-        >>> output_lines = result.output.split('\\n')[:-1]
-        >>> len(output_lines)
-        1
-        >>> output_lines[0] == 'running: .'
-        True
     """
 
     CHECK_TOOL = os.path.join(os.path.dirname(sys.executable), 'yamllint')
     FILE_PATTERNS = ('*.yaml', '*.yml')
+    RETURNCODE_ON_STDOUT = 1
+    RETURNCODE_ON_STDERR = 2
 
 
 yaml_lint_hook = YAMLLintHook()
-
-@click.command()
-@click.argument('args', nargs=-1)
-def yamllint_simple(args=()):
-    yaml_lint_hook.execute_simple()
-
-@click.command()
-@click.argument('args', nargs=-1)
-def yamllint_progressbar(args=()):
-    yaml_lint_hook.execute_progressbar()
-
-@click.command()
-@click.argument('args', nargs=-1)
-def yamllint_dotted(args=()):
-    yaml_lint_hook.execute_dotted()

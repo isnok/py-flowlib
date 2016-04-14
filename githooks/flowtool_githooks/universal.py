@@ -39,7 +39,9 @@
     0
     >>> output_lines = result.output.split('\\n')[:-1]
     >>> len(output_lines)
-    0
+    2
+    >>> output_lines[1].startswith('dummy-check:')
+    True
 """
 import os
 import sys
@@ -114,7 +116,8 @@ class UniversalGithook(object):
         @click.command()
         @click.argument('args', nargs=-1)
         def click_command(args=()):
-            return self.execute_smart(args)
+            sys.exit(self.execute_smart(args=args))
+            # sys.exit(self.execute_smart(args=args))
         self.click_command = click_command
 
 
@@ -228,7 +231,7 @@ class UniversalGithook(object):
 
         return [self.make_check(f) for f in check_these]
 
-    def run_check(self, check):
+    def run_check(self, check, **kwd):
         """ Run a check.
 
             >>> tst = UniversalGithook()
@@ -236,8 +239,9 @@ class UniversalGithook(object):
             dummy-check: ('Kowabunga!',) {}
             ...
         """
+        kwd.update(check.kwargs)
         try:
-            check_result = check.func(*check.args, **check.kwargs)
+            check_result = check.func(*check.args, **kwd)
             return CompletedCheck(check, check_result)
         except:
             return FailedCheck(check, sys.exc_info(), self.EXCEPTION_RETURNCODE)
@@ -354,7 +358,7 @@ class UniversalGithook(object):
 
         return returncode
 
-    def execute_smart(self, checks=None):
+    def execute_smart(self, args=None, checks=None):
         """ Auto select the execution style based on the capabilities of the checklist.
 
             >>> tst = UniversalGithook()
@@ -370,7 +374,7 @@ class UniversalGithook(object):
             >>> tst.execute_smart()
             <BLANKLINE>
             0
-            >>> tst.execute_smart(checklist(10))
+            >>> tst.execute_smart(checks=checklist(10))
             running: ..........
             0
         """
@@ -379,8 +383,8 @@ class UniversalGithook(object):
 
         if checks:
             if hasattr(checks, '__len__'):
-                return self.execute_progressbar(checks)
-            return self.execute_dotted(checks)
+                return self.execute_progressbar(checks=checks)
+            return self.execute_dotted(checks=checks)
         return self.summarize()
 
 
@@ -706,12 +710,15 @@ def capture_command(*cmdline, **kwd):
         0
         >>> capture_command('ls').command
         ['ls']
-        >>> capture_command('_command_not_found_', quiet=True)
-        >>> capture_command('_command_not_found_')
+        >>> try:
+        ...     capture_command('_command_not_found_')
+        ... except OSError:
+        ...     print('Not found.')
         <BLANKLINE>
         ...
+        Not found.
     """
-    quiet_oserror = kwd['quiet'] if 'quiet' in kwd else False
+    quiet_error = kwd['quiet_error'] if 'quiet_error' in kwd else False
 
     if len(cmdline) == 1:
         cmdline = cmdline[0]
@@ -719,8 +726,8 @@ def capture_command(*cmdline, **kwd):
         result = run_command(cmdline)
     except OSError as ex:
         msg = '\nEncountered {} while trying to run: {}\nException: {}\n--> Is the command installed?'
-        quiet_oserror or echo.yellow(msg.format(type(ex), cmdline, repr(ex)))
-        return None
+        quiet_error or echo.yellow(msg.format(type(ex), cmdline, repr(ex)))
+        raise
     return result
 
 make_command_check = partial(make_check, capture_command)
@@ -734,12 +741,14 @@ class ShellCommandHook(ConfigFileHook):
         >>> tst = ShellCommandHook()
         >>> tst.CHECK_TOOL = 'true'
         >>> checks = [tst.make_check(x) for x in ('hello', 'world', '!!!')]
-        >>> tst.execute_smart(checks)
+        >>> tst.execute_smart(checks=checks)
         <BLANKLINE>
         0
     """
 
     CHECK_TOOL = None
+    RETURNCODE_ON_STDOUT = 0
+    RETURNCODE_ON_STDERR = 0
 
     def make_check(self, *args, **kwd):
         """ Make a check (combine function and args).
@@ -752,38 +761,45 @@ class ShellCommandHook(ConfigFileHook):
             args = (self.CHECK_TOOL,) + args
         return make_command_check(*args, **kwd)
 
-    def run_check(self, check):
+    def run_check(self, check, **kwd):
         """ Run a commands a check.
             >>> tst = ShellCommandHook()
             >>> tst.CHECK_TOOL
             >>> tst.run_check(tst.make_check('ls', 'Kowabunga!')).result.returncode
             2
         """
+        kwd.update(check.kwargs)
         try:
-            check_result = check.func(*check.args, **check.kwargs)
+            check_result = check.func(*check.args, **kwd)
             return CompletedCheck(check, check_result)
         except:
-            return FailedCheck(check, sys.exc_info())
+            return FailedCheck(check, sys.exc_info(), self.EXCEPTION_RETURNCODE)
 
-    def execute_simple(self, checks=None, continues=4, verbose=False):
+    def execute_simple(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
         """ Simple procedure for hook execution.
             >>> tst = ShellCommandHook()
             >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'test world', 'echo !!!')]
             >>> tst.execute_simple(verbose=True)
             <BLANKLINE>
             <BLANKLINE>
-            failed: ls "hello"
+            failed: capture_command "ls hello" {}
+            <BLANKLINE>
+            <BLANKLINE>
+            passed: capture_command "test world" {}
+            <BLANKLINE>
+            <BLANKLINE>
+            passed: capture_command "echo !!!" {}
             2
         """
 
         if checks is None:
             checks = self.generate_checks()
 
-        result = [self.run_check(c) for c in checks]
+        result = [self.run_check(c, quiet_error=quiet_error) for c in checks]
         returncode = self.summarize(result, verbose=verbose)
         return returncode
 
-    def execute_progressbar(self, checks=None, continues=4, verbose=False):
+    def execute_progressbar(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = ShellCommandHook()
@@ -800,20 +816,20 @@ class ShellCommandHook(ConfigFileHook):
 
         with click.progressbar(checks) as bar:
             for check in bar:
-                results.append(self.run_check(check))
+                results.append(self.run_check(check, quiet_error=quiet_error))
 
         returncode = self.summarize(results, verbose=verbose)
         return returncode
 
 
-    def execute_dotted(self, checks=None, continues=4, verbose=False):
+    def execute_dotted(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
         """ Procedure for hook execution printing '.'s and 'F's for (passed/failed) checks.
 
             >>> tst = ShellCommandHook()
-            >>> checks = [tst.make_check(x, quiet=True) for x in ('unkwon hello', 'false world', 'true !!!')]
-            >>> tst.execute_dotted(checks)
+            >>> checks = [tst.make_check(x, quiet_error=True) for x in ('unkwon hello', 'false world', 'true !!!')]
+            >>> tst.execute_dotted(checks=checks)
             running: XF.
-            1
+            -1
         """
 
         results = []
@@ -824,9 +840,14 @@ class ShellCommandHook(ConfigFileHook):
         if checks:
             echo.bold('running: ', nl=False)
             for check in checks:
-                result = self.run_check(check)
-                results.append(result)
-                char = 'X' if result.result is None else ('F' if result.result.returncode else '.')
+                outcome = self.run_check(check, quiet_error=quiet_error)
+                results.append(outcome)
+                if type(outcome) is FailedCheck:
+                    char = 'X'
+                elif self.eval_returncode(outcome):
+                    char = 'F'
+                else:
+                    char = '.'
                 echo.bold(char, nl=False)
             echo.white('')
 
@@ -834,31 +855,78 @@ class ShellCommandHook(ConfigFileHook):
 
         return returncode
 
+    def eval_returncode(self, result):
+        if type(result) is FailedCheck:
+            return self.EXCEPTION_RETURNCODE
+        elif type(result) is CompletedCheck:
+            completed_command = result.result
+        else:
+            completed_command = result
+
+        if completed_command.returncode:
+            return completed_command.returncode
+        elif completed_command.stderr and self.RETURNCODE_ON_STDERR:
+            return self.RETURNCODE_ON_STDERR
+        elif completed_command.stdout and self.RETURNCODE_ON_STDOUT:
+            return self.RETURNCODE_ON_STDOUT
+        else:
+            return 0
+
 
     def summarize(self, results=(), verbose=False):
-        """ Summarize a list of CompletedCommand wrapped in CompletedCheck.
+        """ Summarize a list of CompletedCheck and FailedCheck.
 
             >>> tst = ShellCommandHook()
-            >>> tst.summarize()
+            >>> tst.execute_simple(checks=[tst.make_check('true')])
             0
+            >>> tst.execute_simple(checks=[tst.make_check('true'), tst.make_check('false'), tst.make_check('unknwon')], verbose=True, quiet_error=True)
+            <BLANKLINE>
+            <BLANKLINE>
+            passed: capture_command "true" {}
+            <BLANKLINE>
+            <BLANKLINE>
+            failed: capture_command "false" {}
+            <BLANKLINE>
+            <BLANKLINE>
+            ...
+            -1
         """
         returncode = 0
         fails = 0
-        for check, result in results:
-            if result is None:
-                if verbose:
-                    msg = "\n\nskipped: {tool} {args}".format(
-                        tool=check.args[0],
-                        args=' '.join(['"%s"' % x for x in check.args[1:]])
-                    )
-                    echo.yellow(msg)
-            elif result.returncode:
+        for outcome in results:
+            if type(outcome) is CompletedCheck:
+                check, result = outcome
+                ret = self.eval_returncode(result)
+                if ret:
+                    fails += 1
+                    returncode |= ret
+                    if verbose:
+                        msg = "\n\nfailed: {tool} {args} {kwd}".format(
+                            tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
+                            args=' '.join(['"%s"' % x for x in check.args]),
+                            kwd=check.kwargs,
+                        )
+                        echo.white(msg)
+                else:
+                    if verbose:
+                        msg = "\n\npassed: {tool} {args} {kwd}".format(
+                            tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
+                            args=' '.join(['"%s"' % x for x in check.args]),
+                            kwd=check.kwargs,
+                        )
+                        echo.white(msg)
+            elif type(outcome) is FailedCheck:
+                ret, check, exc_info = outcome.returncode, outcome.check, outcome.exc_info
                 fails += 1
-                returncode |= result.returncode
+                returncode |= ret
                 if verbose:
-                    msg = "\n\nfailed: {tool} {args}".format(
-                        tool=result.command[0],
-                        args=' '.join(['"%s"' % x for x in result.command[1:]])
+                    msg = "\n\nerrored: {tool} {args} {kwd} {type} {value}".format(
+                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
+                        args=' '.join(['"%s"' % x for x in check.args]),
+                        kwd=check.kwargs,
+                        type=exc_info[0],
+                        value=exc_info[1],
+                        # traceback=exc_info[2]
                     )
                     echo.yellow(msg)
         return returncode

@@ -54,7 +54,7 @@ setup_args.update(
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:universal_hook',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:universal_hook',
 
-            '_flowtool_githooks.yamllint2 = flowtool_githooks_demo.hooks:yamllint_progressbar',
+            '_flowtool_githooks.yamllint2 = flowtool_githooks_demo.hooks:yaml_lint_hook.click_command',
         ],
         'flowtool_githooks.pre_commit': [
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
