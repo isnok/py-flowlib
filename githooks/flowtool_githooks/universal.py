@@ -27,12 +27,28 @@
             the hook is launched as a pre-push hook
             i.e. a linter hook will in this mode check all files differing from origin/master
 
-    >>> test = UniversalGithook()
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+
+    >>> default_unversal_githook.generate_checks = lambda: [make_check(print_args, 'foo', bar='baz')]
+    >>> result = runner.invoke(execute, [])
+    >>> result.exception
+    >>> result.exit_code
+    0
+    >>> output_lines = result.output.split('\\n')[:-1]
+    >>> len(output_lines)
+    1
+    >>> all(l.startswith('dummy-check:') for l in output_lines)
+    True
 """
 import os
 import sys
 import click
 import fnmatch
+
+from functools import partial
+from collections import namedtuple
 
 from flowtool.style import echo, colors
 from flowtool.execute import run_command
@@ -42,25 +58,51 @@ from flowtool.python import read_stdin_nonblocking
 from flowtool_git.common import local_repo, GitCommandError
 from flowtool_git.common import short_status
 
-from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
+from flowtool_githooks.discovering import find_file_patterns_in_project, find_added_file_patterns, find_changed_file_patterns
 
 
-class AttrDict(dict):
-    """ A hacky way to create a dict with it's keys accessible as attributes.
-        Can cause memory leaks on old python versions.
+def capture_command(*cmdline):
+    """ Run command and return it's output.
+        Issue a warning if the command is not installed.
 
-        TODO: find the stackoverflow again where this is from...
-
-        >>> d = AttrDict({'foo': 'bar'}, bar='baz')
-        >>> len(d)
-        2
+        >>> capture_command('ls').returncode
+        0
+        >>> capture_command('_command_not_found_')
+        <BLANKLINE>
+        ...
     """
+    if len(cmdline) == 1:
+        cmdline = cmdline[0]
+    try:
+        result = run_command(cmdline)
+    except OSError as ex:
+        echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
+        return None
+    return result
 
-    def __init__(self, *args, **kwd):
-        dict.__init__(self, *args, **kwd)
-        self.update(self.__dict__)
-        self.__dict__ = self
+def print_args(*cmdline, **kwd):
+    """ Print the args that are given to this function.
+        Serves as a fallback for the check_func of a
+        UniversalGithook.
 
+        >>> print_args()
+        dummy-check: () {}
+    """
+    echo.white('dummy-check:', cmdline, kwd)
+
+Check = namedtuple('Check', ['func', 'args', 'kwargs'])
+CompletedCheck = namedtuple('CompletedCheck', ['check', 'result'])
+
+def make_check(func=None, *args, **kwd):
+    """ Create a Check object to be run by a UniversalGithook.
+
+        >>> check = make_check(make_check, make_check)
+        >>> check.func is check.args[0]
+        True
+    """
+    return Check(func, args, kwd)
+
+command_check = partial(make_check, capture_command)
 
 
 class UniversalGithook(object):
@@ -70,29 +112,9 @@ class UniversalGithook(object):
     """
 
     HOOK_EXECUTABLE = 'file'
-    SUFFIX = '.py'
+    FILE_PATTERNS = '*'
 
     repo = local_repo()
-
-    def capture_command(self, *cmdline):
-        """ Run command and return it's output.
-            Issue a warning if the command is not installed.
-
-            >>> tst = UniversalGithook()
-            >>> tst.capture_command('ls').returncode
-            0
-            >>> tst.capture_command('_command_not_found_')
-            <BLANKLINE>
-            ...
-        """
-        if len(cmdline) == 1:
-            cmdline = cmdline[0]
-        try:
-            result = run_command(cmdline)
-        except OSError as ex:
-            echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
-            return None
-        return result
 
 
     @classmethod
@@ -105,117 +127,168 @@ class UniversalGithook(object):
         """
 
 
-    def collect_infos(self, args=()):
-        """ Collect runtime information such as hook_type, commandline args or stdin.
+    RuntimeInfo = namedtuple(
+        'RuntimeInfo',
+        [
+            'arg0',
+            'args',
+            'stdin',
+            'run_mode',
+        ],
+    )
+
+    arg0 = sys.argv[0]
+
+    @property
+    def args(self):
+        if not hasattr(self, '_args'):
+            self._args = tuple(sys.argv[1:])
+        return self._args
+
+    @args.setter
+    def args(self, value):
+        self._args = value
+
+    @property
+    def stdin(self):
+        if not hasattr(self, '_stdin'):
+            stdin = list(read_stdin_nonblocking(ignore_error=True))
+            self._stdin = ''.join(stdin) if stdin else stdin
+        return self._stdin
+
+    @stdin.setter
+    def stdin(self, value):
+        self._stdin = value
+
+    @property
+    def run_mode(self):
+        if not hasattr(self, '_run_mode'):
+            arg0dir = self.arg0.split(os.sep)[-2]
+            if arg0dir.endswith('.d'):
+                self._run_mode = arg0dir[:-2]
+            else:
+                self._run_mode = 'standalone'
+        return self._run_mode
+
+    @run_mode.setter
+    def run_mode(self, value):
+        self._run_mode = value
+
+
+    def collect_infos(self):
+        """ Runtime information is collected through cached properties,
+            to avoid unnecessary system calls. This function provides
+            a combined test case and convenience function.
 
             >>> tst = UniversalGithook()
+            >>> tst.stdin = 'foobar!baz'
             >>> infos = tst.collect_infos()
-            >>> infos
+            >>> type(infos.args) is tuple
+            True
+            >>> infos.stdin
+            'foobar!baz'
+            >>> infos.run_mode
+            'standalone'
+            >>> tst.run_mode = 'something'
         """
-        info = AttrDict()
-        info.arg0 = arg0 = sys.argv[0]
-        info.arg0_name = os.path.basename(arg0)
-        info.args = args
 
-        stdin = list(read_stdin_nonblocking(ignore_error=True))
-        self.stdin = ''.join(stdin) if stdin else stdin
+        if not hasattr(self, 'args'):
+            self.args = args
+
+        info = self.RuntimeInfo(self.arg0, self.args, self.stdin, self.run_mode)
+        return info
 
 
     def generate_checks(self):
         """ Generate checks.
-        """
-        return []
-
-    @click.command()
-    @click.argument('args', nargs=-1)
-    def execute(self, args=()):
-        """ The standard procedure of a git hook execution.
 
             >>> tst = UniversalGithook()
-            >>> tst.execute()
+            >>> tst.run_mode
+            'standalone'
+            >>> len(tst.generate_checks()) > 42
+            True
+            >>> tst.run_mode = 'pre-commit'
+            >>> lst = list(tst.generate_checks())
+            >>> tst.run_mode = 'commit-msg'
+            >>> lst == list(tst.generate_checks())
+            True
+            >>> tst.run_mode = 'pre-push'
+            >>> bool(iter(tst.generate_checks()))
+            True
         """
-        infos = self.collect_infos(args)
+        if self.run_mode in ('pre-commit', 'commit-msg'):
+            check_these = find_added_file_patterns(self.FILE_PATTERNS)
+        elif self.run_mode in ('pre-push',):
+            check_these = find_changed_file_patterns(self.FILE_PATTERNS)
+        elif self.run_mode == 'standalone':
+            check_these = find_file_patterns_in_project(self.FILE_PATTERNS)
+        else:
+            check_these = []
+
+        check_func = self.check_func if hasattr(self, 'check_func') else print_args
+
+        return [make_check(check_func, f) for f in check_these]
+
+    def run_check(self, check):
+        """ Run a check.
+
+            >>> tst = UniversalGithook()
+            >>> tst.run_check(make_check(print_args, 'Kowabunga!'))
+            dummy-check: ('Kowabunga!',) {}
+            ...
+        """
+        check_result = check.func(*check.args, **check.kwargs)
+        return CompletedCheck(check, check_result)
+
+    def summarize(self, result):
+        """ Summarize the check runs.
+
+            >>> tst = UniversalGithook()
+            >>> tst.summarize(['froob!'])
+            0
+        """
+        return 0
+
+    def execute_simple(self, args=()):
+        """ Simple procedure for hook execution.
+            >>> tst = UniversalGithook()
+            >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
+            >>> tst.execute_simple()
+            dummy-check: ('Kowabunga!',) {}
+            0
+        """
+
+        result = [self.run_check(c) for c in self.generate_checks()]
+        returncode = self.summarize(result)
+        return returncode
+
+    def execute_progressbar(self, args=()):
+        """ Procedure for hook execution using the click progressbar.
+
+            >>> tst = UniversalGithook()
+            >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
+            >>> tst.execute_progressbar()
+            <BLANKLINE>
+            dummy-check: ('Kowabunga!',) {}
+            0
+        """
 
         result = []
 
-        for check in self.generate_checks():
-
-            result.append(
-                (check, self.run_check(check))
-            )
+        with click.progressbar(self.generate_checks()) as bar:
+            for check in bar:
+                result.append(self.run_check(check))
 
         returncode = self.summarize(result)
-        sys.exit(returncode)
+        return returncode
 
 
 
-    @classmethod
-    def run_hook(cls, check_these, cfg=None, continues=5):
-        """ Run pylint on the selected files and exit nonzero if a run failed.
-            Continue up to 'continues' times if one run fails still, to show possibly
-            more errors that you can fix easily in one go when checking a lot of files.
-        """
-        if cfg is None:
-            cfg = cls.get_config_name()
-        echo.bold(
-            'pylint-minimal-hook:',
-            'will check',
-            len(check_these),
-            'files using',
-            os.path.basename(cfg),
-        )
-        fails = 0
-        returncode = 0
-        with click.progressbar(check_these) as bar:
-            for filename in bar:
-                pylint_args = (
-                    '--errors-only',
-                    '--rcfile=%s' % cfg,
-                    "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
-                    filename,
-                )
-                result = capture_pylint(*pylint_args)
-                if result.stdout or result.stderr or result.returncode:
-                    fails += 1
-                    returncode |= result.returncode
-                    msg_fname = filename.replace(os.getcwd(), '')
-                    echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
-                    if result.stderr:
-                        echo.red(result.stderr)
-                    if result.stdout:
-                        echo.white(result.stdout)
-                    if fails >= continues:
-                        sys.exit(returncode or continues)
-        if returncode:
-            sys.exit(returncode)
-
-
-
-    @click.command()
-    @click.option('--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
-    @click.argument('args', nargs=-1)
-    def universal_hook(self, args=(), noop=None):
-        """ Determine what files to check depending on the hook type
-            we are being run as.
-        """
-        arg0 = sys.argv[0].split(os.sep)[-2]
-        if arg0.endswith('.d'):
-            hook_type = arg0[:-2]
-        else:
-            hook_type = 'standalone'
-        debug.white('universal_hook:', 'running as', colors.cyan(hook_type))
-
-        if hook_type in ('pre-commit', 'commit-msg'):
-            check_these = added_files(self.SUFFIX)
-        elif hook_type in ('pre-push',):
-            check_these = discover_changed_files(self.SUFFIX)
-        else:
-            check_these = find_suffix_files_in_project(self.SUFFIX)
-
-        if check_these and not noop:
-            run_hook(check_these)
-
-
+default_unversal_githook = UniversalGithook()
+@click.command()
+@click.argument('args', nargs=-1)
+def execute(args=()):
+    default_unversal_githook.execute_simple()
 
 
 def get_gitconfig_simple(repo=None, local=True):
@@ -437,25 +510,35 @@ class ConfigFileHook(ConfiguredGithook):
 
         The config file can be configured through a git config key.
     """
-    CONFIG_KEY = 'configfile'
-    CONFIG_FILE = '.universal.cfg'
+    CONFIGFILE = '.universal.cfg'
+    CONFIGFILE_GITCFGKEY = 'configfile'
+    CONFIGFILE_DEFAULT = None
 
-    @classmethod
-    def get_config_name(cls, key):
+    def configfile_path(self):
+        configfile = os.path.join(
+            os.path.dirname(self.repo.git_dir),
+            self.CONFIGFILE,
+        )
+        return configfile
+
+    def get_configfile(self, do_setup=None):
         """ Get the configuration value either from repo config
             or set it to its default in the repo config.
+
+            >>> tst = ConfigFileHook()
+            >>> tst.get_configfile().endswith(tst.CONFIGFILE)
+            True
+
         """
+        value = self.get_gitconfig(self.CONFIGFILE_GITCFGKEY)
+        if value is None:
+            value = self.configfile_path()
+            do_setup and self.set_gitconfig(self.CONFIGFILE_GITCFGKEY, value)
 
-        cfg = get_gitconfig_simple()
-        section, key = cls.GITCONFIG_KEY.split('.')
-        if section in cfg and key in cfg[section]:
-            return cfg[section][key]
+        return value
 
 
-        configfile = os.sep.join([
-            os.path.dirname(cls.repo.git_dir),
-            cls.CONFIG_FILE,
-        ])
+    def setup_configfile(self):
         cls.repo.git.config(cls.GITCONFIG_KEY, configfile)
         debug.cyan(
             'configured',
@@ -484,4 +567,45 @@ class ConfigFileHook(ConfiguredGithook):
                 fh.write(minimal_config)
             debug.cyan('universal-hook-setup: created', os.path.basename(config_file))
 
+
+
+    # @classmethod
+    # def run_hook(cls, check_these, cfg=None, continues=5):
+        # """ Run pylint on the selected files and exit nonzero if a run failed.
+            # Continue up to 'continues' times if one run fails still, to show possibly
+            # more errors that you can fix easily in one go when checking a lot of files.
+        # """
+        # if cfg is None:
+            # cfg = cls.get_config_name()
+        # echo.bold(
+            # 'pylint-minimal-hook:',
+            # 'will check',
+            # len(check_these),
+            # 'files using',
+            # os.path.basename(cfg),
+        # )
+        # fails = 0
+        # returncode = 0
+        # with click.progressbar(check_these) as bar:
+            # for filename in bar:
+                # pylint_args = (
+                    # '--errors-only',
+                    # '--rcfile=%s' % cfg,
+                    # "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
+                    # filename,
+                # )
+                # result = capture_pylint(*pylint_args)
+                # if result.stdout or result.stderr or result.returncode:
+                    # fails += 1
+                    # returncode |= result.returncode
+                    # msg_fname = filename.replace(os.getcwd(), '')
+                    # echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
+                    # if result.stderr:
+                        # echo.red(result.stderr)
+                    # if result.stdout:
+                        # echo.white(result.stdout)
+                    # if fails >= continues:
+                        # sys.exit(returncode or continues)
+        # if returncode:
+            # sys.exit(returncode)
 
