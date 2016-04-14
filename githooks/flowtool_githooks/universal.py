@@ -38,7 +38,7 @@ from flowtool.style import echo, colors
 from flowtool.execute import run_command
 from flowtool.style import debug
 
-from flowtool_git.common import local_repo, local_git_command
+from flowtool_git.common import local_repo, GitCommandError
 from flowtool_git.common import short_status
 
 from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
@@ -298,7 +298,7 @@ class ConfiguredGithook(UniversalGithook):
             if key is None:
                 try:
                     self.repo.git.config('--remove-section', self.GITCONFIG_SECTION)
-                except self.repo.GitCommandError:
+                except GitCommandError:
                     pass
 
 

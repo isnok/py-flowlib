@@ -29,12 +29,13 @@ def cached(func):
 
 
 import git as gitpython
+GitCommandError = gitpython.exc.GitCommandError
+GitCommandNotFound = gitpython.exc.GitCommandNotFound
 
 @cached
 def local_repo(or_exit=True):
     try:
         repo = gitpython.Repo(search_parent_directories=True)
-        repo.GitCommandError = gitpython.repo.git.exc.GitCommandError
         return repo
     except gitpython.repo.base.InvalidGitRepositoryError as ex:
         if or_exit:
