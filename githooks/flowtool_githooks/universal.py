@@ -37,6 +37,7 @@ import fnmatch
 from flowtool.style import echo, colors
 from flowtool.execute import run_command
 from flowtool.style import debug
+from flowtool.python import read_stdin_nonblocking
 
 from flowtool_git.common import local_repo, GitCommandError
 from flowtool_git.common import short_status
@@ -44,24 +45,21 @@ from flowtool_git.common import short_status
 from flowtool_githooks.discovering import find_suffix_files_in_project, added_files, discover_changed_files
 
 
-def capture_command(*cmdline):
-    """ Run command and return it's output.
-        Issue a warning if the command is not installed.
+class AttrDict(dict):
+    """ A hacky way to create a dict with it's keys accessible as attributes.
+        Can cause memory leaks on old python versions.
 
-        >>> capture_command('ls').returncode
-        0
-        >>> capture_command('_command_not_found_')
-        <BLANKLINE>
-        ...
+        TODO: find the stackoverflow again where this is from...
+
+        >>> d = AttrDict({'foo': 'bar'}, bar='baz')
+        >>> len(d)
+        2
     """
-    if len(cmdline) == 1:
-        cmdline = cmdline[0]
-    try:
-        result = run_command(cmdline)
-    except OSError as ex:
-        echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
-        return None
-    return result
+
+    def __init__(self, *args, **kwd):
+        dict.__init__(self, *args, **kwd)
+        self.update(self.__dict__)
+        self.__dict__ = self
 
 
 
@@ -76,13 +74,80 @@ class UniversalGithook(object):
 
     repo = local_repo()
 
+    def capture_command(self, *cmdline):
+        """ Run command and return it's output.
+            Issue a warning if the command is not installed.
+
+            >>> tst = UniversalGithook()
+            >>> tst.capture_command('ls').returncode
+            0
+            >>> tst.capture_command('_command_not_found_')
+            <BLANKLINE>
+            ...
+        """
+        if len(cmdline) == 1:
+            cmdline = cmdline[0]
+        try:
+            result = run_command(cmdline)
+        except OSError as ex:
+            echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
+            return None
+        return result
+
+
     @classmethod
     def hook_setup(cls, cmd=None):
         """ Setup function for the hook
 
-            >>> UniversalGithook.hook_setup('install')
-            >>> UniversalGithook.hook_setup('uninstall')
+            >>> tst = UniversalGithook()
+            >>> tst.hook_setup('install')
+            >>> tst.hook_setup('uninstall')
         """
+
+
+    def collect_infos(self, args=()):
+        """ Collect runtime information such as hook_type, commandline args or stdin.
+
+            >>> tst = UniversalGithook()
+            >>> infos = tst.collect_infos()
+            >>> infos
+        """
+        info = AttrDict()
+        info.arg0 = arg0 = sys.argv[0]
+        info.arg0_name = os.path.basename(arg0)
+        info.args = args
+
+        stdin = list(read_stdin_nonblocking(ignore_error=True))
+        self.stdin = ''.join(stdin) if stdin else stdin
+
+
+    def generate_checks(self):
+        """ Generate checks.
+        """
+        return []
+
+    @click.command()
+    @click.argument('args', nargs=-1)
+    def execute(self, args=()):
+        """ The standard procedure of a git hook execution.
+
+            >>> tst = UniversalGithook()
+            >>> tst.execute()
+        """
+        infos = self.collect_infos(args)
+
+        result = []
+
+        for check in self.generate_checks():
+
+            result.append(
+                (check, self.run_check(check))
+            )
+
+        returncode = self.summarize(result)
+        sys.exit(returncode)
+
+
 
     @classmethod
     def run_hook(cls, check_these, cfg=None, continues=5):
@@ -374,7 +439,6 @@ class ConfigFileHook(ConfiguredGithook):
     """
     CONFIG_KEY = 'configfile'
     CONFIG_FILE = '.universal.cfg'
-
 
     @classmethod
     def get_config_name(cls, key):
