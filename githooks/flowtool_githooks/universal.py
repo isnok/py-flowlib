@@ -46,6 +46,7 @@ import os
 import sys
 import click
 import fnmatch
+import inspect
 
 from functools import partial
 from collections import namedtuple
@@ -60,25 +61,6 @@ from flowtool_git.common import short_status
 
 from flowtool_githooks.discovering import find_file_patterns_in_project, find_added_file_patterns, find_changed_file_patterns
 
-
-def capture_command(*cmdline):
-    """ Run command and return it's output.
-        Issue a warning if the command is not installed.
-
-        >>> capture_command('ls').returncode
-        0
-        >>> capture_command('_command_not_found_')
-        <BLANKLINE>
-        ...
-    """
-    if len(cmdline) == 1:
-        cmdline = cmdline[0]
-    try:
-        result = run_command(cmdline)
-    except OSError as ex:
-        echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
-        return None
-    return result
 
 def print_args(*cmdline, **kwd):
     """ Print the args that are given to this function.
@@ -101,8 +83,6 @@ def make_check(func=None, *args, **kwd):
         True
     """
     return Check(func, args, kwd)
-
-command_check = partial(make_check, capture_command)
 
 
 class UniversalGithook(object):
@@ -198,6 +178,16 @@ class UniversalGithook(object):
         info = self.RuntimeInfo(self.arg0, self.args, self.stdin, self.run_mode)
         return info
 
+    def make_check(self, *args, **kwd):
+        """ Make a check (combine function and args).
+
+            >>> tst = UniversalGithook()
+            >>> tst.check_func = 'test'
+            >>> tst.make_check().func
+            'test'
+        """
+        check_func = self.check_func if hasattr(self, 'check_func') else print_args
+        return make_check(check_func, args, kwd)
 
     def generate_checks(self):
         """ Generate checks.
@@ -225,9 +215,7 @@ class UniversalGithook(object):
         else:
             check_these = []
 
-        check_func = self.check_func if hasattr(self, 'check_func') else print_args
-
-        return [make_check(check_func, f) for f in check_these]
+        return [self.make_check(f) for f in check_these]
 
     def run_check(self, check):
         """ Run a check.
@@ -249,7 +237,8 @@ class UniversalGithook(object):
         """
         return 0
 
-    def execute_simple(self, args=()):
+
+    def execute_simple(self, checks=None):
         """ Simple procedure for hook execution.
             >>> tst = UniversalGithook()
             >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
@@ -258,11 +247,14 @@ class UniversalGithook(object):
             0
         """
 
-        result = [self.run_check(c) for c in self.generate_checks()]
+        if checks is None:
+            checks = self.generate_checks()
+
+        result = [self.run_check(c) for c in checks]
         returncode = self.summarize(result)
         return returncode
 
-    def execute_progressbar(self, args=()):
+    def execute_progressbar(self, checks=None):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = UniversalGithook()
@@ -275,13 +267,41 @@ class UniversalGithook(object):
 
         result = []
 
-        with click.progressbar(self.generate_checks()) as bar:
+        if checks is None:
+            checks = self.generate_checks()
+
+        with click.progressbar(checks) as bar:
             for check in bar:
                 result.append(self.run_check(check))
 
         returncode = self.summarize(result)
         return returncode
 
+    def execute_dotted(self, checks=None):
+        """ Procedure for hook execution using the click progressbar.
+
+            >>> tst = UniversalGithook()
+            >>> tst.generate_checks = lambda: [make_check(lambda x: '', 'Kowabunga!')]
+            >>> tst.execute_dotted()
+            running: .
+            0
+        """
+
+        result = []
+
+        if checks is None:
+            checks = self.generate_checks()
+
+        echo.bold('running: ', nl=False)
+        for check in checks:
+            result.append(self.run_check(check))
+            echo.bold('.', nl=False)
+        echo.white('')
+
+        returncode = self.summarize(result)
+        return returncode
+
+    # TODO: execute_smart (autoselect)
 
 
 default_unversal_githook = UniversalGithook()
@@ -509,12 +529,21 @@ class ConfigFileHook(ConfiguredGithook):
     """ A git hook that ships and utilizes a config file.
 
         The config file can be configured through a git config key.
+
+        >>> tst = ConfigFileHook()
+        >>> tst.GITCONFIG_SECTION = 'test-section-six'
+        >>> tst.setup_configfile()
+        >>> tst.setup_configfile()
+        >>> tst.cleanup_configfile()
     """
+
     CONFIGFILE = '.universal.cfg'
     CONFIGFILE_GITCFGKEY = 'configfile'
-    CONFIGFILE_DEFAULT = None
+    DEFAULT_CONFIGFILE = None
 
-    def configfile_path(self):
+    GITCONFIG_DEFAULT = {CONFIGFILE_GITCFGKEY: CONFIGFILE}
+
+    def _configfile_path(self):
         configfile = os.path.join(
             os.path.dirname(self.repo.git_dir),
             self.CONFIGFILE,
@@ -528,84 +557,212 @@ class ConfigFileHook(ConfiguredGithook):
             >>> tst = ConfigFileHook()
             >>> tst.get_configfile().endswith(tst.CONFIGFILE)
             True
-
         """
-        value = self.get_gitconfig(self.CONFIGFILE_GITCFGKEY)
+        key = self.CONFIGFILE_GITCFGKEY
+        value = self.get_gitconfig(key)
         if value is None:
-            value = self.configfile_path()
-            do_setup and self.set_gitconfig(self.CONFIGFILE_GITCFGKEY, value)
+            value = self._configfile_path()
+            do_setup and self.set_gitconfig(key, value)
 
         return value
 
+    def setup_configfile(self, config_file=None):
+        """ Create a config file for the hook command,
+            if it is not already there.
 
-    def setup_configfile(self):
-        cls.repo.git.config(cls.GITCONFIG_KEY, configfile)
-        debug.cyan(
-            'configured',
-            colors.yellow(cls.GITCONFIG_KEY),
-            'to',
-            colors.white(configfile),
-            'in local git repository',
-        )
-        return configfile
-
-
-    @classmethod
-    def create_config(cls):
-        """ Create a config file for the hook command.
+            >>> tst = ConfigFileHook()
+            >>> tst.setup_configfile('/tmp/test')
+            >>> tst.cleanup_configfile('/tmp/test')
         """
-        config_file = cls.get_config_name(cls.repo)
+        if config_file is None:
+            config_file = self.get_configfile(do_setup=True)
         if os.path.exists(config_file):
             debug.cyan(
-                'pylint-hook-setup:',
+                'universal-hook-setup:',
                 os.path.basename(config_file),
                 'exists',
             )
         else:
-            minimal_config = '[cfg]\nuniversal = 1\n'
-            with open(config_file, 'w') as fh:
-                fh.write(minimal_config)
-            debug.cyan('universal-hook-setup: created', os.path.basename(config_file))
+            self.create_configfile(config_file)
+
+    def create_configfile(self, filename=None):
+        """ Create the config file. For real.
+
+            >>> from os.path import isfile
+            >>> tst = ConfigFileHook()
+            >>> tst.DEFAULT_CONFIGFILE = lambda: 'Hello World!'
+            >>> tst.create_configfile('/tmp/_cfgfile_create_test')
+            >>> isfile('/tmp/_cfgfile_create_test')
+            True
+            >>> tst.cleanup_configfile('/tmp/_cfgfile_create_test')
+        """
+        if filename is None:
+            filename = self.get_configfile()
+        default_config = self.DEFAULT_CONFIGFILE
+        if default_config is not None:
+            if str(default_config) == default_config:
+                content = default_config
+            elif inspect.isfunction(default_config):
+                content = default_config()
+            with open(filename, 'w') as fh:
+                fh.write(content)
+            debug.cyan(
+                'universal-hook-setup: created',
+                os.path.basename(filename)
+            )
+
+    def cleanup_configfile(self, filename=None):
+        """ Remove the config file. For real.
+
+            >>> tst = ConfigFileHook()
+            >>> tst.create_configfile()
+            >>> tst.cleanup_configfile()
+        """
+        if filename is None:
+            filename = self.get_configfile()
+        if os.path.exists(filename):
+            os.unlink(filename)
 
 
+def capture_command(*cmdline):
+    """ Run command and return it's output.
+        Issue a warning if the command is not installed.
 
-    # @classmethod
-    # def run_hook(cls, check_these, cfg=None, continues=5):
-        # """ Run pylint on the selected files and exit nonzero if a run failed.
-            # Continue up to 'continues' times if one run fails still, to show possibly
-            # more errors that you can fix easily in one go when checking a lot of files.
-        # """
-        # if cfg is None:
-            # cfg = cls.get_config_name()
-        # echo.bold(
-            # 'pylint-minimal-hook:',
-            # 'will check',
-            # len(check_these),
-            # 'files using',
-            # os.path.basename(cfg),
-        # )
-        # fails = 0
-        # returncode = 0
-        # with click.progressbar(check_these) as bar:
-            # for filename in bar:
-                # pylint_args = (
-                    # '--errors-only',
-                    # '--rcfile=%s' % cfg,
-                    # "--msg-template='{C}@line {line:3d},{column:2d}: {msg_id} - {obj} {msg}'",
-                    # filename,
-                # )
-                # result = capture_pylint(*pylint_args)
-                # if result.stdout or result.stderr or result.returncode:
-                    # fails += 1
-                    # returncode |= result.returncode
-                    # msg_fname = filename.replace(os.getcwd(), '')
-                    # echo.yellow('\n\npylint-minimal failed at:', colors.cyan(msg_fname))
-                    # if result.stderr:
-                        # echo.red(result.stderr)
-                    # if result.stdout:
-                        # echo.white(result.stdout)
-                    # if fails >= continues:
-                        # sys.exit(returncode or continues)
-        # if returncode:
-            # sys.exit(returncode)
+        >>> capture_command('ls').returncode
+        0
+        >>> capture_command('ls').command
+        ['ls']
+        >>> capture_command('_command_not_found_')
+        <BLANKLINE>
+        ...
+    """
+    if len(cmdline) == 1:
+        cmdline = cmdline[0]
+    try:
+        result = run_command(cmdline)
+    except OSError as ex:
+        echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
+        return None
+    return result
 
+make_command_check = partial(make_check, capture_command)
+
+
+class ShellCommandHook(ConfigFileHook):
+    """ A hook for abritrary shell commands.
+
+        This hook introdces a consistent "pass" and "fail" logic for the checks.
+
+        >>> tst = ShellCommandHook()
+    """
+
+    CHECK_TOOL = None
+
+    def make_check(self, *args, **kwd):
+        """ Make a check (combine function and args).
+
+            >>> tst = ShellCommandHook()
+            >>> len(tst.make_check().args)
+            0
+        """
+        if self.CHECK_TOOL is not None:
+            args = (self.CHECK_TOOL,) + args
+        return make_command_check(*args, **kwd)
+
+    def run_check(self, check):
+        """ Run a commands a check.
+            >>> tst = ShellCommandHook()
+            >>> tst.CHECK_TOOL
+            >>> tst.run_check(tst.make_check('ls', 'Kowabunga!')).result.returncode
+            2
+        """
+        check_result = check.func(*check.args, **check.kwargs)
+        return CompletedCheck(check, check_result)
+
+    def execute_simple(self, checks=None, continues=4):
+        """ Simple procedure for hook execution.
+            >>> tst = ShellCommandHook()
+            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'file world', 'echo !!!')]
+            >>> tst.execute_simple()
+            <BLANKLINE>
+            <BLANKLINE>
+            failed: ls "hello"
+            2
+        """
+
+        if checks is None:
+            checks = self.generate_checks()
+
+        result = [self.run_check(c) for c in checks]
+        returncode = self.summarize(result)
+        return returncode
+
+    def execute_progressbar(self, checks=None, continues=4):
+        """ Procedure for hook execution using the click progressbar.
+
+            >>> tst = ShellCommandHook()
+            >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
+            >>> tst.execute_progressbar()
+            <BLANKLINE>
+            dummy-check: ('Kowabunga!',) {}
+            0
+        """
+
+        result = []
+
+        if checks is None:
+            checks = self.generate_checks()
+
+        with click.progressbar(checks) as bar:
+            for check in bar:
+                result.append(self.run_check(check))
+
+        returncode = self.summarize(result)
+        return returncode
+
+    def execute_dotted(self, checks=None, continues=4):
+        """ Procedure for hook execution using the click progressbar.
+
+            >>> tst = ShellCommandHook()
+            >>> tst.CHECK_TOOL = 'true'
+            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('hello', 'world', '!!!')]
+            >>> tst.execute_dotted()
+            running: ...
+            0
+        """
+
+        result = []
+
+        if checks is None:
+            checks = self.generate_checks()
+
+        echo.bold('running: ', nl=False)
+        for check in checks:
+            result.append(self.run_check(check))
+            echo.bold('.', nl=False)
+        echo.white('')
+
+        returncode = self.summarize(result)
+        return returncode
+
+    def summarize(self, results=()):
+        """ Summarize a list of CompletedCommand wrapped in CompletedCheck.
+
+            >>> tst = ShellCommandHook()
+            >>> tst.summarize()
+            0
+        """
+        returncode = 0
+        fails = 0
+        for check, result in results:
+            if result is None:
+                pass
+            elif result.returncode:
+                fails += 1
+                returncode |= result.returncode
+                msg = "\n\nfailed: {tool} {args}".format(
+                    tool=result.command[0],
+                    args=' '.join(['"%s"' % x for x in result.command[1:]])
+                )
+                echo.yellow(msg)
+        return returncode
