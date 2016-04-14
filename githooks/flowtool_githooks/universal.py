@@ -682,7 +682,7 @@ class ShellCommandHook(ConfigFileHook):
     def execute_simple(self, checks=None, continues=4):
         """ Simple procedure for hook execution.
             >>> tst = ShellCommandHook()
-            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'file world', 'echo !!!')]
+            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'test world', 'echo !!!')]
             >>> tst.execute_simple()
             <BLANKLINE>
             <BLANKLINE>
