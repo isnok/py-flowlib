@@ -85,3 +85,60 @@ def demo_fail(args=(), noop=None):
 def demo_fail_setup(cmd=None):
     """ Micro setup.py imitation to set up configs or so. """
     echo.white('demo-fail-setup:', cmd)
+
+
+
+import os
+import sys
+import click
+#import fnmatch
+from flowtool.style import echo, colors
+from flowtool.execute import run_command
+from flowtool.style import debug
+
+from flowtool_githooks.universal import ShellCommandHook
+
+class YAMLLintHook(ShellCommandHook):
+    """ A linter integration for yamllint.
+
+        >>> from click.testing import CliRunner
+        >>> runner = CliRunner()
+
+        >>> yaml_lint_hook.generate_checks = lambda: [yaml_lint_hook.make_check('.travis.yml')]
+
+        >>> result = runner.invoke(execute_progressbar, [])
+        >>> result.exception
+        >>> result.exit_code
+        0
+        >>> output_lines = result.output.split('\\n')[:-1]
+        >>> len(output_lines)
+        1
+        >>> bool(output_lines[0])
+        False
+
+        >>> result = runner.invoke(execute_dotted, [])
+        >>> result.exception
+        >>> result.exit_code
+        0
+        >>> output_lines = result.output.split('\\n')[:-1]
+        >>> len(output_lines)
+        1
+        >>> output_lines[0] == 'running: .'
+        True
+    """
+
+    CHECK_TOOL = os.path.join(os.path.dirname(sys.executable), 'yamllint')
+    FILE_PATTERNS = ('*.yaml', '*.yml')
+
+
+yaml_lint_hook = YAMLLintHook()
+
+@click.command()
+@click.argument('args', nargs=-1)
+def execute_progressbar(args=()):
+    yaml_lint_hook.execute_progressbar()
+
+@click.command()
+@click.argument('args', nargs=-1)
+def execute_dotted(args=()):
+    yaml_lint_hook.execute_dotted()
