@@ -106,7 +106,7 @@ class YAMLLintHook(ShellCommandHook):
 
         >>> yaml_lint_hook.generate_checks = lambda: [yaml_lint_hook.make_check('.travis.yml')]
 
-        >>> result = runner.invoke(execute_progressbar, [])
+        >>> result = runner.invoke(yamllint_progressbar, [])
         >>> result.exception
         >>> result.exit_code
         0
@@ -116,7 +116,7 @@ class YAMLLintHook(ShellCommandHook):
         >>> bool(output_lines[0])
         False
 
-        >>> result = runner.invoke(execute_dotted, [])
+        >>> result = runner.invoke(yamllint_dotted, [])
         >>> result.exception
         >>> result.exit_code
         0
@@ -135,10 +135,15 @@ yaml_lint_hook = YAMLLintHook()
 
 @click.command()
 @click.argument('args', nargs=-1)
-def execute_progressbar(args=()):
+def yamllint_simple(args=()):
+    yaml_lint_hook.execute_simple()
+
+@click.command()
+@click.argument('args', nargs=-1)
+def yamllint_progressbar(args=()):
     yaml_lint_hook.execute_progressbar()
 
 @click.command()
 @click.argument('args', nargs=-1)
-def execute_dotted(args=()):
+def yamllint_dotted(args=()):
     yaml_lint_hook.execute_dotted()
