@@ -31,16 +31,15 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
 
-    >>> default_unversal_githook.generate_checks = lambda: [make_check(print_args, 'foo', bar='baz')]
-    >>> result = runner.invoke(execute, [])
+    >>> githook = UniversalGithook()
+    >>> githook.generate_checks = lambda: [make_check(print_args, 'foo', bar='baz')]
+    >>> result = runner.invoke(githook.click_command, [])
     >>> result.exception
     >>> result.exit_code
     0
     >>> output_lines = result.output.split('\\n')[:-1]
     >>> len(output_lines)
-    1
-    >>> all(l.startswith('dummy-check:') for l in output_lines)
-    True
+    0
 """
 import os
 import sys
@@ -74,6 +73,7 @@ def print_args(*cmdline, **kwd):
 
 Check = namedtuple('Check', ['func', 'args', 'kwargs'])
 CompletedCheck = namedtuple('CompletedCheck', ['check', 'result'])
+FailedCheck = namedtuple('FailedCheck', ['check', 'exc_info', 'returncode'])
 
 def make_check(func=None, *args, **kwd):
     """ Create a Check object to be run by a UniversalGithook.
@@ -93,6 +93,7 @@ class UniversalGithook(object):
 
     HOOK_EXECUTABLE = 'file'
     FILE_PATTERNS = '*'
+    EXCEPTION_RETURNCODE = -2
 
     repo = local_repo()
 
@@ -105,6 +106,16 @@ class UniversalGithook(object):
             >>> tst.hook_setup('install')
             >>> tst.hook_setup('uninstall')
         """
+
+    def __init__(self):
+        """ Create self.click_command. It shall be instance-bound,
+            but click seemingly cannot decorate methods.
+        """
+        @click.command()
+        @click.argument('args', nargs=-1)
+        def click_command(args=()):
+            return self.execute_smart(args)
+        self.click_command = click_command
 
 
     RuntimeInfo = namedtuple(
@@ -225,17 +236,52 @@ class UniversalGithook(object):
             dummy-check: ('Kowabunga!',) {}
             ...
         """
-        check_result = check.func(*check.args, **check.kwargs)
-        return CompletedCheck(check, check_result)
+        try:
+            check_result = check.func(*check.args, **check.kwargs)
+            return CompletedCheck(check, check_result)
+        except:
+            return FailedCheck(check, sys.exc_info(), self.EXCEPTION_RETURNCODE)
 
-    def summarize(self, result):
-        """ Summarize the check runs.
+    def summarize(self, results=(), verbose=False):
+        """ Summarize a list of CompletedCheck and FailedCheck.
 
             >>> tst = UniversalGithook()
-            >>> tst.summarize(['froob!'])
+            >>> tst.summarize([CompletedCheck(make_check('func'), 0)])
             0
+            >>> tst.summarize([FailedCheck(make_check('func'), ('a', 'b', 'c'), 100)], verbose=True)
+            <BLANKLINE>
+            <BLANKLINE>
+            failed: <anon_check>  {} a b
+            100
         """
-        return 0
+        returncode = 0
+        fails = 0
+        for outcome in results:
+            if type(outcome) is CompletedCheck:
+                check, result = outcome
+                if verbose:
+                    msg = "\n\npassed: {tool} {args} {kwd}".format(
+                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
+                        args=' '.join(['"%s"' % x for x in check.args]),
+                        kwd=check.kwargs,
+                    )
+                    echo.white(msg)
+            elif type(outcome) is FailedCheck:
+                fails += 1
+                returncode |= outcome.returncode
+                check = outcome.check
+                exc_info = outcome.exc_info
+                if verbose:
+                    msg = "\n\nfailed: {tool} {args} {kwd} {type} {value}".format(
+                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
+                        args=' '.join(['"%s"' % x for x in check.args]),
+                        kwd=check.kwargs,
+                        type=exc_info[0],
+                        value=exc_info[1],
+                        # traceback=exc_info[2]
+                    )
+                    echo.yellow(msg)
+        return returncode
 
 
     def execute_simple(self, checks=None):
@@ -250,8 +296,8 @@ class UniversalGithook(object):
         if checks is None:
             checks = self.generate_checks()
 
-        result = [self.run_check(c) for c in checks]
-        returncode = self.summarize(result)
+        results = [self.run_check(c) for c in checks]
+        returncode = self.summarize(results)
         return returncode
 
     def execute_progressbar(self, checks=None):
@@ -265,50 +311,78 @@ class UniversalGithook(object):
             0
         """
 
-        result = []
+        results = []
 
         if checks is None:
             checks = self.generate_checks()
 
-        with click.progressbar(checks) as bar:
-            for check in bar:
-                result.append(self.run_check(check))
+        if checks:
+            with click.progressbar(checks) as bar:
+                for check in bar:
+                    results.append(self.run_check(check))
 
-        returncode = self.summarize(result)
+        returncode = self.summarize(results)
+
         return returncode
 
     def execute_dotted(self, checks=None):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = UniversalGithook()
+            >>> tst.generate_checks = lambda: []
+            >>> tst.execute_dotted()
+            0
             >>> tst.generate_checks = lambda: [make_check(lambda x: '', 'Kowabunga!')]
             >>> tst.execute_dotted()
             running: .
             0
         """
 
-        result = []
+        results = []
 
         if checks is None:
             checks = self.generate_checks()
 
-        echo.bold('running: ', nl=False)
-        for check in checks:
-            result.append(self.run_check(check))
-            echo.bold('.', nl=False)
-        echo.white('')
+        if checks:
+            echo.bold('running: ', nl=False)
+            for check in checks:
+                results.append(self.run_check(check))
+                echo.bold('.', nl=False)
+            echo.white('')
 
-        returncode = self.summarize(result)
+        returncode = self.summarize(results)
+
         return returncode
 
-    # TODO: execute_smart (autoselect)
+    def execute_smart(self, checks=None):
+        """ Auto select the execution style based on the capabilities of the checklist.
 
+            >>> tst = UniversalGithook()
+            >>> chk = make_check(lambda x: 'Kowa-', 'bunga!')
+            >>> def checklist(n):
+            ...     for _ in range(n):
+            ...         yield chk
+            ...
+            >>> tst.generate_checks = lambda: []
+            >>> tst.execute_smart()
+            0
+            >>> tst.generate_checks = lambda: [chk]
+            >>> tst.execute_smart()
+            <BLANKLINE>
+            0
+            >>> tst.execute_smart(checklist(10))
+            running: ..........
+            0
+        """
+        if checks is None:
+            checks = self.generate_checks()
 
-default_unversal_githook = UniversalGithook()
-@click.command()
-@click.argument('args', nargs=-1)
-def execute(args=()):
-    default_unversal_githook.execute_simple()
+        if checks:
+            if hasattr(checks, '__len__'):
+                return self.execute_progressbar(checks)
+            return self.execute_dotted(checks)
+        return self.summarize()
+
 
 
 def get_gitconfig_simple(repo=None, local=True):
@@ -624,7 +698,7 @@ class ConfigFileHook(ConfiguredGithook):
             os.unlink(filename)
 
 
-def capture_command(*cmdline):
+def capture_command(*cmdline, **kwd):
     """ Run command and return it's output.
         Issue a warning if the command is not installed.
 
@@ -632,16 +706,20 @@ def capture_command(*cmdline):
         0
         >>> capture_command('ls').command
         ['ls']
+        >>> capture_command('_command_not_found_', quiet=True)
         >>> capture_command('_command_not_found_')
         <BLANKLINE>
         ...
     """
+    quiet_oserror = kwd['quiet'] if 'quiet' in kwd else False
+
     if len(cmdline) == 1:
         cmdline = cmdline[0]
     try:
         result = run_command(cmdline)
     except OSError as ex:
-        echo.yellow('\nEncountered %s while trying to run: %s\nException: %s\n--> Is the command installed?' % (type(ex), cmdline, repr(ex)))
+        msg = '\nEncountered {} while trying to run: {}\nException: {}\n--> Is the command installed?'
+        quiet_oserror or echo.yellow(msg.format(type(ex), cmdline, repr(ex)))
         return None
     return result
 
@@ -654,6 +732,11 @@ class ShellCommandHook(ConfigFileHook):
         This hook introdces a consistent "pass" and "fail" logic for the checks.
 
         >>> tst = ShellCommandHook()
+        >>> tst.CHECK_TOOL = 'true'
+        >>> checks = [tst.make_check(x) for x in ('hello', 'world', '!!!')]
+        >>> tst.execute_smart(checks)
+        <BLANKLINE>
+        0
     """
 
     CHECK_TOOL = None
@@ -676,14 +759,17 @@ class ShellCommandHook(ConfigFileHook):
             >>> tst.run_check(tst.make_check('ls', 'Kowabunga!')).result.returncode
             2
         """
-        check_result = check.func(*check.args, **check.kwargs)
-        return CompletedCheck(check, check_result)
+        try:
+            check_result = check.func(*check.args, **check.kwargs)
+            return CompletedCheck(check, check_result)
+        except:
+            return FailedCheck(check, sys.exc_info())
 
-    def execute_simple(self, checks=None, continues=4):
+    def execute_simple(self, checks=None, continues=4, verbose=False):
         """ Simple procedure for hook execution.
             >>> tst = ShellCommandHook()
             >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'test world', 'echo !!!')]
-            >>> tst.execute_simple()
+            >>> tst.execute_simple(verbose=True)
             <BLANKLINE>
             <BLANKLINE>
             failed: ls "hello"
@@ -694,10 +780,10 @@ class ShellCommandHook(ConfigFileHook):
             checks = self.generate_checks()
 
         result = [self.run_check(c) for c in checks]
-        returncode = self.summarize(result)
+        returncode = self.summarize(result, verbose=verbose)
         return returncode
 
-    def execute_progressbar(self, checks=None, continues=4):
+    def execute_progressbar(self, checks=None, continues=4, verbose=False):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = ShellCommandHook()
@@ -707,44 +793,49 @@ class ShellCommandHook(ConfigFileHook):
             0
         """
 
-        result = []
+        results = []
 
         if checks is None:
             checks = self.generate_checks()
 
         with click.progressbar(checks) as bar:
             for check in bar:
-                result.append(self.run_check(check))
+                results.append(self.run_check(check))
 
-        returncode = self.summarize(result)
+        returncode = self.summarize(results, verbose=verbose)
         return returncode
 
-    def execute_dotted(self, checks=None, continues=4):
-        """ Procedure for hook execution using the click progressbar.
+
+    def execute_dotted(self, checks=None, continues=4, verbose=False):
+        """ Procedure for hook execution printing '.'s and 'F's for (passed/failed) checks.
 
             >>> tst = ShellCommandHook()
-            >>> tst.CHECK_TOOL = 'true'
-            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('hello', 'world', '!!!')]
-            >>> tst.execute_dotted()
-            running: ...
-            0
+            >>> checks = [tst.make_check(x, quiet=True) for x in ('unkwon hello', 'false world', 'true !!!')]
+            >>> tst.execute_dotted(checks)
+            running: XF.
+            1
         """
 
-        result = []
+        results = []
 
         if checks is None:
             checks = self.generate_checks()
 
-        echo.bold('running: ', nl=False)
-        for check in checks:
-            result.append(self.run_check(check))
-            echo.bold('.', nl=False)
-        echo.white('')
+        if checks:
+            echo.bold('running: ', nl=False)
+            for check in checks:
+                result = self.run_check(check)
+                results.append(result)
+                char = 'X' if result.result is None else ('F' if result.result.returncode else '.')
+                echo.bold(char, nl=False)
+            echo.white('')
 
-        returncode = self.summarize(result)
+        returncode = self.summarize(results, verbose=verbose)
+
         return returncode
 
-    def summarize(self, results=()):
+
+    def summarize(self, results=(), verbose=False):
         """ Summarize a list of CompletedCommand wrapped in CompletedCheck.
 
             >>> tst = ShellCommandHook()
@@ -755,17 +846,19 @@ class ShellCommandHook(ConfigFileHook):
         fails = 0
         for check, result in results:
             if result is None:
-                msg = "\n\nskipped: {tool} {args}".format(
-                    tool=check.args[0],
-                    args=' '.join(['"%s"' % x for x in check.args[1:]])
-                )
-                echo.yellow(msg)
+                if verbose:
+                    msg = "\n\nskipped: {tool} {args}".format(
+                        tool=check.args[0],
+                        args=' '.join(['"%s"' % x for x in check.args[1:]])
+                    )
+                    echo.yellow(msg)
             elif result.returncode:
                 fails += 1
                 returncode |= result.returncode
-                msg = "\n\nfailed: {tool} {args}".format(
-                    tool=result.command[0],
-                    args=' '.join(['"%s"' % x for x in result.command[1:]])
-                )
-                echo.yellow(msg)
+                if verbose:
+                    msg = "\n\nfailed: {tool} {args}".format(
+                        tool=result.command[0],
+                        args=' '.join(['"%s"' % x for x in result.command[1:]])
+                    )
+                    echo.yellow(msg)
         return returncode
