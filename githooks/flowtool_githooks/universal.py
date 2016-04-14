@@ -75,7 +75,7 @@ def print_args(*cmdline, **kwd):
 
 Check = namedtuple('Check', ['func', 'args', 'kwargs'])
 CompletedCheck = namedtuple('CompletedCheck', ['check', 'result'])
-FailedCheck = namedtuple('FailedCheck', ['check', 'exc_info', 'returncode'])
+ErroredCheck = namedtuple('ErroredCheck', ['check', 'exc_info', 'returncode'])
 
 def make_check(func=None, *args, **kwd):
     """ Create a Check object to be run by a UniversalGithook.
@@ -93,9 +93,13 @@ class UniversalGithook(object):
         >>> tst = UniversalGithook()
     """
 
-    HOOK_EXECUTABLE = 'file'
     FILE_PATTERNS = '*'
+
     EXCEPTION_RETURNCODE = -2
+    CONTINUES = 11
+    PROGRESSBAR_MIN_COUNT = 4
+    SIMPLE_GENERATOR = False
+
 
     repo = local_repo()
 
@@ -116,8 +120,8 @@ class UniversalGithook(object):
         @click.command()
         @click.argument('args', nargs=-1)
         def click_command(args=()):
-            sys.exit(self.execute_smart(args=args))
-            # sys.exit(self.execute_smart(args=args))
+            sys.exit(self.adaptive_execution(args=args))
+            # sys.exit(self.adaptive_execution(args=args))
         self.click_command = click_command
 
 
@@ -192,6 +196,45 @@ class UniversalGithook(object):
         info = self.RuntimeInfo(self.arg0, self.args, self.stdin, self.run_mode)
         return info
 
+    def _check_func_name(self, func):
+        return func.__name__ if hasattr(func, '__name__') else '<anon_check>'
+
+    def _msg_hook_startup(self, checks=(), **kwd):
+        msg = ('==>', colors.cyan(self.NAME),) if hasattr(self, 'NAME') else ('==>',)
+        msg += ('will check', colors.yellow(str(len(checks))), 'file(s):')
+        echo.bold(*msg, **kwd)
+
+    def _msg_simple_check_start(self, check=None, **kwd):
+        check_name = self._check_func_name(check.func)
+        args = '(%s)' % ', '.join(check.args) if check.args else ''
+        kwargs = check.kwargs if check.kwargs else ''
+        msg = ('==> running:', colors.cyan(check_name), args, kwargs)
+        echo.white(*msg, **kwd)
+
+    def _msg_simple_checked(self, outcome=None, **kwd):
+        check = outcome.check
+        check_name = self._check_func_name(check.func)
+        if self.is_returncode(outcome):
+            msg = ('==>', colors.cyan(check_name), 'errored.')
+            echo.yellow(*msg, **kwd)
+        else:
+            msg = ('==>', colors.cyan(check_name), 'passed.')
+            echo.white(*msg, **kwd)
+
+    def _msg_progressbar_failed(self, outcome=None, **kwd):
+        echo.white('\n')
+        return self._msg_simple_checked(outcome, **kwd)
+
+    def _msg_generator_checked(self, outcome, **kwd):
+        if type(outcome) is ErroredCheck:
+            char = 'X'
+        elif type(outcome) is CompletedCheck:
+            char = '.'
+        else:
+            char = '?!'
+        kwd.setdefault('nl', False)
+        echo.bold(char, **kwd)
+
     def make_check(self, *args, **kwd):
         """ Make a check (combine function and args).
 
@@ -242,53 +285,31 @@ class UniversalGithook(object):
         kwd.update(check.kwargs)
         try:
             check_result = check.func(*check.args, **kwd)
-            return CompletedCheck(check, check_result)
+            return self.check_completed(check, check_result)
         except:
-            return FailedCheck(check, sys.exc_info(), self.EXCEPTION_RETURNCODE)
+            return self.check_errored(check, sys.exc_info())
 
-    def summarize(self, results=(), verbose=False):
-        """ Summarize a list of CompletedCheck and FailedCheck.
+    def check_completed(self, check, result):
+        return CompletedCheck(check, result)
 
-            >>> tst = UniversalGithook()
-            >>> tst.summarize([CompletedCheck(make_check('func'), 0)])
-            0
-            >>> tst.summarize([FailedCheck(make_check('func'), ('a', 'b', 'c'), 100)], verbose=True)
-            <BLANKLINE>
-            <BLANKLINE>
-            failed: <anon_check>  {} a b
-            100
-        """
-        returncode = 0
-        fails = 0
-        for outcome in results:
-            if type(outcome) is CompletedCheck:
-                check, result = outcome
-                if verbose:
-                    msg = "\n\npassed: {tool} {args} {kwd}".format(
-                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
-                        args=' '.join(['"%s"' % x for x in check.args]),
-                        kwd=check.kwargs,
-                    )
-                    echo.white(msg)
-            elif type(outcome) is FailedCheck:
-                fails += 1
-                returncode |= outcome.returncode
-                check = outcome.check
-                exc_info = outcome.exc_info
-                if verbose:
-                    msg = "\n\nfailed: {tool} {args} {kwd} {type} {value}".format(
-                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
-                        args=' '.join(['"%s"' % x for x in check.args]),
-                        kwd=check.kwargs,
-                        type=exc_info[0],
-                        value=exc_info[1],
-                        # traceback=exc_info[2]
-                    )
-                    echo.yellow(msg)
-        return returncode
+    def check_errored(self, check, exc_info):
+        return ErroredCheck(check, exc_info, self.EXCEPTION_RETURNCODE)
 
+    def _msg_hook_startup(self, checks=(), **kwd):
+        msg = ('==>', colors.cyan(self.NAME),) if hasattr(self, 'NAME') else ('==>',)
+        if hasattr(checks, '__len__'):
+            msg += ('will run', colors.yellow(str(len(checks))), 'check(s).')
+        else:
+            msg += ('starting up: ',)
+        echo.bold(*msg, **kwd)
 
-    def execute_simple(self, checks=None):
+    def is_returncode(self, outcome):
+        if type(outcome) is CompletedCheck:
+            return 0
+        else:
+            return 1
+
+    def execute_simple(self, checks=None, continues=None, **lwd):
         """ Simple procedure for hook execution.
             >>> tst = UniversalGithook()
             >>> tst.generate_checks = lambda: [make_check(print_args, 'Kowabunga!')]
@@ -300,11 +321,27 @@ class UniversalGithook(object):
         if checks is None:
             checks = self.generate_checks()
 
-        results = [self.run_check(c) for c in checks]
-        returncode = self.summarize(results)
+        if continues is None:
+            continues = self.CONTINUES
+
+        self._msg_hook_startup(checks)
+
+        results = []
+        fails = 0
+        for check in checks:
+            self._msg_simple_check_start(check)
+            outcome = self.run_check(check, **kwd)
+            self._msg_simple_checked(outcome)
+            results.append(outcome)
+            if self.is_returncode(outcome):
+                fails += 1
+                if fails >= continues:
+                    return self.game_over(results, fails=fails)
+
+        returncode = self.summarize(results, verbose=False)
         return returncode
 
-    def execute_progressbar(self, checks=None):
+    def execute_progressbar(self, checks=None, continues=None, **kwd):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = UniversalGithook()
@@ -315,50 +352,67 @@ class UniversalGithook(object):
             0
         """
 
-        results = []
-
         if checks is None:
             checks = self.generate_checks()
 
-        if checks:
-            with click.progressbar(checks) as bar:
-                for check in bar:
-                    results.append(self.run_check(check))
+        if continues is None:
+            continues = self.CONTINUES
 
-        returncode = self.summarize(results)
+        self._msg_hook_startup(checks)
+        echo.white()
 
+        results = []
+        fails = 0
+        with click.progressbar(checks) as bar:
+            for check in bar:
+                outcome = self.run_check(check, **kwd)
+                results.append(outcome)
+                if self.is_returncode(outcome):
+                    self._msg_progressbar_failed(outcome)
+                    fails += 1
+                    if fails >= continues:
+                        return self.game_over(results, fails=fails)
+
+        returncode = self.summarize(results, verbose=False)
         return returncode
 
-    def execute_dotted(self, checks=None):
+    def execute_generator(self, checks=(), continues=None, **kwd):
         """ Procedure for hook execution using the click progressbar.
 
             >>> tst = UniversalGithook()
             >>> tst.generate_checks = lambda: []
-            >>> tst.execute_dotted()
+            >>> tst.execute_generator()
             0
             >>> tst.generate_checks = lambda: [make_check(lambda x: '', 'Kowabunga!')]
-            >>> tst.execute_dotted()
+            >>> tst.execute_generator()
             running: .
             0
         """
 
-        results = []
-
         if checks is None:
             checks = self.generate_checks()
 
-        if checks:
-            echo.bold('running: ', nl=False)
-            for check in checks:
-                results.append(self.run_check(check))
-                echo.bold('.', nl=False)
-            echo.white('')
+        if continues is None:
+            continues = self.CONTINUES
 
-        returncode = self.summarize(results)
+        self._msg_hook_startup(checks, nl=False)
 
+        results = []
+        fails = 0
+        for check in checks:
+            outcome = self.run_check(check, **kwd)
+            self._msg_generator_checked(outcome)
+            results.append(outcome)
+            if self.is_returncode(outcome):
+                fails += 1
+                if fails >= continues:
+                    echo.white('')
+                    return self.game_over(results, fails=fails, verbose=True)
+        echo.white('')
+        returncode = self.summarize(results, verbose=True)
         return returncode
 
-    def execute_smart(self, args=None, checks=None):
+    def adaptive_execution(self, args=None, checks=None, **kwd):
         """ Auto select the execution style based on the capabilities of the checklist.
 
             >>> tst = UniversalGithook()
@@ -368,24 +422,56 @@ class UniversalGithook(object):
             ...         yield chk
             ...
             >>> tst.generate_checks = lambda: []
-            >>> tst.execute_smart()
+            >>> tst.adaptive_execution()
             0
             >>> tst.generate_checks = lambda: [chk]
-            >>> tst.execute_smart()
+            >>> tst.adaptive_execution()
             <BLANKLINE>
             0
-            >>> tst.execute_smart(checks=checklist(10))
+            >>> tst.adaptive_execution(checks=checklist(10))
             running: ..........
             0
         """
         if checks is None:
             checks = self.generate_checks()
 
-        if checks:
-            if hasattr(checks, '__len__'):
-                return self.execute_progressbar(checks=checks)
-            return self.execute_dotted(checks=checks)
-        return self.summarize()
+        if hasattr(checks, '__len__'):
+            if len(checks) < self.PROGRESSBAR_MIN_COUNT:
+                return self.execute_simple(checks=checks, **kwd)
+            else:
+                return self.execute_progressbar(checks=checks, **kwd)
+        else:
+            if self.SIMPLE_GENERATOR:
+                return self.execute_simple(checks=checks, **kwd)
+            else:
+                return self.execute_generator(checks=checks, **kwd)
+
+
+    def game_over(self, results=(), fails=None, verbose=None):
+        returncode = self.is_returncode(results[-1])
+        echo.white('==> Game Over:', 'continues_used=%s' % fails, 'returncode=%s' % returncode)
+        if verbose:
+            return self.summarize(results, verbose=verbose)
+        return returncode
+
+    def summarize(self, results=(), verbose=None):
+        """ Summarize a list of CompletedCheck and ErroredCheck.
+
+            >>> tst = UniversalGithook()
+            >>> tst.summarize([CompletedCheck(make_check('func'), 0)])
+            0
+            >>> tst.summarize([ErroredCheck(make_check('func'), ('a', 'b', 'c'), 100)], verbose=True)
+            failed: <anon_check>  {} a b
+            100
+        """
+        returncode = 0
+        fails = 0
+        for outcome in results:
+            ret = self.is_returncode(outcome)
+            returncode |= ret
+            if verbose and ret:
+                self._msg_simple_checked(outcome)
+        return returncode
 
 
 
@@ -741,7 +827,7 @@ class ShellCommandHook(ConfigFileHook):
         >>> tst = ShellCommandHook()
         >>> tst.CHECK_TOOL = 'true'
         >>> checks = [tst.make_check(x) for x in ('hello', 'world', '!!!')]
-        >>> tst.execute_smart(checks=checks)
+        >>> tst.adaptive_execution(checks=checks)
         <BLANKLINE>
         0
     """
@@ -749,6 +835,56 @@ class ShellCommandHook(ConfigFileHook):
     CHECK_TOOL = None
     RETURNCODE_ON_STDOUT = 0
     RETURNCODE_ON_STDERR = 0
+
+
+    def _msg_simple_check_start(self, check=None, **kwd):
+        check_name = os.path.basename(check.args[0])
+        args = ' '.join(check.args[1:]) if check.args else ''
+        kwargs = check.kwargs if check.kwargs else ''
+        msg = ('==> running:', colors.cyan(check_name), args, kwargs)
+        echo.white(*msg, **kwd)
+
+    def _msg_simple_checked(self, outcome=None, **kwd):
+        check = outcome.check
+        check_name = os.path.basename(check.args[0])
+        if self.is_returncode(outcome):
+            result = outcome.result
+            command = (colors.yellow(os.path.basename(result.command[0])),) + result.command[1:]
+            msg = ('==> failed:', colors.yellow(' '.join(command)))
+            if result.stdout or result.stderr:
+                msg += ('\n',)
+            if result.stdout:
+                msg += (
+                    # colors.cyan('\n> > > stdout > > >\n'),
+                    '\n',
+                    result.stdout,
+                    # colors.cyan('\n< < < stdout < < <')
+                )
+            if result.stderr:
+                msg += (
+                    # colors.yellow('\n> > > stderr > > >\n'),
+                    '\n',
+                    colors.yellow(result.stderr),
+                    # colors.yellow('\n< < < stderr < < <')
+                )
+            echo.white(*msg)
+        # else:
+            # msg = ('==>', colors.cyan(check_name), 'passed.')
+            # echo.white(*msg, **kwd)
+
+
+    def _msg_generator_checked(self, outcome, **kwd):
+        if type(outcome) is ErroredCheck:
+            char = 'X'
+        elif self.is_returncode(outcome):
+            char = 'F'
+        elif type(outcome) is CompletedCheck:
+            char = '.'
+        else:
+            char = '?!'
+        kwd.setdefault('nl', False)
+        echo.bold(char, nl=False)
+
 
     def make_check(self, *args, **kwd):
         """ Make a check (combine function and args).
@@ -761,102 +897,9 @@ class ShellCommandHook(ConfigFileHook):
             args = (self.CHECK_TOOL,) + args
         return make_command_check(*args, **kwd)
 
-    def run_check(self, check, **kwd):
-        """ Run a commands a check.
-            >>> tst = ShellCommandHook()
-            >>> tst.CHECK_TOOL
-            >>> tst.run_check(tst.make_check('ls', 'Kowabunga!')).result.returncode
-            2
-        """
-        kwd.update(check.kwargs)
-        try:
-            check_result = check.func(*check.args, **kwd)
-            return CompletedCheck(check, check_result)
-        except:
-            return FailedCheck(check, sys.exc_info(), self.EXCEPTION_RETURNCODE)
 
-    def execute_simple(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
-        """ Simple procedure for hook execution.
-            >>> tst = ShellCommandHook()
-            >>> tst.generate_checks = lambda: [tst.make_check(x) for x in ('ls hello', 'test world', 'echo !!!')]
-            >>> tst.execute_simple(verbose=True)
-            <BLANKLINE>
-            <BLANKLINE>
-            failed: capture_command "ls hello" {}
-            <BLANKLINE>
-            <BLANKLINE>
-            passed: capture_command "test world" {}
-            <BLANKLINE>
-            <BLANKLINE>
-            passed: capture_command "echo !!!" {}
-            2
-        """
-
-        if checks is None:
-            checks = self.generate_checks()
-
-        result = [self.run_check(c, quiet_error=quiet_error) for c in checks]
-        returncode = self.summarize(result, verbose=verbose)
-        return returncode
-
-    def execute_progressbar(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
-        """ Procedure for hook execution using the click progressbar.
-
-            >>> tst = ShellCommandHook()
-            >>> tst.generate_checks = lambda: [tst.make_check('echo', 'Kowabunga!')]
-            >>> tst.execute_progressbar()
-            <BLANKLINE>
-            0
-        """
-
-        results = []
-
-        if checks is None:
-            checks = self.generate_checks()
-
-        with click.progressbar(checks) as bar:
-            for check in bar:
-                results.append(self.run_check(check, quiet_error=quiet_error))
-
-        returncode = self.summarize(results, verbose=verbose)
-        return returncode
-
-
-    def execute_dotted(self, args=None, checks=None, continues=4, verbose=False, quiet_error=False):
-        """ Procedure for hook execution printing '.'s and 'F's for (passed/failed) checks.
-
-            >>> tst = ShellCommandHook()
-            >>> checks = [tst.make_check(x, quiet_error=True) for x in ('unkwon hello', 'false world', 'true !!!')]
-            >>> tst.execute_dotted(checks=checks)
-            running: XF.
-            -1
-        """
-
-        results = []
-
-        if checks is None:
-            checks = self.generate_checks()
-
-        if checks:
-            echo.bold('running: ', nl=False)
-            for check in checks:
-                outcome = self.run_check(check, quiet_error=quiet_error)
-                results.append(outcome)
-                if type(outcome) is FailedCheck:
-                    char = 'X'
-                elif self.eval_returncode(outcome):
-                    char = 'F'
-                else:
-                    char = '.'
-                echo.bold(char, nl=False)
-            echo.white('')
-
-        returncode = self.summarize(results, verbose=verbose)
-
-        return returncode
-
-    def eval_returncode(self, result):
-        if type(result) is FailedCheck:
+    def is_returncode(self, result):
+        if type(result) is ErroredCheck:
             return self.EXCEPTION_RETURNCODE
         elif type(result) is CompletedCheck:
             completed_command = result.result
@@ -871,62 +914,3 @@ class ShellCommandHook(ConfigFileHook):
             return self.RETURNCODE_ON_STDOUT
         else:
             return 0
-
-
-    def summarize(self, results=(), verbose=False):
-        """ Summarize a list of CompletedCheck and FailedCheck.
-
-            >>> tst = ShellCommandHook()
-            >>> tst.execute_simple(checks=[tst.make_check('true')])
-            0
-            >>> tst.execute_simple(checks=[tst.make_check('true'), tst.make_check('false'), tst.make_check('unknwon')], verbose=True, quiet_error=True)
-            <BLANKLINE>
-            <BLANKLINE>
-            passed: capture_command "true" {}
-            <BLANKLINE>
-            <BLANKLINE>
-            failed: capture_command "false" {}
-            <BLANKLINE>
-            <BLANKLINE>
-            ...
-            -1
-        """
-        returncode = 0
-        fails = 0
-        for outcome in results:
-            if type(outcome) is CompletedCheck:
-                check, result = outcome
-                ret = self.eval_returncode(result)
-                if ret:
-                    fails += 1
-                    returncode |= ret
-                    if verbose:
-                        msg = "\n\nfailed: {tool} {args} {kwd}".format(
-                            tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
-                            args=' '.join(['"%s"' % x for x in check.args]),
-                            kwd=check.kwargs,
-                        )
-                        echo.white(msg)
-                else:
-                    if verbose:
-                        msg = "\n\npassed: {tool} {args} {kwd}".format(
-                            tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
-                            args=' '.join(['"%s"' % x for x in check.args]),
-                            kwd=check.kwargs,
-                        )
-                        echo.white(msg)
-            elif type(outcome) is FailedCheck:
-                ret, check, exc_info = outcome.returncode, outcome.check, outcome.exc_info
-                fails += 1
-                returncode |= ret
-                if verbose:
-                    msg = "\n\nerrored: {tool} {args} {kwd} {type} {value}".format(
-                        tool=check.func.__name__ if hasattr(check.func, '__name__') else '<anon_check>',
-                        args=' '.join(['"%s"' % x for x in check.args]),
-                        kwd=check.kwargs,
-                        type=exc_info[0],
-                        value=exc_info[1],
-                        # traceback=exc_info[2]
-                    )
-                    echo.yellow(msg)
-        return returncode

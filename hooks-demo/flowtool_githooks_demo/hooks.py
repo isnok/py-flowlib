@@ -32,9 +32,9 @@
     0
     >>> output_lines = result.output.split('\\n')[:-1]
     >>> len(output_lines)
-    1
-    >>> bool(output_lines[0])
-    False
+    2
+    >>> 'will check' in result.output
+    True
 """
 import os
 import sys
@@ -131,11 +131,12 @@ class YAMLLintHook(ShellCommandHook):
         0
         >>> output_lines = result.output.split('\\n')[:-1]
         >>> len(output_lines)
-        1
-        >>> bool(output_lines[0])
-        False
+        2
+        >>> 'will check' in result.output
+        True
     """
 
+    NAME = 'yamllint2'
     CHECK_TOOL = os.path.join(os.path.dirname(sys.executable), 'yamllint')
     FILE_PATTERNS = ('*.yaml', '*.yml')
     RETURNCODE_ON_STDOUT = 1
