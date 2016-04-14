@@ -64,19 +64,19 @@ setup_args.update(
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
 
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
         'flowtool_githooks.pre_push': [
-            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.integrations.shellcheck:hook_setup',
             '_flowtool_githooks.markdownlint = flowtool_githooks_demo.integrations.markdown_linter:hook_setup',
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
 
+            '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
     },

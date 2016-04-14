@@ -62,6 +62,6 @@ class ShellCheckHook(ShellCommandHook):
     FILE_PATTERNS = ('*.sh',)
     RETURNCODE_ON_STDOUT = 1
     RETURNCODE_ON_STDERR = 2
-
+    CONTINUES = 4
 
 shellcheck_hook = ShellCheckHook()
