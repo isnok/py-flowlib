@@ -32,19 +32,41 @@ RUNNER = os.sep.join([
 
 InstalledHook = namedtuple('InstalledHook', ['name', 'active', 'file', 'is_runner', 'runner_dir'])
 
+def script_group_name(hook_name):
+    """ Derive the entry point group name from the git hook name.
+
+        >>> script_group_name('pre-commit')
+        'flowtool_githooks.pre_commit'
+    """
+    return 'flowtool_githooks.' + hook_name.replace('-', '_')
+
+def get_script_entry_points(hook_name):
+    """ Get the script entrypoints as a dict, using
+        names as keys and entry points as values.
+
+        >>> isinstance(get_script_entry_points('pre-commit'), dict)
+        True
+    """
+    group = script_group_name(hook_name)
+    return {e.name: e for e in iter_entry_points(group)}
+
 def find_entry_scripts(hook_name):
     """ Find managed git hooks via the entry points for the respective hooks.
+        This is done by intersecting the names in the virtual environments bin
+        directory with the found entry points.
+
+        Returns a dictionary with the absolute file names
 
         >>> find_entry_scripts('unknown-hook')
         {}
+        >>> len(find_entry_scripts('pre-commit')) > 1
+        True
     """
-    group = 'flowtool_githooks.' + hook_name.replace('-', '_')
-    scripts = {e.name: e for e in iter_entry_points(group)}
-
+    scripts = get_script_entry_points(hook_name)
     bindir = os.path.dirname(str(sys.executable))
-    binscripts = sorted(set(scripts).intersection(os.listdir(bindir)))
+    binscripts = set(scripts).intersection(os.listdir(bindir))
     entrypoint_scripts = {
-        os.sep.join([bindir, s]): scripts[s]
+        os.path.join(bindir, s): scripts[s]
         for s in binscripts
     }
     debug.bold('scripts for %r:' % hook_name, entrypoint_scripts)

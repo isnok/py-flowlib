@@ -56,6 +56,7 @@ setup_args.update(
             'githooks-runner = flowtool_githooks.runner:runner_command',
             'githooks-scripts = flowtool_githooks.config:config_scripts',
             'githooks-introduce = flowtool_githooks.insert:introduce_githook',
+            'githooks-manage = flowtool_githooks.config:manage_scripts',
         ],
         'console_scripts': [
             '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe',
