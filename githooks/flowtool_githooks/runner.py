@@ -13,6 +13,25 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
 
+    >>> result = runner.invoke(runner_command, ())
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--install',))
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--activate',))
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--deactivate',))
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--remove',))
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--noop', 'commit-msg',))
+    >>> result.exit_code
+    0
+
     The run-githook command:
 
     >>> result = runner.invoke(run_hook, ())
@@ -53,20 +72,65 @@ from flowtool_git.common import local_repo
 
 from flowtool_githooks.status import status
 from flowtool_githooks.manager import hook_specs, gather_hooks, RUNNER
-from flowtool_githooks.status import status
 
 from flowtool_githooks.config import choose_hook
+
+def run_githook(hook_name, noop=None):
+    """ Execute a git hook.
+
+        >>> run_githook('pre-cxmmit', noop=True)
+        >>> run_githook('pre-commit', noop=True)
+        Invoking pre-commit -> True ()
+    """
+
+    git_dir = local_repo().git_dir
+    hook_file = os.sep.join([git_dir, 'hooks', hook_name])
+
+    if not os.path.exists(hook_file):
+        noop or abort('Hook does not exist: ' + hook_file)
+        return
+    elif not is_executable(hook_file):
+        noop or abort('Hook script is not excutable:', hook_file)
+        return
+
+    spec = hook_specs[hook_name]
+    echo.blue(
+        colors.bold('Invoking'),
+        colors.cyan(hook_name, bold=True),
+        colors.cyan('->'),
+        noop or colors.magenta(hook_file),
+        spec.args
+    )
+
+    noop or os.execv(hook_file, spec.args or ('some_arg',))
+
 
 @click.command()
 @click.option('-i/-r', '--install/--remove', is_flag=True, default=None, help='Install or remove the runner script.')
 @click.option('-a/-d', '--activate/--deactivate', is_flag=True, default=None, help='Manipulate executable bit of the runner script.')
+@click.option('-n', '--noop', is_flag=True, help='Do not really take any action. Mainly for testing purposes.')
 @click.argument('patterns', nargs=-1)
-def runner_command(patterns=(), install=None, activate=None):
+def runner_command(patterns=(), install=None, activate=None, noop=None):
     """ Manage git hooks of the local repo. """
 
-    echo.white('install:', install)
-    echo.white('activate:', activate)
-    echo.white('patterns:', patterns)
+    hooks = containing(patterns, hook_specs)
+
+    if not hooks:
+        return status()
+
+    if install is None and activate is None:
+        if len(hooks) > 1:
+            noop or abort(
+                'Too many hooks to run: ' +
+                ', '.join(map(colors.cyan, hooks))
+            )
+        else:
+            run_githook(hooks[0], noop=noop)
+            return
+    else:
+        action = 'install_and_activate'
+
+    echo.white('action:', action, hooks)
 
 
 def install_runner(info, repo=None):
@@ -168,23 +232,5 @@ def run_hook(name='', noop=None):
         sys.exit(1)
 
     hook_name = chosen.pop()
-    git_dir = local_repo().git_dir
-    hook_file = os.sep.join([git_dir, 'hooks', hook_name])
+    run_githook(hook_name, noop)
 
-    if not os.path.exists(hook_file):
-        echo.yellow('Hook does not exist:', hook_file)
-        sys.exit(1)
-    elif not is_executable(hook_file):
-        echo.yellow('Hook script is not excutable:', hook_file)
-        sys.exit(1)
-
-    spec = hook_specs[hook_name]
-    echo.blue(
-        colors.bold('Invoking'),
-        colors.cyan(hook_name, bold=True),
-        colors.cyan('->'),
-        colors.magenta(hook_file),
-        spec.args
-    )
-
-    noop or os.execv(hook_file, spec.args or ('some_arg',))

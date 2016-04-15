@@ -92,6 +92,7 @@ def containing(parts='', lst=()):
         return result
 
 
+
 def contains_any(container, *elems):
     """ Return the first elem, that is in container.
 

@@ -95,6 +95,7 @@ def config_scripts(hook, add, script_names, noop):
                     remove_script(info, full_path, entry.load())
 
 
+config_hooks = config_scripts
 
 def add_script(hook_info, script_fullpath, setup_entry):
     """ Add script to hook. """
