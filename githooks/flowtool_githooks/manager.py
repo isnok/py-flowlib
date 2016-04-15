@@ -1,6 +1,7 @@
 import os
 import sys
 import click
+import filecmp
 
 from collections import namedtuple
 from pkg_resources import iter_entry_points
