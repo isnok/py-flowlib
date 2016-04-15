@@ -23,14 +23,6 @@ and `.git/hooks/commit-msg.d` currently, are only executed, if
 the are executable. This is an old way of activating and
 deactivating the scripts by the management command.
 
-Currently it is better supported to create symlinks in the hook directory.
-To introduce arbitrary scripts/executables as git hooks use the command:
-
-```shell
-$ flowtool githooks-introduce --hook <hook_name> /path/to/file
-$ flowtool githooks-introduce --help  # might be helpful as well
-```
-
 ## Installation
 
 Currently the `flowtool-githooks` package contains only the runner and
@@ -57,6 +49,17 @@ And you can also just get the status of githooks in the current repo:
 ```shell
 flowtool githooks-status
 ```
+
+## Custom hook scripts
+
+Currently it is better supported to create symlinks in the hook directory.
+To introduce arbitrary scripts/executables as git hooks use the command:
+
+```shell
+$ flowtool githooks-introduce --hook <hook_name> /path/to/file
+$ flowtool githooks-introduce --help  # might be helpful as well
+```
+
 
 ## More to come
 
