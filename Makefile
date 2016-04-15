@@ -1,6 +1,7 @@
 COMPONENTS = base git gitflow githooks hooks-demo pythonic versioning release stages meta
 COMPONENT_COVERAGE = $(foreach name, $(COMPONENTS), $(name)-coverage)
 COMPONENT_DOCUMENTATION = $(foreach name, $(COMPONENTS), $(name)-docs)
+COMPONENT_DEVELOP = $(foreach name, $(COMPONENTS), develop-$(name))
 
 travis: main-command demo-hook pytest coverage
 
@@ -34,15 +35,15 @@ yamllint:
 	# check all .yml/.yaml files in the repo with yamllint
 	_flowtool_githooks.yamllint
 
-clean-coverage:
+coverage-clean:
 	rm -f .coverage
 
-$(COMPONENT_COVERAGE): clean-coverage
+$(COMPONENT_COVERAGE): coverage-clean
 	# check the coverage with pytest-cov
 	py.test --cov=. --cov-append $(subst -coverage,,$@)
 	#py.test --cov=. --cov-append --cov-report=term-missing $(subst -coverage,,$@)
 
-coverage: clean-coverage $(COMPONENT_COVERAGE)
+coverage: coverage-clean $(COMPONENT_COVERAGE)
 
 coverage-hook:
 	# check all dirs with pytest.ini/tox.ini using `coverage -m py.test ...`
@@ -92,8 +93,11 @@ uninstall:
 	rm -vf $$VIRTUAL_ENV/lib/python*/site-packages/flowtool*-link
 	/bin/bash -c 'for egg in flowtool-{base,git,githooks{,-demo},gitflow,versioning,releasing,python,stages,all}; do pip uninstall -y $$egg; done' || true
 
-clean: clean-coverage
+clean: coverage-clean
 	ft clean-pycs -y
+
+$(COMPONENT_DEVELOP):
+	cd $(subst develop-,,$@); ./setup.py develop
 
 all: travis test documentation
 
@@ -103,5 +107,5 @@ all: travis test documentation
 .PHONY : dependencies install uninstall installed
 .PHONY : main-command demo-hook
 .PHONY : versioning-great-again clean
-.PHONY : coverage $(COMPONENT_COVERAGE) clean-coverage
+.PHONY : coverage $(COMPONENT_COVERAGE) coverage-clean
 .PHONY : documentation $(COMPONENT_DOCUMENTATION)
