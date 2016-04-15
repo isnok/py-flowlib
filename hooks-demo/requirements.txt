@@ -2,5 +2,5 @@ click
 flowtool-githooks
 yamllint
 #pymarkdownlint
-cclint
-coverage
+#cclint
+#coverage
