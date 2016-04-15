@@ -49,29 +49,47 @@ def read_stdin_nonblocking(**kwd):
 
 
 
-def startingwith(prefix='', lst=()):
+def startingwith(prefixes='', lst=()):
     """ Filter an iterable for elements starting with prefix.
 
-        >>> startingwith('feature/', ['feature/something', 'release/somethingelse'])
+        >>> startingwith(('feature/', 'footure/'), ['feature/something', 'release/somethingelse'])
         ['feature/something']
     """
-    return [e for e in lst if e.startswith(prefix)]
+    if prefixes == str(prefixes):
+        return [e for e in lst if e.startswith(prefixes)]
+    else:
+        result = []
+        for prefix in prefixes:
+            result.extend(startingwith(prefix, lst))
+        return result
 
-def endingwith(suffix='', lst=()):
+def endingwith(suffixes='', lst=()):
     """ Filter an iterable for elements ending with suffix.
 
-        >>> endingwith('.py', ['something.py', 'somethingelse.sh'])
-        ['something.py']
+        >>> endingwith(('.py', 'xxx', '.sh'), ['something.py', 'somethingelse.sh'])
+        ['something.py', 'somethingelse.sh']
     """
-    return [e for e in lst if e.endswith(suffix)]
+    if suffixes == str(suffixes):
+        return [e for e in lst if e.endswith(suffixes)]
+    else:
+        result = []
+        for suffix in suffixes:
+            result.extend(endingwith(suffix, lst))
+        return result
 
-def containing(part='', lst=()):
-    """ Filter an iterable for elements containing the given part.
+def containing(parts='', lst=()):
+    """ Filter an iterable for elements containing the given parts.
 
-        >>> containing('ing', ['something', 'somethingelse', 'morestuff'])
-        ['something', 'somethingelse']
+        >>> containing(('ing', 'xxx', 'e'), ['something', 'somethingelse', 'morestuff'])
+        ['something', 'somethingelse', 'something', 'somethingelse', 'morestuff']
     """
-    return [e for e in lst if part in e]
+    if parts == str(parts):
+        return [e for e in lst if parts in e]
+    else:
+        result = []
+        for part in parts:
+            result.extend(containing(part, lst))
+        return result
 
 
 def contains_any(container, *elems):

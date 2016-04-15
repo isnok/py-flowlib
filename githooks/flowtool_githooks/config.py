@@ -3,15 +3,6 @@
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit'])
-    >>> result.exit_code
-    0
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--activate'])
-    >>> result.exit_code
-    0
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--deactivate'])
-    >>> result.exit_code
-    0
 
     # Not so good tests:
 
@@ -21,18 +12,11 @@
     >>> result = runner.invoke(config_scripts, ['--noop', '--hook', 'pre-commit', '--remove', 'added'])
     >>> result.exit_code in (0, 1)
     True
-
-    #>>> result = runner.invoke(config_hooks, ['--activate'], input='1\\n')
-    #>>> result.exit_code in (0,)
-    #True
 """
 import os
 import sys
-import shutil
-import filecmp
 import click
 
-# from flowtool.files import is_executable, toggle_executable
 from flowtool.files import make_executable, make_not_executable
 
 from flowtool.style import echo, colors
@@ -48,50 +32,6 @@ from flowtool_git.common import local_repo
 from pkg_resources import iter_entry_points
 
 
-def install_hook(info, repo=None):
-    """ Install a hook.
-
-        #>>> infos = sorted(gather_hooks())
-        #>>> for info in infos:
-        #...     install_hook(info)
-        #>>> for info in infos:
-        #...     install_hook(info)
-        #Runner already installed as 'commit-msg'.
-        #Runner already installed as 'pre-commit'.
-        #Runner already installed as 'pre-push'.
-    """
-
-    if repo is None:
-        repo = local_repo()
-
-    name = info.name
-    hook_file = os.path.join(repo.git_dir, 'hooks', name)
-
-    def install():
-        echo.white('installing', os.path.basename(RUNNER), 'as', name)
-        shutil.copyfile(RUNNER, hook_file)
-        make_executable(hook_file)
-        if not os.path.exists(info.runner_dir):
-            os.mkdir(info.runner_dir)
-
-    if not os.path.exists(hook_file):
-        install()
-    elif filecmp.cmp(hook_file, RUNNER):
-        echo.green('Runner already installed as %r.' % name)
-    else:
-        message = 'A file differing from the runner is already installed as %s. Replace it?'
-        message %= colors.magenta(name)
-        confirmed = click.confirm(message, default=True)
-        if confirmed:
-            backup = hook_file + '.old'
-            echo.white('storing backup to', os.path.basename(backup))
-            if os.path.exists(backup):
-                os.unlink(backup)
-            os.link(hook_file, backup)
-            os.unlink(hook_file)
-            install()
-
-
 
 def choose_hook(file_hooks):
     """ Choose one hook from the status list.  """
@@ -103,45 +43,6 @@ def choose_hook(file_hooks):
             colors.bold('Configure which git-hook? [enter number]'), type=int
         )
     return answer - 1
-
-
-def activate_hook(info):
-    """ Activate hook """
-
-    make_executable(info.file)
-    echo.green('Activated %s.' % info.name)
-
-def deactivate_hook(info):
-    """ Deactivate hook """
-
-    make_not_executable(info.file)
-    echo.yellow('Deactivated %s.' % info.name)
-
-@click.command()
-@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
-@click.option('-h', '--hook', type=click.Choice(sorted(hook_specs)), default=None, help='Specify what hook to configure.')
-@click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
-def config_hooks(hook=None, activate=True, noop=None):
-    """ Interactively configure a hook. """
-
-    repo = local_repo()
-    file_hooks = gather_hooks(repo)
-
-    if not hook:
-        status(repo, file_hooks)
-        hook_idx = choose_hook(file_hooks)
-    else:
-        for idx, tupl in enumerate(file_hooks):
-            if tupl.name == hook:
-                hook_idx = idx
-                break
-        else:
-            noop or abort('No hook information found for %r.' % hook)
-
-    if activate:
-        noop or activate_hook(file_hooks[hook_idx])
-    else:
-        noop or deactivate_hook(file_hooks[hook_idx])
 
 
 @click.command()
