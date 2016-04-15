@@ -94,16 +94,3 @@ def gather_hooks(repo=None):
     # config_hooks = gather_config_hooks(repo)
     file_hooks = gather_file_hooks(repo)
     return file_hooks
-
-
-def activate_hook(info):
-    """ Activate hook """
-
-    make_executable(info.file)
-    echo.green('Activated %s.' % info.name)
-
-def deactivate_hook(info):
-    """ Deactivate hook """
-
-    make_not_executable(info.file)
-    echo.yellow('Deactivated %s.' % info.name)

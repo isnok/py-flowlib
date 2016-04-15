@@ -27,21 +27,25 @@
     #True
 """
 import os
+import sys
 import shutil
 import filecmp
 import click
 
-from flowtool.files import make_executable, toggle_executable
+# from flowtool.files import is_executable, toggle_executable
+from flowtool.files import make_executable, make_not_executable
+
 from flowtool.style import echo, colors
 from flowtool.style import debug
 from flowtool.ui import abort
 
 from .status import status
 from .manager import gather_hooks, find_entry_scripts
-from .manager import RUNNER
-from .manager import hook_specs, activate_hook, deactivate_hook
+from .manager import RUNNER, hook_specs
 
 from flowtool_git.common import local_repo
+
+from pkg_resources import iter_entry_points
 
 
 def install_hook(info, repo=None):
@@ -100,32 +104,24 @@ def choose_hook(file_hooks):
         )
     return answer - 1
 
-def toggle_hook(info, repo):
-    """ Toggle 'whole' git hooks interactively. """
 
-    if not info.is_runner and click.confirm(
-            '%s is not up to date. reinstall?' % info.name
-        ):
-        return install_hook(info, repo)
+def activate_hook(info):
+    """ Activate hook """
 
-    if info.active:
-        if click.confirm(
-                colors.white('%s is active. Deactivate?' % info.name),
-                default=False,
-            ):
-            deactivate_hook(info)
-    else:
-        if click.confirm(
-                colors.white('%s is inactive. Activate?' % info.name),
-                default=True
-            ):
-            activate_hook(info)
+    make_executable(info.file)
+    echo.green('Activated %s.' % info.name)
+
+def deactivate_hook(info):
+    """ Deactivate hook """
+
+    make_not_executable(info.file)
+    echo.yellow('Deactivated %s.' % info.name)
 
 @click.command()
 @click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.option('-h', '--hook', type=click.Choice(sorted(hook_specs)), default=None, help='Specify what hook to configure.')
 @click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
-def config_hooks(hook, activate, noop):
+def config_hooks(hook=None, activate=True, noop=None):
     """ Interactively configure a hook. """
 
     repo = local_repo()
@@ -142,14 +138,10 @@ def config_hooks(hook, activate, noop):
         else:
             noop or abort('No hook information found for %r.' % hook)
 
-    if activate is None:
-        echo.bold(colors.blue('=== Hook On / Off ==='))
-        noop or toggle_hook(file_hooks[hook_idx], repo)
+    if activate:
+        noop or activate_hook(file_hooks[hook_idx])
     else:
-        if activate:
-            noop or activate_hook(file_hooks[hook_idx])
-        else:
-            noop or deactivate_hook(file_hooks[hook_idx])
+        noop or deactivate_hook(file_hooks[hook_idx])
 
 
 @click.command()
@@ -227,50 +219,6 @@ def remove_script(hook_info, script_fullpath, setup_entry):
     echo.red('Removed %s.' % script)
 
 
-    # file_hooks = gather_hooks(repo)
-    # status(repo, file_hooks)
-
-    # echo.bold(colors.blue('=== Hook Components On / Off ==='))
-    # toggle_scripts(file_hooks[hook_idx], repo)
-
-
-# def toggle_scripts(info, repo):
-    # """ Toggle scripts on and off. """
-
-    # if not info.runner_dir:
-        # echo.yellow('%s has no runner dir. Perhaps reinstalling can help.' % info.name)
-        # return
-
-    # scripts = sorted(os.listdir(info.runner_dir))
-    # done = False
-    # while not done:
-        # echo.white('Current settings (%s):' % info.name)
-        # for index, script in enumerate(scripts):
-            # fname = os.sep.join([info.runner_dir, script])
-            # active = is_executable(fname)
-            # status = 'activated' if active else 'deactived'
-            # color = echo.cyan if active else echo.yellow
-            # color('%4d - toggle %s (%s)' % (index, script, status))
-
-        # echo.white('%4d - done' % (len(scripts)))
-        # answer = click.prompt(
-            # colors.white('Choose action'),
-            # type=int,
-        # )
-        # if answer in range(len(scripts)):
-            # script = os.sep.join([info.runner_dir, scripts[answer]])
-            # toggle_executable(script)
-        # elif answer == len(scripts):
-            # echo.magenta('Bye.')
-            # return
-        # else:
-            # echo.yellow('Invalid index.')
-
-
-from pkg_resources import iter_entry_points
-import sys
-
-
 def select_scripts(info, noop=None):
     """ Add scripts to git hooks.
 
@@ -334,7 +282,7 @@ def select_scripts(info, noop=None):
             echo.green('Added %s.' % arg)
             setup = [e.load() for e in available.values() if os.path.basename(arg) == e.name].pop()
             setup('install')
-            if noop or click.confirm('Also activate?', default=True):
+            if True: #noop or click.confirm('Also activate?', default=True):
                 make_executable(dest)
                 echo.cyan('Activated %s.' % arg)
         elif action == 'quit':
