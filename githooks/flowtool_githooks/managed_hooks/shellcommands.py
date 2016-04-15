@@ -438,25 +438,28 @@ class ShellCommandHook(ConfigFileHook):
         check = outcome.check
         check_name = os.path.basename(check.args[0])
         if self.is_returncode(outcome):
-            result = outcome.result
-            command = (colors.yellow(os.path.basename(result.command[0])),) + result.command[1:]
-            msg = ('== failed:', colors.yellow(' '.join(command)))
-            if result.stdout or result.stderr:
-                msg += ('\n',)
-            if result.stdout:
-                msg += (
-                    # colors.cyan('\n> > > stdout > > >\n'),
-                    '\n',
-                    result.stdout,
-                    # colors.cyan('\n< < < stdout < < <')
-                )
-            if result.stderr:
-                msg += (
-                    # colors.yellow('\n> > > stderr > > >\n'),
-                    '\n',
-                    colors.yellow(result.stderr),
-                    # colors.yellow('\n< < < stderr < < <')
-                )
+            if type(outcome) is CompletedCheck:
+                result = outcome.result
+                command = (colors.yellow(os.path.basename(result.command[0])),) + result.command[1:]
+                msg = ('== failed:', colors.yellow(' '.join(command)))
+                if result.stdout or result.stderr:
+                    msg += ('\n',)
+                if result.stdout:
+                    msg += (
+                        # colors.cyan('\n> > > stdout > > >\n'),
+                        '\n',
+                        result.stdout,
+                        # colors.cyan('\n< < < stdout < < <')
+                    )
+                if result.stderr:
+                    msg += (
+                        # colors.yellow('\n> > > stderr > > >\n'),
+                        '\n',
+                        colors.yellow(result.stderr),
+                        # colors.yellow('\n< < < stderr < < <')
+                    )
+            elif type(outcome) is ErroredCheck:
+                msg = ('== errored:', colors.yellow(check_name), outcome.exc_info[0], outcome.exc_info[1])
         else:
             msg = ('==', colors.cyan(check_name), 'passed.')
         return msg

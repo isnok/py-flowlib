@@ -202,7 +202,11 @@ class FileContentSummary(ShellCommandHook):
         >>> from click.testing import CliRunner
         >>> runner = CliRunner()
 
-        >>> githook = file_hook
+        >>> githook = FileContentSummary()
+        >>> result = runner.invoke(githook.click_command, [])
+        >>> '-- File Content Statistics --' in result.output
+        True
+        >>> githook.generate_checks = lambda: iter(file_hook.generate_checks())
         >>> result = runner.invoke(githook.click_command, [])
         >>> '-- File Content Statistics --' in result.output
         True
