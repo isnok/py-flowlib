@@ -449,7 +449,17 @@ class ShellCommandHook(ConfigFileHook):
             0
         """
         if self.CHECK_TOOL is not None:
-            args = (self.CHECK_TOOL,) + args
+            if isinstance(self.CHECK_TOOL, (tuple, list)):
+                tool_args = []
+                for arg in self.CHECK_TOOL:
+                    if arg == '>managed_config<':
+                        tool_args.append(self.get_configfile())
+                    else:
+                        tool_args.append(arg)
+                args = tuple(tool_args) + args
+            else:
+                args = (str(self.CHECK_TOOL),) + args
+
         return make_command_check(*args, **kwd)
 
 

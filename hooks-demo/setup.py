@@ -52,6 +52,7 @@ setup_args.update(
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:universal_hook',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:universal_hook',
 
+            '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.click_command',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.click_command',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.click_command',
         ],
@@ -60,6 +61,7 @@ setup_args.update(
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
 
+            '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
@@ -68,6 +70,7 @@ setup_args.update(
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
 
+            '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
@@ -76,6 +79,7 @@ setup_args.update(
             '_flowtool_githooks.cclint = flowtool_githooks_demo.integrations.cc_lint:hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.integrations.cover_age:hook_setup',
 
+            '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
             '_flowtool_githooks.shellcheck = flowtool_githooks_demo.hooks:shellcheck_hook.hook_setup',
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
         ],
