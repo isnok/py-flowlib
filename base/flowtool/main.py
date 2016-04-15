@@ -4,8 +4,21 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
     >>> result = runner.invoke(flowtool_main_group, ())
-    >>> result.exit_code == 0
+    >>> result.exit_code
+    0
+    >>> 'flowtool' in result.output
     True
+    >>> result = runner.invoke(flowtool_main_group, ('--debug', 'self-info'))
+    >>> result.exit_code
+    0
+    >>> 'flowtool' in result.output
+    True
+
+    After this, debug stays enabled in the doctests if we don't disable it again:
+
+    >>> result = runner.invoke(flowtool_main_group, ('--no-debug', 'self-info'))
+    >>> result.exit_code
+    0
     >>> 'flowtool' in result.output
     True
 """
@@ -20,7 +33,7 @@ from flowtool import style
 extension_handlers = {}
 
 @click.group()
-@click.option('-d', '--debug', is_flag=True, help="enable flowtool debug output.")
+@click.option('-d', '--debug/--no-debug', is_flag=True, help="enable flowtool debug output.")
 def flowtool_main_group(debug, **kwd):
     """ flowtool - a{t,dd} your service.
 
