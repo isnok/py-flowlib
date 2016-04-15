@@ -40,31 +40,6 @@
     >>> result = runner.invoke(runner_command, ('--noop', 'commit-msg',))
     >>> result.exit_code
     0
-
-    The run-githook command:
-
-    >>> result = runner.invoke(run_hook, ())
-    >>> result.exit_code
-    2
-    >>> result = runner.invoke(run_hook, ('-',))
-    >>> result.output.startswith('Too many matches')
-    True
-    >>> result = runner.invoke(run_hook, ('wrong',))
-    >>> result.output.startswith('No hook found')
-    True
-    >>> result = runner.invoke(run_hook, ('--noop', 'pre-commit'))
-
-    The new githooks-runner command:
-
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit'])
-    >>> result.exit_code
-    0
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--activate'])
-    >>> result.exit_code
-    0
-    >>> result = runner.invoke(config_hooks, ['--noop', '--hook', 'pre-commit', '--deactivate'])
-    >>> result.exit_code
-    0
 """
 import os
 import sys
