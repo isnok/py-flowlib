@@ -42,26 +42,24 @@
     0
 """
 import os
-import sys
 import shutil
 import filecmp
 
-from os.path import exists, isfile, isdir, join, basename, dirname
+from os.path import exists, join, basename
 
 import click
 
 from flowtool.style import debug
 from flowtool.style import colors, echo
 from flowtool.python import containing
-from flowtool.ui import abort, ask_choice
+from flowtool.ui import abort
 from flowtool.files import make_executable, make_not_executable, is_executable
 
 from flowtool_git.common import local_repo
 
 from flowtool_githooks.status import status as repo_status
-from flowtool_githooks.manager import hook_specs, gather_hooks, RUNNER
+from flowtool_githooks.manager import hook_specs, RUNNER
 
-from flowtool_githooks.config import choose_hook
 
 def run_githook(hook_name, noop=None):
     """ Execute a git hook.
@@ -216,9 +214,9 @@ def do_install(runner_file, hook_file, scripts_dir=None, quietly=None):
         >>> do_install(__file__, testfile, quietly=True)
         >>> do_install(__file__, testfile, quietly=True)
         >>> do_install(__file__, testfile, quietly=True)
-        >>> isfile(testfile) and is_executable(testfile)
+        >>> os.path.isfile(testfile) and is_executable(testfile)
         True
-        >>> isdir(testfile + '.d')
+        >>> os.path.isdir(testfile + '.d')
         True
 
         It will preserve the existing hook script, and move it to the

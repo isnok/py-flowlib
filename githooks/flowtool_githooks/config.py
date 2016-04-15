@@ -21,7 +21,7 @@ from flowtool.files import make_executable, make_not_executable
 
 from flowtool.style import echo, colors
 from flowtool.style import debug
-from flowtool.ui import abort
+from flowtool.ui import abort, ask_choice
 
 from .status import status
 from .manager import gather_hooks, find_entry_scripts

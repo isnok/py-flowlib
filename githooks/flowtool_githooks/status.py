@@ -1,13 +1,9 @@
-""" Get git hooks status.
+""" Display the local git repositories hooks status.
 
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(show_status, ())
-    >>> result.output.startswith('git hooks status:')
-    True
+    #>>> from click.testing import CliRunner
+    #>>> runner = CliRunner()
 """
 import os
-import sys
 import click
 
 from flowtool.style import echo, colors
@@ -82,12 +78,3 @@ def status(repo=None, file_hooks=None):
                 else:
                     color = echo.white
                 color('  - %s' % script, color=color)
-
-@click.command()
-@click.argument('directory', type=click.Path(), default=os.getcwd())
-def show_status(directory):
-    """ Show git hook status summary. """
-    repo = local_repo()
-    file_hooks = gather_hooks(repo)
-    status(repo, file_hooks)
-
