@@ -9,7 +9,8 @@ from flowtool.files import make_executable
 
 from flowtool_git.common import local_repo
 
-from .manager import hook_specs, RUNNER, install_hook
+from .manager import hook_specs, RUNNER
+from .config import install_hook
 
 import filecmp
 

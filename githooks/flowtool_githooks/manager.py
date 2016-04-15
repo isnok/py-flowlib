@@ -1,7 +1,6 @@
 import os
 import sys
 import click
-import shutil
 
 from collections import namedtuple
 from pkg_resources import iter_entry_points
@@ -25,8 +24,6 @@ HOOK_SIGNATURES = [
     HookSignature('pre-push', (), True),
 ]
 hook_specs = {sig.name: sig for sig in HOOK_SIGNATURES}
-
-import filecmp
 
 RUNNER = os.sep.join([
     os.path.dirname(__file__), 'scripts', 'generic-hook-runner.sh'
@@ -52,50 +49,6 @@ def find_entry_scripts(hook_name):
     debug.bold('scripts for %r:' % hook_name, entrypoint_scripts)
 
     return entrypoint_scripts
-
-
-def install_hook(info, repo=None):
-    """ Install a hook.
-
-        #>>> infos = sorted(gather_hooks())
-        #>>> for info in infos:
-        #...     install_hook(info)
-        #>>> for info in infos:
-        #...     install_hook(info)
-        #Runner already installed as 'commit-msg'.
-        #Runner already installed as 'pre-commit'.
-        #Runner already installed as 'pre-push'.
-    """
-
-    if repo is None:
-        repo = local_repo()
-
-    name = info.name
-    hook_file = os.path.join(repo.git_dir, 'hooks', name)
-
-    def install():
-        echo.white('installing', os.path.basename(RUNNER), 'as', name)
-        shutil.copyfile(RUNNER, hook_file)
-        make_executable(hook_file)
-        if not os.path.exists(info.runner_dir):
-            os.mkdir(info.runner_dir)
-
-    if not os.path.exists(hook_file):
-        install()
-    elif filecmp.cmp(hook_file, RUNNER):
-        echo.green('Runner already installed as %r.' % name)
-    else:
-        message = 'A file differing from the runner is already installed as %s. Replace it?'
-        message %= colors.magenta(name)
-        confirmed = click.confirm(message, default=True)
-        if confirmed:
-            backup = hook_file + '.old'
-            echo.white('storing backup to', os.path.basename(backup))
-            if os.path.exists(backup):
-                os.unlink(backup)
-            os.link(hook_file, backup)
-            os.unlink(hook_file)
-            install()
 
 
 def gather_file_hooks(repo=None):
@@ -142,19 +95,6 @@ def gather_hooks(repo=None):
     return file_hooks
 
 
-
-def choose_hook(file_hooks):
-    """ Choose one hook from the status list. """
-    answer = None
-    while not answer in range(1, 1+len(file_hooks)):
-        if answer is not None:
-            echo.yellow('Out of range.')
-        answer = click.prompt(
-            colors.bold('Configure which git-hook? [enter number]'), type=int
-        )
-    return answer - 1
-
-
 def activate_hook(info):
     """ Activate hook """
 
@@ -166,25 +106,3 @@ def deactivate_hook(info):
 
     make_not_executable(info.file)
     echo.yellow('Deactivated %s.' % info.name)
-
-
-def toggle_hook(info, repo):
-    """ Toggle 'whole' git hooks interactively. """
-
-    if not info.is_runner and click.confirm(
-            '%s is not up to date. reinstall?' % info.name
-        ):
-        return install_hook(info, repo)
-
-    if info.active:
-        if click.confirm(
-                colors.white('%s is active. Deactivate?' % info.name),
-                default=False,
-            ):
-            deactivate_hook(info)
-    else:
-        if click.confirm(
-                colors.white('%s is inactive. Activate?' % info.name),
-                default=True
-            ):
-            activate_hook(info)

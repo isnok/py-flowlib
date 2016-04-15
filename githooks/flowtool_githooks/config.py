@@ -27,6 +27,8 @@
     #True
 """
 import os
+import shutil
+import filecmp
 import click
 
 from flowtool.files import make_executable, toggle_executable
@@ -35,10 +37,89 @@ from flowtool.style import debug
 from flowtool.ui import abort
 
 from .status import status
-from .manager import gather_hooks, toggle_hook, choose_hook, find_entry_scripts
+from .manager import gather_hooks, find_entry_scripts
+from .manager import RUNNER
 from .manager import hook_specs, activate_hook, deactivate_hook
 
 from flowtool_git.common import local_repo
+
+
+def install_hook(info, repo=None):
+    """ Install a hook.
+
+        #>>> infos = sorted(gather_hooks())
+        #>>> for info in infos:
+        #...     install_hook(info)
+        #>>> for info in infos:
+        #...     install_hook(info)
+        #Runner already installed as 'commit-msg'.
+        #Runner already installed as 'pre-commit'.
+        #Runner already installed as 'pre-push'.
+    """
+
+    if repo is None:
+        repo = local_repo()
+
+    name = info.name
+    hook_file = os.path.join(repo.git_dir, 'hooks', name)
+
+    def install():
+        echo.white('installing', os.path.basename(RUNNER), 'as', name)
+        shutil.copyfile(RUNNER, hook_file)
+        make_executable(hook_file)
+        if not os.path.exists(info.runner_dir):
+            os.mkdir(info.runner_dir)
+
+    if not os.path.exists(hook_file):
+        install()
+    elif filecmp.cmp(hook_file, RUNNER):
+        echo.green('Runner already installed as %r.' % name)
+    else:
+        message = 'A file differing from the runner is already installed as %s. Replace it?'
+        message %= colors.magenta(name)
+        confirmed = click.confirm(message, default=True)
+        if confirmed:
+            backup = hook_file + '.old'
+            echo.white('storing backup to', os.path.basename(backup))
+            if os.path.exists(backup):
+                os.unlink(backup)
+            os.link(hook_file, backup)
+            os.unlink(hook_file)
+            install()
+
+
+
+def choose_hook(file_hooks):
+    """ Choose one hook from the status list.  """
+    answer = None
+    while not answer in range(1, 1+len(file_hooks)):
+        if answer is not None:
+            echo.yellow('Out of range.')
+        answer = click.prompt(
+            colors.bold('Configure which git-hook? [enter number]'), type=int
+        )
+    return answer - 1
+
+def toggle_hook(info, repo):
+    """ Toggle 'whole' git hooks interactively. """
+
+    if not info.is_runner and click.confirm(
+            '%s is not up to date. reinstall?' % info.name
+        ):
+        return install_hook(info, repo)
+
+    if info.active:
+        if click.confirm(
+                colors.white('%s is active. Deactivate?' % info.name),
+                default=False,
+            ):
+            deactivate_hook(info)
+    else:
+        if click.confirm(
+                colors.white('%s is inactive. Activate?' % info.name),
+                default=True
+            ):
+            activate_hook(info)
 
 @click.command()
 @click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
@@ -188,6 +269,7 @@ def remove_script(hook_info, script_fullpath, setup_entry):
 
 from pkg_resources import iter_entry_points
 import sys
+
 
 def select_scripts(info, noop=None):
     """ Add scripts to git hooks.
