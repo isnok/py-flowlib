@@ -120,7 +120,7 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
     installable = get_script_entry_points(hook)
 
     if installable:
-        echo.white('Also available for %s:' % colors.magenta(hook))
+        echo.white('Also available for %s:' % colors.blue(hook))
         for filename in installable:
             cnt += 1
             echo.cyan('%4d' % cnt, '-', filename)

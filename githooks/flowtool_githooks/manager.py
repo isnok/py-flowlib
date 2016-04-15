@@ -59,8 +59,6 @@ def find_entry_scripts(hook_name):
 
         >>> find_entry_scripts('unknown-hook')
         {}
-        >>> len(find_entry_scripts('pre-commit')) > 1
-        True
     """
     scripts = get_script_entry_points(hook_name)
     bindir = os.path.dirname(str(sys.executable))
