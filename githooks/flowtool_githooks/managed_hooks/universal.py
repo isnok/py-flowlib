@@ -198,7 +198,7 @@ class UniversalGithook(object):
 
     def _msg_simple_check_start(self, check=None, **kwd):
         check_name = self._check_func_name(check.func)
-        args = '(%s)' % ', '.join(check.args) if check.args else ''
+        args = '(%s)' % ', '.join(map(str,check.args)) if check.args else ''
         kwargs = check.kwargs if check.kwargs else ''
         msg = ('== running:', colors.cyan(check_name), args, kwargs)
         echo.white(*msg, **kwd)
@@ -243,7 +243,7 @@ class UniversalGithook(object):
             'test'
         """
         check_func = self.check_func if hasattr(self, 'check_func') else print_args
-        return make_check(check_func, args, kwd)
+        return make_check(check_func, *args, **kwd)
 
     def generate_checks(self):
         """ Generate checks.

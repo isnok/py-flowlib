@@ -129,15 +129,6 @@ class PylintHook(ShellCommandHook):
         >>> runner = CliRunner()
         >>> githook = PylintHook()
 
-        # >>> result = runner.invoke(githook.click_command, [])
-        # >>> result.exception
-        # >>> result.exit_code
-        # 0
-        # >>> output_lines = result.output.split('\\n')[:-1]
-        # >>> len(output_lines)
-        # 3
-        # >>> 'will check' in result.output
-        # True
     """
 
     NAME = 'pylint_hook'
@@ -159,3 +150,20 @@ class PylintHook(ShellCommandHook):
 
 
 pylint_hook = PylintHook()
+
+
+import pytest
+from flowtool_githooks.managed_hooks.universal import UniversalGithook
+
+class PytestHook(UniversalGithook):
+
+    NAME = 'pytest_hook'
+    FILE_PATTERNS = ('pytest.ini', 'tox.ini')
+
+    def check_func(self, filename):
+        return pytest.main([
+            '--doctest-ignore-import-errors',
+            os.path.dirname(filename)
+        ])
+
+pytest_hook = PytestHook()

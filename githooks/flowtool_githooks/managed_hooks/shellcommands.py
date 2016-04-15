@@ -301,7 +301,6 @@ class ConfigFileHook(ConfiguredGithook):
             do_setup and self.set_gitconfig(key, value)
 
         if do_setup and not os.path.exists(value):
-            echo.bold(key, value)
             self.create_configfile(value)
 
         return value
@@ -346,7 +345,7 @@ class ConfigFileHook(ConfiguredGithook):
                 content = default_config()
             with open(filename, 'w') as fh:
                 fh.write(content)
-            echo.cyan(
+            debug.cyan(
                 'universal-hook-setup: created',
                 os.path.basename(filename)
             )
