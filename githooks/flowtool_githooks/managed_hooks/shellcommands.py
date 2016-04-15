@@ -242,11 +242,41 @@ class ConfigFileHook(ConfiguredGithook):
         >>> tst.cleanup_configfile()
     """
 
+    def __init__(self):
+        super(ConfigFileHook, self).__init__()
+        update =  {self.CONFIGFILE_GITCFGKEY: self._configfile_path()}
+        if self.GITCONFIG_DEFAULT is None:
+            self.GITCONFIG_DEFAULT = update
+        else:
+            self.GITCONFIG_DEFAULT.update(update)
+
+
     CONFIGFILE = '.universal.cfg'
     CONFIGFILE_GITCFGKEY = 'configfile'
     DEFAULT_CONFIGFILE = None
 
-    GITCONFIG_DEFAULT = {CONFIGFILE_GITCFGKEY: CONFIGFILE}
+    def hook_setup(self, cmd=None):
+        """ Setup function for the hook
+
+            >>> tst = ConfiguredGithook()
+            >>> tst.GITCONFIG_DEFAULT = {'some': 'data'}
+            >>> tst.hook_setup('install')
+            >>> tst.get_gitconfig()
+            >>> tst.hook_setup('uninstall')
+            >>> tst.GITCONFIG_SECTION = 'test-section-wow'
+            >>> tst.hook_setup('install')
+            >>> tst.get_gitconfig()
+            {'some': 'data'}
+            >>> tst.hook_setup('uninstall')
+            >>> tst.get_gitconfig()
+            {}
+            >>> tst.del_gitconfig()
+        """
+        super(ConfigFileHook, self).hook_setup(cmd=cmd)
+        if cmd == 'install':
+            self.get_configfile(do_setup=True)
+        elif cmd == 'uninstall':
+            self.clean_gitconfig()
 
     def _configfile_path(self):
         configfile = os.path.join(
@@ -265,9 +295,14 @@ class ConfigFileHook(ConfiguredGithook):
         """
         key = self.CONFIGFILE_GITCFGKEY
         value = self.get_gitconfig(key)
+
         if value is None:
             value = self._configfile_path()
             do_setup and self.set_gitconfig(key, value)
+
+        if do_setup and not os.path.exists(value):
+            echo.bold(key, value)
+            self.create_configfile(value)
 
         return value
 
@@ -307,11 +342,11 @@ class ConfigFileHook(ConfiguredGithook):
         if default_config is not None:
             if str(default_config) == default_config:
                 content = default_config
-            elif inspect.isfunction(default_config):
+            else:
                 content = default_config()
             with open(filename, 'w') as fh:
                 fh.write(content)
-            debug.cyan(
+            echo.cyan(
                 'universal-hook-setup: created',
                 os.path.basename(filename)
             )
