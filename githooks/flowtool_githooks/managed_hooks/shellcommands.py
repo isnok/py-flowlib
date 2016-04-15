@@ -386,8 +386,8 @@ def capture_command(*cmdline, **kwd):
     try:
         result = run_command(cmdline)
     except OSError as ex:
-        msg = '\nEncountered {} while trying to run: {}\nException: {}\n--> Is the command installed?'
-        quiet_error or echo.yellow(msg.format(type(ex), cmdline, repr(ex)))
+        msg = '\nAn Excepion occurred during command execution of: {}\nException: {}\n--> Is the command installed?'
+        quiet_error or echo.yellow(msg.format(colors.cyan(' '.join(cmdline)), colors.red(repr(ex))))
         raise
     return result
 

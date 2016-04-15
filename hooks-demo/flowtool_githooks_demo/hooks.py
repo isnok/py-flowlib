@@ -5,16 +5,15 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
 
-    >>> githook = yamllint_hook
+    >>> githook = YAMLLintHook()
+    >>> githook.FILE_PATTERNS = ()
     >>> result = runner.invoke(githook.click_command, [])
     >>> result.exception
     >>> result.exit_code
     0
     >>> output_lines = result.output.split('\\n')[:-1]
-    >>> len(output_lines)
-    3
-    >>> 'will check' in output_lines[0]
-    True
+    >>> output_lines
+    []
 """
 import os
 import sys
@@ -28,7 +27,19 @@ from flowtool_githooks.managed_hooks.shellcommands import capture_command
 class YAMLLintHook(ShellCommandHook):
     """ A linter integration for yamllint.
 
-        >>> githook = YAMLLintHook()
+        >>> from click.testing import CliRunner
+        >>> runner = CliRunner()
+
+        >>> githook = yamllint_hook
+        >>> result = runner.invoke(githook.click_command, [])
+        >>> result.exception
+        >>> result.exit_code
+        0
+        >>> output_lines = result.output.split('\\n')[:-1]
+        >>> len(output_lines)
+        3
+        >>> 'will check' in output_lines[0]
+        True
     """
 
     NAME = 'yamllint_hook'
@@ -47,10 +58,11 @@ class ShellCheckHook(ShellCommandHook):
 
         >>> from click.testing import CliRunner
         >>> runner = CliRunner()
-        >>> githook = ShellCommandHook()
+        >>> githook = ShellCheckHook()
 
         >>> result = runner.invoke(githook.click_command, [])
-        >>> result.exit_code
+        >>> githook.NAME in result.output
+        True
     """
 
     NAME = 'shellcheck_hook'
