@@ -404,7 +404,32 @@ class ShellCommandHook(ConfigFileHook):
         >>> checks = [tst.make_check(x) for x in ('hello', 'world', '!!!')]
         >>> tst.adaptive_execution(checks=checks)
         == will check 3 files.
-        ...
+        == running: true hello 
+        == true passed.
+        == running: true world 
+        == true passed.
+        == running: true !!! 
+        == true passed.
+        0
+        >>> tst.CHECK_TOOL = 'false'
+        >>> checks = [tst.make_check(x) for x in ('hello', 'world', '!!!')]
+        >>> tst.adaptive_execution(checks=checks)
+        == will check 3 files.
+        == running: false hello 
+        == failed: false hello
+        == Game Over: continues_used=1 returncode=1
+        1
+        >>> tst.CHECK_TOOL = 'false'
+        >>> checks = iter([tst.make_check(x) for x in ('hello', 'world', '!!!')])
+        >>> tst.adaptive_execution(checks=checks)
+        == starting up: F
+        == Game Over: continues_used=1 returncode=1
+        == failed: false hello
+        1
+        >>> tst.CHECK_TOOL = 'true'
+        >>> checks = iter([tst.make_check(x) for x in ('hello', 'world', '!!!')])
+        >>> tst.adaptive_execution(checks=checks)
+        == starting up: ...
         0
     """
 
