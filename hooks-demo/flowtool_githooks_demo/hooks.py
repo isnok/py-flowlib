@@ -50,8 +50,7 @@ class ShellCheckHook(ShellCommandHook):
         >>> githook = ShellCommandHook()
 
         >>> result = runner.invoke(githook.click_command, [])
-        >>> result.exit_code in (0, -1)
-        True
+        >>> result.exit_code
     """
 
     NAME = 'shellcheck_hook'
