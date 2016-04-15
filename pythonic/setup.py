@@ -51,21 +51,21 @@ setup_args.update(
         ],
         'console_scripts': [
             '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:universal_hook',
-            '_flowtool_python.pylint_commit_range = flowtool_python.hooks.pylint_minimal:pylint_pre_push', # deprecate, universal hook is already better
-            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_hook',
+            # '_flowtool_python.pylint_commit_range = flowtool_python.hooks.pylint_minimal:pylint_pre_push', # deprecate, universal hook is already better
+            # '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_hook',
         ],
         'flowtool_githooks.pre_commit': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
-            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
+            # '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            # '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
         ],
         'flowtool_githooks.commit_msg': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
-            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
+            # '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            # '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
         ],
         'flowtool_githooks.pre_push': [
-            '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
-            '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
-            '_flowtool_python.pylint_commit_range = flowtool_python.hooks.pylint_minimal:pylint_setup', # deprecate
+            # '_flowtool_python.pylint_minimal = flowtool_python.hooks.pylint_minimal:pylint_setup',
+            # '_flowtool_python.pytest_hook = flowtool_python.hooks.pytest_hook:pytest_setup',
+            # '_flowtool_python.pylint_commit_range = flowtool_python.hooks.pylint_minimal:pylint_setup', # deprecate
         ],
     },
 )
