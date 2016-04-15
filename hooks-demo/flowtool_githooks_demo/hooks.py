@@ -168,7 +168,7 @@ class PytestHook(UniversalGithook):
 
 pytest_hook = PytestHook()
 
-from flowtool_githooks.managed_hooks.universal import UniversalGithook
+
 
 class PytestCoverageHook(UniversalGithook):
 
@@ -184,3 +184,22 @@ class PytestCoverageHook(UniversalGithook):
         ])
 
 coverage_hook = PytestCoverageHook()
+
+
+from collections import Counter
+
+class FileSummary(ShellCommandHook):
+
+    NAME = 'file_hook'
+    FILE_PATTERNS = '*'
+    CHECK_TOOL = 'file'
+
+    def summarize(self, results, verbose=True):
+        summary = Counter()
+        for check, outcome in results:
+            summary[outcome.stdout.split(': ', 1)[-1].strip()] += 1
+        echo.white('-- Statistics: File Type --')
+        for idx, (typ, cnt) in enumerate(summary.most_common()):
+            echo.white('{:-4d}. {:-4d}: {}'.format(1+idx, cnt, typ))
+
+file_hook = FileSummary()
