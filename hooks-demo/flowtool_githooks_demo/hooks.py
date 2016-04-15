@@ -167,3 +167,20 @@ class PytestHook(UniversalGithook):
         ])
 
 pytest_hook = PytestHook()
+
+from flowtool_githooks.managed_hooks.universal import UniversalGithook
+
+class PytestCoverageHook(UniversalGithook):
+
+    NAME = 'coverage_hook'
+    FILE_PATTERNS = ('pytest.ini', 'tox.ini')
+
+    def check_func(self, filename):
+        return pytest.main([
+            '--cov',
+            os.path.dirname(self.repo.git_dir),
+            '--doctest-ignore-import-errors',
+            os.path.dirname(filename)
+        ])
+
+coverage_hook = PytestCoverageHook()
