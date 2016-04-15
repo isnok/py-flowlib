@@ -203,7 +203,7 @@ class ConfiguredGithook(UniversalGithook):
         config = self.get_gitconfig()
         if self.GITCONFIG_DEFAULT and config:
             for key, value in config.items():
-                if self.GITCONFIG_DEFAULT[key] == value:
+                if key in self.GITCONFIG_DEFAULT and self.GITCONFIG_DEFAULT[key] == value:
                     self.del_gitconfig(key)
 
     def hook_setup(self, cmd=None):
@@ -258,19 +258,19 @@ class ConfigFileHook(ConfiguredGithook):
     def hook_setup(self, cmd=None):
         """ Setup function for the hook
 
-            >>> tst = ConfiguredGithook()
+            >>> tst = ConfigFileHook()
             >>> tst.GITCONFIG_DEFAULT = {'some': 'data'}
             >>> tst.hook_setup('install')
             >>> tst.get_gitconfig()
             >>> tst.hook_setup('uninstall')
             >>> tst.GITCONFIG_SECTION = 'test-section-wow'
             >>> tst.hook_setup('install')
-            >>> tst.get_gitconfig()
-            {'some': 'data'}
+            >>> tst.get_gitconfig()['some']
+            'data'
             >>> tst.hook_setup('uninstall')
+            >>> tst.del_gitconfig()
             >>> tst.get_gitconfig()
             {}
-            >>> tst.del_gitconfig()
         """
         super(ConfigFileHook, self).hook_setup(cmd=cmd)
         if cmd == 'install':
