@@ -198,7 +198,7 @@ class FileSummary(ShellCommandHook):
         summary = Counter()
         for check, outcome in results:
             summary[outcome.stdout.split(': ', 1)[-1].strip()] += 1
-        echo.white('-- Statistics: File Type --')
+        echo.bold(colors.yellow('\n-- File Content Statistics --\n'))
         for idx, (typ, cnt) in enumerate(summary.most_common()):
             echo.white('{:-4d}. {:-4d}: {}'.format(1+idx, cnt, typ))
 
