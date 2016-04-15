@@ -40,6 +40,7 @@ clean-coverage:
 $(COMPONENT_COVERAGE): clean-coverage
 	# check the coverage with pytest-cov
 	py.test --cov=. --cov-append $(subst -coverage,,$@)
+	#py.test --cov=. --cov-append --cov-report=term-missing $(subst -coverage,,$@)
 
 coverage: clean-coverage $(COMPONENT_COVERAGE)
 
