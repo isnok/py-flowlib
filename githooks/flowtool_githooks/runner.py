@@ -3,26 +3,34 @@
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
     >>> result = runner.invoke(run_hook, ())
+    >>> result.exit_code
+    2
+    >>> result = runner.invoke(run_hook, ('-',))
     >>> result.output.startswith('Too many matches')
     True
     >>> result = runner.invoke(run_hook, ('wrong',))
     >>> result.output.startswith('No hook found')
     True
+
+    TODO: refactor code also. Cmdline args are just a stub.
+
+    >>> result = runner.invoke(run_hook, ('--noop', 'pre-commit'))
 """
 import os
 import sys
 import click
 import git
 from flowtool.style import colors, echo
+from flowtool.python import containing
 from flowtool_git.common import local_repo
 from flowtool_githooks.manager import hook_specs, is_executable
 
 @click.command()
-@click.argument('name', nargs=-1)
-def run_hook(name=()):
+@click.option('-n', '--noop', is_flag=True, help='Do not really run the hook. Mainly for testing purposes.')
+@click.argument('name', nargs=1)
+def run_hook(name='', noop=None):
     """ Run a git hook manually. """
-    name = ''.join(name)
-    chosen = [h for h in hook_specs if name.lower() in h]
+    chosen = containing(name, hook_specs)
     if not chosen:
         echo.yellow('No hook found for %r:' % name, list(hook_specs))
         sys.exit(1)
@@ -50,4 +58,4 @@ def run_hook(name=()):
         spec.args
     )
 
-    os.execv(hook_file, spec.args or ('some_arg',))
+    noop or os.execv(hook_file, spec.args or ('some_arg',))
