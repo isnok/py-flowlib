@@ -16,6 +16,12 @@
     >>> result = runner.invoke(runner_command, ())
     >>> result.exit_code
     0
+    >>> result = runner.invoke(runner_command, ('--status',))
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(runner_command, ('--status', 'xxx'))
+    >>> result.exit_code
+    0
     >>> result = runner.invoke(runner_command, ('--install',))
     >>> result.exit_code
     0
@@ -28,6 +34,9 @@
     >>> result = runner.invoke(runner_command, ('--remove',))
     >>> result.exit_code
     0
+    >>> result = runner.invoke(runner_command, ('commit',))
+    >>> result.exit_code
+    1
     >>> result = runner.invoke(runner_command, ('--noop', 'commit-msg',))
     >>> result.exit_code
     0
@@ -61,8 +70,12 @@ import os
 import sys
 import shutil
 import filecmp
+
+from os.path import exists, isfile, isdir, join, basename, dirname
+
 import click
 
+from flowtool.style import debug
 from flowtool.style import colors, echo
 from flowtool.python import containing
 from flowtool.ui import abort, ask_choice
@@ -70,7 +83,7 @@ from flowtool.files import make_executable, make_not_executable, is_executable
 
 from flowtool_git.common import local_repo
 
-from flowtool_githooks.status import status
+from flowtool_githooks.status import status as repo_status
 from flowtool_githooks.manager import hook_specs, gather_hooks, RUNNER
 
 from flowtool_githooks.config import choose_hook
@@ -79,6 +92,7 @@ def run_githook(hook_name, noop=None):
     """ Execute a git hook.
 
         >>> run_githook('pre-cxmmit', noop=True)
+        >>> install_runner('pre-commit')
         >>> run_githook('pre-commit', noop=True)
         Invoking pre-commit -> True ()
     """
@@ -108,129 +122,206 @@ def run_githook(hook_name, noop=None):
 @click.command()
 @click.option('-i/-r', '--install/--remove', is_flag=True, default=None, help='Install or remove the runner script.')
 @click.option('-a/-d', '--activate/--deactivate', is_flag=True, default=None, help='Manipulate executable bit of the runner script.')
+@click.option('-s', '--status', is_flag=True, help='Print the status of the git hooks in the local repo.')
+@click.option('-y', '--yes', is_flag=True, help='Automaticall answer yes to the backup question.')
 @click.option('-n', '--noop', is_flag=True, help='Do not really take any action. Mainly for testing purposes.')
 @click.argument('patterns', nargs=-1)
-def runner_command(patterns=(), install=None, activate=None, noop=None):
+def runner_command(patterns=(), status=None, install=None, activate=None, yes=None, noop=None):
     """ Manage git hooks of the local repo. """
 
     hooks = containing(patterns, hook_specs)
 
-    if not hooks:
-        return status()
+    if status:
+        return repo_status()
 
     if install is None and activate is None:
-        if len(hooks) > 1:
+
+        if not hooks:
+            return repo_status()
+
+        elif len(hooks) > 1:
             noop or abort(
                 'Too many hooks to run: ' +
                 ', '.join(map(colors.cyan, hooks))
             )
+
         else:
             run_githook(hooks[0], noop=noop)
-            return
-    else:
-        action = 'install_and_activate'
 
-    echo.white('action:', action, hooks)
+        return
+
+    if not hooks:
+        hooks = list(hook_specs)
+
+    if install is not None:
+        for hook in hooks:
+            debug.white('install:', install, hook)
+            if install is True:
+                install_runner(hook, noop=noop, yes=yes)
+            else:
+                remove_runner(hook, noop=noop, yes=yes)
+
+    if activate is not None:
+        for hook in hooks:
+            debug.white('activate:', activate, hook)
+            if activate is True:
+                activate_runner(hook, noop=noop)
+            else:
+                deactivate_runner(hook, noop=noop)
 
 
-def install_runner(info, repo=None):
+def remove_runner(hook_name, repo=None, noop=None, yes=None):
     """ Install the runner as a git hook.
 
-        #>>> infos = sorted(gather_hooks())
-        #>>> for info in infos:
-        #...     install_runner(info)
-        #>>> for info in infos:
-        #...     install_runner(info)
-        #Runner already installed as 'commit-msg'.
-        #Runner already installed as 'pre-commit'.
-        #Runner already installed as 'pre-push'.
+        >>> remove_runner('xxx')
+        Traceback (most recent call last):
+        ...
+        RuntimeError: not a supported git hook: 'xxx'
+        >>> remove_runner('xxx', noop=True, yes=True)
     """
+
+    if hook_name not in hook_specs and not noop:
+        raise RuntimeError('not a supported git hook: %r' % hook_name)
 
     if repo is None:
         repo = local_repo()
 
-    name = info.name
-    hook_file = os.path.join(repo.git_dir, 'hooks', name)
-
-    def install():
-        echo.white('installing', os.path.basename(RUNNER), 'as', name)
-        shutil.copyfile(RUNNER, hook_file)
-        make_executable(hook_file)
-        if not os.path.exists(info.runner_dir):
-            os.mkdir(info.runner_dir)
-
-    if not os.path.exists(hook_file):
-        install()
-    elif filecmp.cmp(hook_file, RUNNER):
-        echo.green('Runner already installed as %r.' % name)
-    else:
-        message = 'A file differing from the runner is already installed as %s. Replace it?'
-        message %= colors.magenta(name)
-        confirmed = click.confirm(message, default=True)
-        if confirmed:
-            backup = hook_file + '.old'
-            echo.white('storing backup to', os.path.basename(backup))
-            if os.path.exists(backup):
-                os.unlink(backup)
-            os.link(hook_file, backup)
-            os.unlink(hook_file)
-            install()
+    hook_file = join(repo.git_dir, 'hooks', hook_name)
+    msg = ' '.join([
+        colors.bold('Remove %s?' % hook_file),
+    ])
+    if yes or click.confirm(msg):
+        noop or os.unlink(hook_file)
 
 
+def install_runner(hook_name, repo=None, noop=None, yes=None):
+    """ Install the runner as a git hook.
 
-def activate_hook(info):
-    """ Activate hook """
+        >>> install_runner('xxx')
+        Traceback (most recent call last):
+        ...
+        RuntimeError: not a supported git hook: 'xxx'
+        >>> install_runner('xxx', noop=True, yes=True)
+        >>> install_runner('pre-commit', noop=True)
+        >>> install_runner('pre-commit', noop=True, yes=True)
+    """
 
-    make_executable(info.file)
-    echo.green('Activated %s.' % info.name)
+    if hook_name not in hook_specs and not noop:
+        raise RuntimeError('not a supported git hook: %r' % hook_name)
 
-def deactivate_hook(info):
-    """ Deactivate hook """
+    if repo is None:
+        repo = local_repo()
 
-    make_not_executable(info.file)
-    echo.yellow('Deactivated %s.' % info.name)
+    hook_file = join(repo.git_dir, 'hooks', hook_name)
 
-@click.command()
-@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
-@click.option('-h', '--hook', type=click.Choice(sorted(hook_specs)), default=None, help='Specify what hook to configure.')
-@click.option('--activate/--deactivate', default=None, help='Wether the runner should be activated (made executable).')
-def config_hooks(hook=None, activate=True, noop=None):
-    """ Interactively configure a hook. """
+    runner_file = RUNNER
 
-    repo = local_repo()
-    file_hooks = gather_hooks(repo)
+    if exists(hook_file):
+        if filecmp.cmp(runner_file, hook_file):
+            make_executable(hook_file)
+            return
 
-    if not hook:
-        status(repo, file_hooks)
-        hook_idx = choose_hook(file_hooks)
-    else:
-        for idx, tupl in enumerate(file_hooks):
-            if tupl.name == hook:
-                hook_idx = idx
-                break
-        else:
-            noop or abort('No hook information found for %r.' % hook)
+        msg = ' '.join([
+            'A script is already installed as the',
+            colors.cyan(hook_name),
+            'hook.\n',
+            colors.bold('Do you want to remove it?'),
+        ])
+        if yes or (noop and click.confirm(msg)):
+            noop or os.unlink(hook_file)
 
-    if activate:
-        noop or activate_hook(file_hooks[hook_idx])
-    else:
-        noop or deactivate_hook(file_hooks[hook_idx])
-
+    noop or do_install(runner_file, hook_file)
 
 
-@click.command()
-@click.option('-n', '--noop', is_flag=True, help='Do not really run the hook. Mainly for testing purposes.')
-@click.argument('name', nargs=1)
-def run_hook(name='', noop=None):
-    """ Run a git hook manually. """
-    chosen = containing(name, hook_specs)
-    if not chosen:
-        echo.yellow('No hook found for %r:' % name, list(hook_specs))
-        sys.exit(1)
-    elif len(chosen) > 1:
-        echo.yellow('Too many matches for %r:' % name, chosen)
-        sys.exit(1)
+def do_install(runner_file, hook_file, scripts_dir=None, quietly=None):
+    """ Copy the runner_file into place and make it executable.
+        Also create the scripts dir, if it does not already exist.
 
-    hook_name = chosen.pop()
-    run_githook(hook_name, noop)
+        >>> testfile = '/tmp/frobnication'
+        >>> do_install(__file__, testfile, quietly=True)
+        >>> do_install(__file__, testfile, quietly=True)
+        >>> do_install(__file__, testfile, quietly=True)
+        >>> isfile(testfile) and is_executable(testfile)
+        True
+        >>> isdir(testfile + '.d')
+        True
 
+        It will preserve the existing hook script, and move it to the
+        scripts_dir, but it will not check if the runner is already in
+        place as the git hook.
+    """
+
+    if scripts_dir is None:
+        scripts_dir = hook_file + '.d'
+
+    quietly or echo.white('Installing', runner_file, 'as', hook_file, '(scripts dir: %s).' % scripts_dir)
+
+    exists(scripts_dir) or os.mkdir(scripts_dir)
+
+    if exists(hook_file):
+
+        backup_name = join(scripts_dir, basename(hook_file))
+        while exists(backup_name):
+            backup_name += '~'
+
+        quietly or echo.white('Preserving original hook script as', backup_name)
+
+        shutil.copyfile(hook_file, backup_name)
+        make_not_executable(backup_name)
+        os.unlink(hook_file)
+
+    shutil.copyfile(RUNNER, hook_file)
+    make_executable(hook_file)
+
+
+def activate_runner(hook_name, repo=None, noop=None, yes=None):
+    """ Activate a git hook (by making it executable).
+
+        >>> activate_runner('xxx')
+        Traceback (most recent call last):
+        ...
+        RuntimeError: not a supported git hook: 'xxx'
+        >>> activate_runner('xxx', noop=True, yes=True)
+        Activated xxx hook.
+        >>> activate_runner('pre-commit', noop=True)
+        Activated pre-commit hook.
+        >>> activate_runner('pre-commit', noop=True, yes=True)
+        Activated pre-commit hook.
+    """
+
+    if hook_name not in hook_specs and not noop:
+        raise RuntimeError('not a supported git hook: %r' % hook_name)
+
+    if repo is None:
+        repo = local_repo()
+
+    hook_file = join(repo.git_dir, 'hooks', hook_name)
+
+    noop or make_executable(hook_file)
+    echo.green('Activated', colors.cyan(hook_name), 'hook.')
+
+def deactivate_runner(hook_name, repo=None, noop=None, yes=None):
+    """ Deactivate a git hook (by making it not executable).
+
+        >>> deactivate_runner('xxx')
+        Traceback (most recent call last):
+        ...
+        RuntimeError: not a supported git hook: 'xxx'
+        >>> deactivate_runner('xxx', noop=True, yes=True)
+        Deactivated xxx hook.
+        >>> deactivate_runner('pre-commit', noop=True)
+        Deactivated pre-commit hook.
+        >>> deactivate_runner('pre-commit', noop=True, yes=True)
+        Deactivated pre-commit hook.
+    """
+
+    if hook_name not in hook_specs and not noop:
+        raise RuntimeError('not a supported git hook: %r' % hook_name)
+
+    if repo is None:
+        repo = local_repo()
+
+    hook_file = join(repo.git_dir, 'hooks', hook_name)
+
+    noop or make_not_executable(hook_file)
+    echo.green('Deactivated', colors.cyan(hook_name), 'hook.')

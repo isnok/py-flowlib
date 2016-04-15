@@ -53,15 +53,9 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'flowtool_commands': [
-            'githooks-install = flowtool_githooks.install:install_hooks',
-            'githooks-status = flowtool_githooks.status:show_status',
-            'githooks-config = flowtool_githooks.runner:config_hooks',
             'githooks-runner = flowtool_githooks.runner:runner_command',
             'githooks-scripts = flowtool_githooks.config:config_scripts',
             'githooks-introduce = flowtool_githooks.insert:introduce_githook',
-            'githooks-wipe = flowtool_githooks.uninstall:wipe_hooks',
-            'run-githook = flowtool_githooks.runner:run_hook',
-
         ],
         'console_scripts': [
             '_flowtool_githooks.probe = flowtool_githooks.probe_hooks:probe',

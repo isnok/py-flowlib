@@ -1,4 +1,4 @@
-""" Git hooks wipe command.
+""" Git hooks wipe command. To be deprecated.
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
