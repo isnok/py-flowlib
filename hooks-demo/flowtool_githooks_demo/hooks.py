@@ -13,7 +13,7 @@
     >>> output_lines = result.output.split('\\n')[:-1]
     >>> len(output_lines)
     3
-    >>> 'will check' in result.output
+    >>> 'will check' in output_lines[0]
     True
 """
 import os
@@ -113,6 +113,12 @@ minimal_pylint_checks = [
 PYLINT = os.path.join(os.path.dirname(sys.executable), 'pylint')
 
 def make_pylint_cfg(self=None):
+    """ Produce the content for a minimal pylint config as a string.
+
+        >>> cfg = make_pylint_cfg()
+        >>> cfg == str(cfg)
+        True
+    """
     config_content = capture_command(
         PYLINT,
         '--enable=%s' % ','.join(minimal_pylint_checks),
@@ -190,6 +196,17 @@ coverage_hook = PytestCoverageHook()
 from collections import Counter
 
 class FileContentSummary(ShellCommandHook):
+    """ A hook that checks file contents and reports a statistic about them.
+        It is an informational hook only and should never fail.
+
+        >>> from click.testing import CliRunner
+        >>> runner = CliRunner()
+
+        >>> githook = file_hook
+        >>> result = runner.invoke(githook.click_command, [])
+        >>> '-- File Content Statistics --' in result.output
+        True
+    """
 
     NAME = 'file_hook'
     FILE_PATTERNS = '*'
@@ -207,7 +224,24 @@ file_hook = FileContentSummary()
 
 
 class FileSizeCheck(ShellCommandHook):
+    """ A hook that checks file sizes with du and fails if they exceed SIZE_LIMIT.
 
+        >>> from click.testing import CliRunner
+        >>> runner = CliRunner()
+
+        >>> githook = du_hook
+        >>> result = runner.invoke(githook.click_command, [])
+        >>> result.exception
+        >>> result.exit_code
+        0
+        >>> output_lines = result.output.split('\\n')[:-1]
+        >>> len(output_lines)
+        3
+        >>> 'will check' in output_lines[0]
+        True
+    """
+
+    True
     NAME = 'du_hook'
     FILE_PATTERNS = '*'
     CHECK_TOOL = 'du'
