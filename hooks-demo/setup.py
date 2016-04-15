@@ -55,6 +55,7 @@ setup_args.update(
             '_flowtool_githooks.pytest = flowtool_githooks_demo.hooks:pytest_hook.click_command',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.hooks:coverage_hook.click_command',
             '_flowtool_githooks.file = flowtool_githooks_demo.hooks:file_hook.click_command',
+            '_flowtool_githooks.du = flowtool_githooks_demo.hooks:du_hook.click_command',
         ],
         'flowtool_githooks.pre_commit': [
             '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
@@ -64,6 +65,7 @@ setup_args.update(
             '_flowtool_githooks.pytest = flowtool_githooks_demo.hooks:pytest_hook.hook_setup',
             '_flowtool_githooks.coverage = flowtool_githooks_demo.hooks:coverage_hook.hook_setup',
             '_flowtool_githooks.file = flowtool_githooks_demo.hooks:file_hook.hook_setup',
+            '_flowtool_githooks.du = flowtool_githooks_demo.hooks:du_hook.hook_setup',
         ],
         'flowtool_githooks.commit_msg': [
             '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
@@ -71,6 +73,7 @@ setup_args.update(
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
 
             '_flowtool_githooks.file = flowtool_githooks_demo.hooks:file_hook.hook_setup',
+            '_flowtool_githooks.du = flowtool_githooks_demo.hooks:du_hook.hook_setup',
         ],
         'flowtool_githooks.pre_push': [
             '_flowtool_githooks.pylint = flowtool_githooks_demo.hooks:pylint_hook.hook_setup',
@@ -78,6 +81,7 @@ setup_args.update(
             '_flowtool_githooks.yamllint = flowtool_githooks_demo.hooks:yamllint_hook.hook_setup',
 
             '_flowtool_githooks.file = flowtool_githooks_demo.hooks:file_hook.hook_setup',
+            '_flowtool_githooks.du = flowtool_githooks_demo.hooks:du_hook.hook_setup',
         ],
     },
 )

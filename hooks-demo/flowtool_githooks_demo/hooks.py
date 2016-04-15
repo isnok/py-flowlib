@@ -154,6 +154,7 @@ pylint_hook = PylintHook()
 
 import pytest
 from flowtool_githooks.managed_hooks.universal import UniversalGithook
+from flowtool_githooks.managed_hooks.universal import ErroredCheck, CompletedCheck
 
 class PytestHook(UniversalGithook):
 
@@ -188,7 +189,7 @@ coverage_hook = PytestCoverageHook()
 
 from collections import Counter
 
-class FileSummary(ShellCommandHook):
+class FileContentSummary(ShellCommandHook):
 
     NAME = 'file_hook'
     FILE_PATTERNS = '*'
@@ -202,4 +203,18 @@ class FileSummary(ShellCommandHook):
         for idx, (typ, cnt) in enumerate(summary.most_common()):
             echo.white('{:-4d}. {:-4d}: {}'.format(1+idx, cnt, typ))
 
-file_hook = FileSummary()
+file_hook = FileContentSummary()
+
+
+class FileSizeCheck(ShellCommandHook):
+
+    NAME = 'du_hook'
+    FILE_PATTERNS = '*'
+    CHECK_TOOL = 'du'
+    SIZE_LIMIT = 500  # * 1024 bytes (1 KiB)
+
+    def is_returncode(self, result):
+        size = int(result.result.stdout.split()[0])
+        return max(0, size - self.SIZE_LIMIT)
+
+du_hook = FileSizeCheck()
