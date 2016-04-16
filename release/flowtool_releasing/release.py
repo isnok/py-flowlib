@@ -80,32 +80,39 @@ def do_publish(tag):
     echo.bold(colors.green('New release published on PyPI.'))
 
 
-@click.command()
-def do_release():
-    """ A proposed way to release with versioning. """
+def do_release(noop=None):
+    """ An automated release process. Still experimental, but working fine so far.
+
+        >>> do_release(noop=True)
+        Tag-Version check failed: 0.1.dirty
+        Tag-Version check failed: 0.1.dirty
+        Tag-Version check passed: 0.1.dirty
+        Bumping version...
+    """
 
     if not sys.version_info.major == 3:
-        echo.bold(colors.yellow('Releases are only compatible with both Python2 and Python3 if done via Python3. Aborting since this is Python2.'))
-        sys.exit(1)
+        noop or abort(colors.bold(
+            'Releases are only compatible with both Python2 and Python3 if done via Python3. Aborting since this is Python2.'
+        ))
 
-    auto_version = version_or_exit()
+    auto_version = version_or_exit() if not noop else '0.1.dirty'
     dirty = 'dirty' in auto_version
 
     if dirty:
         echo.bold('Tag-Version check failed:', colors.red(auto_version))
-        echo.cyan('You have to commit all changes before releasing.')
-        sys.exit(1)
+        noop or abort('You have to commit all changes before releasing.')
 
     released = not ('.git:' in auto_version)
     if released:
         echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
-        echo.cyan('You are already at a version tag.')
-        sys.exit(1)
+        noop or abort('You are already at a version tag.')
 
     #XXX: Check more? like branch... might move it to gitflow then
 
     echo.bold('Tag-Version check passed:', colors.green(auto_version))
     echo.bold('Bumping version... ', nl=False)
+
+    if noop: return
 
     bump_result = run_command('./setup.py bump')
     if bump_result.returncode:
@@ -113,12 +120,18 @@ def do_release():
         echo.bold(colors.red(bump_result.stderr))
         sys.exit(bump_result.returncode)
 
-    auto_version = version_or_exit()
+    auto_version = noop or version_or_exit()
     echo.bold('version is now:', colors.green(auto_version))
 
-    tag = bump_result.stdout.split('\n')[-2].split()[-1]
+    tag = noop or bump_result.stdout.split('\n')[-2].split()[-1]
     message = colors.bold('Do the release? (tag: %s)' % tag)
-    if click.confirm(message):
+    if noop and click.confirm(message):
         do_publish(tag)
     else:
-        rollback(tag)
+        noop or rollback(tag)
+
+@click.command()
+@click.option('-n', '--noop', is_flag=True, help='Do not really do anything. Mainly for testing purposes.')
+def release_command(noop=None):
+    """ A proposed way to release with versioning. """
+    do_release(noop=noop)
