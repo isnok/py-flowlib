@@ -59,7 +59,20 @@ def determine_what_to_clean(loc, dirs, files):
     return (add_loc(rm_dirs), add_loc(rm_files))
 
 
-def confirm_clean(files_to_delete, dirs_to_remove):
+def confirm_clean(files_to_delete, dirs_to_remove, answer=None):
+    """ Get a confirmation for mass file deletion.
+
+        >>> confirm_clean(['a_file'], ['a_dir'], answer='Sure')
+        <BLANKLINE>
+        Files to be deleted:
+        <BLANKLINE>
+        a_file
+        <BLANKLINE>
+        Directories to be deleted:
+        <BLANKLINE>
+        a_dir
+        'Sure'
+    """
 
     if not (files_to_delete or dirs_to_remove):
         echo.green('\nNothing that would require cleaning was found.\n')
@@ -79,7 +92,7 @@ def confirm_clean(files_to_delete, dirs_to_remove):
         colors.bold('\nDelete these files / directories?'),
         default=True,
         abort=True,
-    )
+    ) if answer is None else answer
     return confirmed
 
 
@@ -102,7 +115,7 @@ def clean(directory=os.getcwd(), yes=None):
         dirs_to_remove.extend(dirs)
         files_to_delete.extend(files)
 
-    if yes or confirm_clean(files_to_delete, dirs_to_remove):
+    if confirm_clean(files_to_delete, dirs_to_remove, answer=yes):
         for fname in files_to_delete:
             try:
                 os.unlink(fname)
