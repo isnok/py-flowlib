@@ -52,9 +52,15 @@ def link_script(script_name, scripts_dir):
 def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
     """ Add or remove a script. This is called if --add or --remove are present.
 
+        >>> add_remove_scripts('pre-commit', (), True, True, '/tmp', ())
+        Traceback (most recent call last):
+        ...
+        SystemExit: 1
         >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ())
         >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml',))
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml', 'new'))
         >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',))
         >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',))
     """
     if not patterns:
@@ -91,9 +97,6 @@ def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
 
         for script in to_be_removed:
             noop or os.unlink(join(scripts_dir, script))
-
-    else:
-        raise RuntimeError("Click betrayed us!")
 
 
 @click.command()
