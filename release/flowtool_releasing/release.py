@@ -125,7 +125,7 @@ def do_release(noop=None):
 
     tag = noop or bump_result.stdout.split('\n')[-2].split()[-1]
     message = colors.bold('Do the release? (tag: %s)' % tag)
-    if noop and click.confirm(message):
+    if noop or click.confirm(message):
         do_publish(tag)
     else:
         noop or rollback(tag)
