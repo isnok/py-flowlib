@@ -16,9 +16,13 @@
     >>> result = runner.invoke(runner_command, ())
     >>> result.exit_code
     0
+    >>> result.output.startswith('git hooks status:')
+    True
     >>> result = runner.invoke(runner_command, ('--status',))
     >>> result.exit_code
     0
+    >>> result.output.startswith('git hooks status:')
+    True
     >>> result = runner.invoke(runner_command, ('--status', 'xxx'))
     >>> result.exit_code
     0
