@@ -5,6 +5,12 @@
     >>> result = runner.invoke(local_tag_cleanup, ('--yes', '--all'))
     >>> result.output.startswith('setup.cfg from /')
     True
+    >>> result = runner.invoke(local_tag_cleanup, ('--yes', '--all', '--', '-10'))
+    >>> result.exit_code
+    1
+    >>> result = runner.invoke(local_tag_cleanup, ('--noop', '--yes', '--all', '0'))
+    >>> result.exit_code
+    0
 """
 
 import os
@@ -32,6 +38,7 @@ def parse_pep440(version_string):
         Post-release segment: .postN
         Development release segment: .devN
 
+        >>> parse_pep440('invalid')
         >>> parse_pep440('1.2.3.4')['release']
         (1, 2, 3, 4)
         >>> v = parse_pep440('0!1.2.3.4.b5.post6.dev7')
@@ -106,6 +113,10 @@ def normalize_pep440(**kwd):
 
 
 def get_confed_prefix(path=None):
+    """ Get the tag_prefix from setup.cfg
+
+        >>> get_confed_prefix()
+    """
     setup_dir = find_parent_containing('setup.cfg', path=path, check='isfile')
     if not setup_dir:
         return
@@ -115,16 +126,17 @@ def get_confed_prefix(path=None):
 
 @click.command()
 @click.option('-a', '--all', is_flag=True, help='Clean all tags found in setup.cfgs in this repo.')
-@click.option('-y', '--yes', is_flag=True, help='Assume yes on all safety questions.')
 @click.option('-p', '--prefix', type=str, default=None, help='Specify prefix for tags (else uses setup.cfg).')
+@click.option('-y', '--yes', is_flag=True, help='Assume yes on all safety questions.')
+@click.option('-n', '--noop', is_flag=True, help='Do not actually delete tags.')
 @click.argument('n', type=int, default=3)
-def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
+def local_tag_cleanup(n=3, prefix=None, yes=None, all=None, noop=None):
     """ Delete all but the last n version tags. """
 
     if n < 0:
         abort('Negative n supplied: %s' % n)
     elif n == 0 and not yes:
-        click.confirm('Really keep zero (0) of the selected tags?', abort=True)
+        yes or click.confirm('Really keep zero (0) of the selected tags?', abort=True)
 
     if all:
         git_root = os.path.dirname(local_repo().git_dir)
@@ -138,7 +150,7 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
             parser = get_configparser()
             parser.read(os.path.join(cfgdir, 'setup.cfg'))
             prefix = parser.get('versioning', 'tag_prefix')
-            clean_tag_prefix(prefix, n, yes)
+            noop or clean_tag_prefix(prefix, n, yes)
 
     else:
         if prefix is None:
@@ -148,7 +160,7 @@ def local_tag_cleanup(n=3, prefix=None, yes=None, all=None):
                     abort('No tag prefix found or specified.')
                 prefix = click.prompt('No config found. Enter prefix manually')
 
-        clean_tag_prefix(prefix, n, yes)
+        noop or clean_tag_prefix(prefix, n, yes)
 
 
 def clean_tag_prefix(prefix, n, yes):

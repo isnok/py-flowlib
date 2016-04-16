@@ -82,5 +82,4 @@ def add_commands(*names):
 add_main_group_options()
 add_commands('flowtool_commands')
 
-if __name__ == '__main__':
-    flowtool_main_group()
+flowtool_main_group() if __name__ == '__main__' else 'Bye!'
