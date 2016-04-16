@@ -17,12 +17,6 @@
     >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
     >>> result.exit_code in (0, -1)
     True
-    >>> result = runner.invoke(manage_scripts, ['--noop', 'pre-commit', '--add', 'yaml'])
-    >>> result.exit_code in (0, -1)
-    True
-    >>> result = runner.invoke(manage_scripts, ['--noop', 'pre-commit', '--remove', 'yaml'])
-    >>> result.exit_code in (0, -1)
-    True
 """
 import os
 from os.path import join, basename, dirname
