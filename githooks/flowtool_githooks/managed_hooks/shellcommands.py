@@ -509,6 +509,12 @@ class ShellCommandHook(ConfigFileHook):
             >>> tst = ShellCommandHook()
             >>> len(tst.make_check().args)
             0
+            >>> tst.CHECK_TOOL = 'flowtool'
+            >>> len(tst.make_check().args)
+            1
+            >>> tst.CHECK_TOOL = ('flowtool', '--flow')
+            >>> len(tst.make_check().args)
+            2
         """
         if self.CHECK_TOOL is not None:
             if isinstance(self.CHECK_TOOL, (tuple, list)):
@@ -526,6 +532,12 @@ class ShellCommandHook(ConfigFileHook):
 
 
     def is_returncode(self, result):
+        """ Evaluate if the result adds to the returncode.
+
+            >>> tst = ShellCommandHook()
+            >>> tst.is_returncode(capture_command('ls'))
+            0
+        """
         if type(result) is ErroredCheck:
             return self.EXCEPTION_RETURNCODE
         elif type(result) is CompletedCheck:

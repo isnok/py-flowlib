@@ -70,6 +70,12 @@ def print_args(*cmdline, **kwd):
     """
     echo.white('dummy-check:', cmdline, kwd)
 
+def dummy_check(*args, **kwd):
+    """ A dummy function, that will never fail.
+
+        >>> dummy_check()
+    """
+
 Check = namedtuple('Check', ['func', 'args', 'kwargs'])
 CompletedCheck = namedtuple('CompletedCheck', ['check', 'result'])
 ErroredCheck = namedtuple('ErroredCheck', ['check', 'exc_info', 'returncode'])
@@ -88,6 +94,10 @@ class UniversalGithook(object):
     """ The most simple form of a universal git hook.
 
         >>> tst = UniversalGithook()
+        >>> tst.adaptive_execution(checks=iter([tst.make_check(x) for x in range(9)]))
+        == starting up: .........
+        0
+
     """
 
     FILE_PATTERNS = '*'
@@ -242,7 +252,7 @@ class UniversalGithook(object):
             >>> tst.make_check().func
             'test'
         """
-        check_func = self.check_func if hasattr(self, 'check_func') else print_args
+        check_func = self.check_func if hasattr(self, 'check_func') else dummy_check
         return make_check(check_func, *args, **kwd)
 
     def generate_checks(self):
