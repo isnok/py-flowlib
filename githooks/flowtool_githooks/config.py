@@ -12,8 +12,8 @@
     2
 
     >>> result = runner.invoke(manage_scripts, ['pre-commit'])
-    >>> result.exit_code in (0, -1)
-    True
+    >>> result.exit_code
+    0
     >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
     >>> result.exit_code in (0, -1)
     True

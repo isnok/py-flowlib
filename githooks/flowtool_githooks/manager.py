@@ -48,7 +48,17 @@ def get_script_entry_points(hook_name):
         True
     """
     group = script_group_name(hook_name)
-    return {e.name: e for e in iter_entry_points(group)}
+    result = {}
+    itr = iter_entry_points(group)
+    while True:
+        try:
+            e = next(itr)
+            result[e.name] = e
+        except StopIteration:
+            break
+        except:
+            pass
+    return result
 
 def find_entry_scripts(hook_name):
     """ Find managed git hooks via the entry points for the respective hooks.
