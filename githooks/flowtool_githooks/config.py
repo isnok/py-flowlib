@@ -12,9 +12,8 @@
     2
 
     >>> result = runner.invoke(manage_scripts, ['pre-commit'])
-    >>> result.output
-    >>> result.exit_code
-    0
+    >>> result.exit_code in (0, -1)
+    True
     >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
     >>> result.exit_code in (0, -1)
     True
@@ -50,6 +49,53 @@ def link_script(script_name, scripts_dir):
     os.symlink(script_src, script_dst)
 
 
+def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
+    """ Add or remove a script. This is called if --add or --remove are present.
+
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml',))
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',))
+    """
+    if not patterns:
+        abort('To add/remove you need to give some script name patterns.')
+
+    available = get_script_entry_points(hook)
+    matching = containing(patterns, available)
+
+    if not matching:
+        noop or abort('No scripts match %s for %s.' % (patterns, colors.cyan(hook)))
+
+    debug.bold('add:', add, matching, installed, noop)
+
+    if add is True:
+
+        to_be_installed = set(matching).difference(installed)
+
+        if not to_be_installed:
+            msg = 'All of these are already in %s: %s'
+            msg %= (colors.cyan(hook), ', '.join(map(colors.green, matching)))
+            noop or abort(msg, returncode=0)
+
+        for script in to_be_installed:
+            noop or link_script(script, scripts_dir)
+
+    elif add is False:
+
+        to_be_removed = set(matching).intersection(installed)
+
+        if not to_be_removed:
+            msg = 'None of these are in %s: %s'
+            msg %= (colors.cyan(hook), ', '.join(map(colors.green, matching)))
+            noop or abort(msg, returncode=0)
+
+        for script in to_be_removed:
+            noop or os.unlink(join(scripts_dir, script))
+
+    else:
+        raise RuntimeError("Click betrayed us!")
+
+
 @click.command()
 @click.option('-a/-r', '--add/--remove', default=None, help='Wether the scripts should be added or removed.')
 @click.option('-n', '--noop', is_flag=True, help='Do not really do anything. Mainly for testing purposes.')
@@ -78,45 +124,7 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
     installed = os.listdir(scripts_dir)
 
     if add is not None:
-
-        if not patterns:
-            abort('To add/remove you need to give some script name patterns.')
-
-        available = get_script_entry_points(hook)
-        matching = containing(patterns, available)
-
-        if not matching:
-            abort('No scripts match %s for %s.' % (patterns, colors.cyan(hook)))
-
-        debug.bold('add:', add, matching, installed, noop)
-
-        if add is True:
-
-            to_be_installed = set(matching).difference(installed)
-
-            if not to_be_installed:
-                msg = 'All of these are already in %s: %s'
-                msg %= (colors.cyan(hook), ', '.join(map(colors.green, matching)))
-                abort(msg, returncode=0)
-
-            for script in to_be_installed:
-                noop or link_script(script, scripts_dir)
-
-        elif add is False:
-
-            to_be_removed = set(matching).intersection(installed)
-
-            if not to_be_removed:
-                msg = 'None of these are in %s: %s'
-                msg %= (colors.cyan(hook), ', '.join(map(colors.green, matching)))
-                abort(msg, returncode=0)
-
-            for script in to_be_removed:
-                noop or os.unlink(join(scripts_dir, script))
-
-        else:
-            raise RuntimeError("Click betrayed us!")
-        return
+        return add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed)
 
     if installed:
         echo.white('Installed in %s:' % colors.cyan(scripts_dir))
