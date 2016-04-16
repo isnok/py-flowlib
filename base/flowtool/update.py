@@ -4,11 +4,14 @@
 
     >>> from click.testing import CliRunner
     >>> runner = CliRunner()
-    >>> result = runner.invoke(update_installed, ['--yes', '--not-really'])
+    >>> result = runner.invoke(update_installed, ['--yes', '--noop'])
     >>> result.exit_code
     0
     >>> result.output.startswith('pip --no-cache-dir install --upgrade flowtool-')
     True
+    >>> result = runner.invoke(update_installed, ['--yes', '--noop', 'git'])
+    >>> result.exit_code
+    0
 """
 import click
 import pip
@@ -28,12 +31,9 @@ from flowtool.python import contains_any_filter
     '-r', '--reinstall', is_flag=True, default=False,
     help="Also uninstall before reinstalling. (Defunct.)"
 )
-@click.option(
-    '-n', '--not-really', is_flag=True, default=False,
-    help="Do not install packages, just show the commands."
-)
+@click.option('-n', '--noop', is_flag=True, help="Do not install packages, just show the commands.")
 @click.argument('identifiers', nargs=-1)
-def update_installed(yes=None, reinstall=None, not_really=None, identifiers=()):
+def update_installed(yes=None, reinstall=None, noop=None, identifiers=()):
     """ Update all installed flowtool components. """
 
     if identifiers:
@@ -49,12 +49,12 @@ def update_installed(yes=None, reinstall=None, not_really=None, identifiers=()):
         else:
             patterns = ', '.join([colors.cyan(i) for i in identifiers])
             echo.yellow('Nothing matched any of these patterns:', patterns)
-    elif yes:
-        to_upgrade = [d.project_name for d in get_extensions()]
+    # elif yes:
+        # to_upgrade = [d.project_name for d in get_extensions()]
     else:
         to_upgrade = []
         for dist in get_extensions():
-            if click.confirm(' '.join([
+            if yes or click.confirm(' '.join([
                 colors.white('== Add'),
                 colors.cyan(dist.project_name),
                 colors.white('to update?')
@@ -77,6 +77,6 @@ def update_installed(yes=None, reinstall=None, not_really=None, identifiers=()):
     echo.bold(colors.green(
         ' '.join(['pip'] + pip_args)
     ))
-    not_really or sys.exit(
+    noop or sys.exit(
         pip.main(pip_args)
     )

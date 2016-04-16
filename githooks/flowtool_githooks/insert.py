@@ -1,3 +1,16 @@
+""" The flowtool githooks-introduce command.
+
+    Symlinks or copies an arbitrary file into a git hook runner dir.
+
+    >>> from click.testing import CliRunner
+    >>> runner = CliRunner()
+    >>> result = runner.invoke(introduce_githook, ['--noop', '--hook', 'pre-commit', __file__])
+    >>> result.exit_code
+    0
+    >>> result = runner.invoke(introduce_githook, ['--noop', '--copy', '--hook', 'pre-commit', __file__])
+    >>> result.exit_code
+    0
+"""
 import os
 import sys
 import click
@@ -13,8 +26,9 @@ from .manager import hook_specs
 @click.command()
 @click.option('-h', '--hook', type=click.Choice(hook_specs), default=None, help='Specify what hook to install.')
 @click.option('-c', '--copy', is_flag=True, help='Copy the hook (default is symlinking).')
+@click.option('-n', '--noop', is_flag=True, help='Do not actually install a script. Mainly for testing.')
 @click.argument('script', type=click.Path(exists=True, dir_okay=False, resolve_path=True))
-def introduce_githook(script, hook=None, copy=None):
+def introduce_githook(script, hook=None, copy=None, noop=None):
     """ Install a file (script) as git hook. """
 
     script_name = os.path.basename(script)
@@ -24,7 +38,7 @@ def introduce_githook(script, hook=None, copy=None):
             heading=' '.join(heading),
             choices=hook_specs,
             question='Your choice',
-        )
+        ) if noop is None else 'test-hook'
 
     echo.white(
         'Will install',
@@ -47,8 +61,8 @@ def introduce_githook(script, hook=None, copy=None):
     echo.white('Destination:', colors.cyan(hook_dest))
 
     if copy:
-        os.link(script, hook_dest)
+        noop or os.link(script, hook_dest)
     else:
-        os.symlink(script, hook_dest)
+        noop or os.symlink(script, hook_dest)
 
     echo.green('Done.')
