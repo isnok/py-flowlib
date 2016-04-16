@@ -2,8 +2,12 @@ COMPONENTS = base git gitflow githooks hooks-demo pythonic versioning release st
 COMPONENT_COVERAGE = $(foreach name, $(COMPONENTS), $(name)-coverage)
 COMPONENT_DOCUMENTATION = $(foreach name, $(COMPONENTS), $(name)-docs)
 COMPONENT_DEVELOP = $(foreach name, $(COMPONENTS), develop-$(name))
+COMPONENT_RELEASE = $(foreach name, $(COMPONENTS), release-$(name))
+COMPONENT_VERSIONING = $(foreach name, $(COMPONENTS), versioning-$(name))
 
-travis: main-command demo-hook pytest coverage
+travis: main-command probing-hook pytest coverage
+
+travis-light: main-command probing-hook pytest
 
 test: shellcheck tox yamllint pylint
 
@@ -13,7 +17,7 @@ main-command: installed
 	# and the quick-alias:
 	ft self-info
 
-demo-hook: installed
+probing-hook: installed
 	# test if the hooks are executable:
 	_flowtool_githooks.probe
 
@@ -23,13 +27,9 @@ $(COMPONENTS):
 pytest:
 	make $(COMPONENTS)
 
-pytest-hook:
-	# run pytest in all folders that have a configuration for it:
-	_flowtool_python.pytest_hook
-
 pylint:
 	# check all .py files in the repo with the minimal pylint hook:
-	_flowtool_python.pylint_minimal
+	_flowtool_githooks.pylint
 
 yamllint:
 	# check all .yml/.yaml files in the repo with yamllint
@@ -45,20 +45,9 @@ $(COMPONENT_COVERAGE): coverage-clean
 
 coverage: coverage-clean $(COMPONENT_COVERAGE)
 
-coverage-hook:
-	# check all dirs with pytest.ini/tox.ini using `coverage -m py.test ...`
-	_flowtool_githooks.coverage
-
 shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):
 	_flowtool_githooks.shellcheck
-
-tox:
-	for dir in $(COMPONENTS); do cd $${dir}; if [ -f tox.ini ]; then tox; fi; cd ..; done
-
-versioning-great-again:
-	ft clean-pycs
-	for dir in $(COMPONENTS); do cd $${dir}; ft versioning-update -y; cd ..; done; git status --short
 
 $(COMPONENT_DOCUMENTATION):
 	# (re)build the html documenation with sphinx (experimental)
@@ -97,15 +86,25 @@ clean: coverage-clean
 	ft clean-pycs -y
 
 $(COMPONENT_DEVELOP):
-	cd $(subst develop-,,$@); ./setup.py develop
+	cd $(subst develop-,,$@) && ./setup.py develop
 
-all: travis test documentation
+$(COMPONENT_RELEASE): travis
+	cd $(subst release-,,$@) && ft release-now
+
+versioning-great-again: $(COMPONENT_VERSIONING)
+
+$(COMPONENT_VERSIONING): clean
+	cd $(subst versioning-,,$@) && ft versioning-update -y
+
+
+all: install travis test documentation
 
 .PHONY : all $(COMPONENTS)
-.PHONY : test travis
+.PHONY : test travis travis-light
 .PHONY : pylint pytest shellcheck
 .PHONY : dependencies install uninstall installed
-.PHONY : main-command demo-hook
+.PHONY : main-command probing-hook
 .PHONY : versioning-great-again clean
 .PHONY : coverage $(COMPONENT_COVERAGE) coverage-clean
 .PHONY : documentation $(COMPONENT_DOCUMENTATION)
+.PHONY : $(COMPONENT_DEVELOP) $(COMPONENT_RELEASE) $(COMPONENT_VERSIONING)
