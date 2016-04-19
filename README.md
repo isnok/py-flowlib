@@ -7,19 +7,19 @@
 
 # flowtool
 
-An extensible workflow management command.
+An extensible workflow-enhancing command line tool.
 
 ## Installation
 
-You can choose your components granularly from (currently):
+You can choose your components granularly from these python packages:
 
-* [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/gitflow) - general git shortcuts and workflow helpers
-* [`flowtool-githooks`](https://github.com/isnok/py-flowlib/tree/master/githooks) - git hook manager
-* [`flowtool-githook-demo`](https://github.com/isnok/py-flowlib/tree/master/hooks-demo) - some example git hooks and one for [shellcheck](https://github.com/koalaman/shellcheck)
-* [`flowtool-python`](https://github.com/isnok/py-flowlib/tree/master/pythonic) - a [git hook](https://github.com/isnok/py-flowlib/tree/master/pythonic/flowtool_python/hooks) to check python code and more
-* [`flowtool-versioning`](https://github.com/isnok/py-flowlib/tree/master/versioning) - an [automated versioning](https://github.com/isnok/py-flowlib/tree/master/versioning) system
-* [`flowtool-release`](https://github.com/isnok/py-flowlib/tree/master/release) - an automated release process for python packages to [PyPI](http://pypi.python.org).
-* [`flowtool-all`](https://github.com/isnok/py-flowlib/tree/master/meta) - virtual meta package to install all components
+* [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/gitflow) - general git shortcuts and workflow helpers (still alpha featurewise, but stable).
+* [`flowtool-githooks`](https://github.com/isnok/py-flowlib/tree/master/githooks) - adds commands to install and manage hooks in your local git repositories.
+* [`flowtool-githook-demo`](https://github.com/isnok/py-flowlib/tree/master/hooks-demo) - some example git hooks that you can use to validate files you commit in you git or push to your remotes (i.e. [shellcheck](https://github.com/koalaman/shellcheck), [pylint](https://en.wikipedia.org/wiki/Pylint), [yamllint](https://github.com/adrienverge/yamllint), and more).
+* [`flowtool-python`](https://github.com/isnok/py-flowlib/tree/master/pythonic) - some functions/commands especially useful for python programmers.
+* [`flowtool-versioning`](https://github.com/isnok/py-flowlib/tree/master/versioning) - an [automated versioning](https://github.com/isnok/py-flowlib/tree/master/versioning) system.
+* [`flowtool-release`](https://github.com/isnok/py-flowlib/tree/master/release) - an automated release process for python packages to [PyPI](http://pypi.python.org) (still as good as a shell script, but soon this shall also change).
+* [`flowtool-all`](https://github.com/isnok/py-flowlib/tree/master/meta) - virtual meta package to install all major components in one go.
 
 Try it out:
 
@@ -68,11 +68,20 @@ _FLOWTOOL_COMPLETE=source flowtool
 _FT_COMPLETE=source ft
 ```
 to your `.bashrc` or hook it up in `/etc/` somewhere.
-Most likely `flowtool` will have a convenience installer
-package that we all can use one day.
+Maybe one day `flowtool` will have an even more convenient distribution
+method (than python packages), that can install the completion into your
+system automatically. The current method (virtualenv) does not allow this,
+and installing the completion system-wide without the tool is currently
+possible, but will yield ugly errors, if you try to complete outside of
+your virtual environment.
 
 ## Todo
 
-* Invent and implement more features.
-* There must be many more tools waiting to be wrapped in quality git hooks.
-* Issue Tracker integration was planned, but is now postponed (feel free to add it if required)
+* Invent and implement more commands.
+* Gitflow module is still a collection of "old code".
+* Create more useful git hooks.
+
+### Release Plan
+
+- 0.8: code cleanups, restructuring and a "real" documentation
+- 0.9: convert (most) doctests to "real" (py-)tests
