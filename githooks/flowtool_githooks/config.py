@@ -67,7 +67,7 @@ def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
         abort('To add/remove you need to give some script name patterns.')
 
     available = get_script_entry_points(hook)
-    matching = containing(patterns, available)
+    matching = containing(patterns, set(available).union(installed))
 
     if not matching:
         noop or abort('No scripts match %s for %s.' % (patterns, colors.cyan(hook)))
@@ -88,11 +88,11 @@ def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
 
     elif add is False:
 
-        to_be_removed = set(matching).intersection(installed)
+        to_be_removed = containing(patterns, installed)
 
         if not to_be_removed:
             msg = 'None of these are in %s: %s'
-            msg %= (colors.cyan(hook), ', '.join(map(colors.green, matching)))
+            msg %= (colors.cyan(hook), ', '.join(map(colors.green, to_be_removed)))
             noop or abort(msg, returncode=0)
 
         for script in to_be_removed:
@@ -110,7 +110,9 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
     if add is None and patterns:
 
         available = get_script_entry_points(hook)
-        matching = containing(patterns, available)
+        scripts_dir = join(repo.git_dir, 'hooks', hook + '.d')
+        installed = os.listdir(scripts_dir)
+        matching = containing(patterns, set(available).union(installed))
 
         if matching:
             echo.white('Matching %s hook scripts:' % colors.cyan(hook))
@@ -122,9 +124,6 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
 
     if repo is None:
         repo = local_repo()
-
-    scripts_dir = join(repo.git_dir, 'hooks', hook + '.d')
-    installed = os.listdir(scripts_dir)
 
     if add is not None:
         return add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed)
