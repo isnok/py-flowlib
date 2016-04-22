@@ -98,12 +98,12 @@ def ask_choice(heading, choices, question, blind=None, answer=None):
             echo.white('%-5d %s' % (idx+1, name))
 
     answered = None
-    while not answered in range(1, 1+len(lst)):
+    while answered not in range(1, 1+len(lst)):
         answered = click.prompt(
             colors.bold(question), type=int
         ) if answer is None else answer
 
-    chosen = lst[answer-1]
+    chosen = lst[answered-1]
 
     if len(chosen.args) == 1:
         return chosen.args[0]
