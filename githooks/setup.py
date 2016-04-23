@@ -47,6 +47,17 @@ setup_args.update(
     ],
 )
 
+# Tests
+
+from tests.setup_command import PytestCommand
+
+setup_args['cmdclass']['test'] = PytestCommand
+setup_args.update(
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+    ],
+)
 
 # Entry Points
 

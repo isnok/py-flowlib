@@ -49,24 +49,23 @@ def link_script(script_name, scripts_dir):
     os.symlink(script_src, script_dst)
 
 
-def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
+def add_remove_scripts(hook, patterns, add, noop, scripts_dir, available, installed):
     """ Add or remove a script. This is called if --add or --remove are present.
 
-        >>> add_remove_scripts('pre-commit', (), True, True, '/tmp', ())
+        >>> add_remove_scripts('pre-commit', (), True, True, '/tmp', (), ())
         Traceback (most recent call last):
         ...
         SystemExit: 1
-        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ())
-        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml',))
-        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml', 'new'))
-        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ())
-        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',))
-        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',))
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', (), ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml',), ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), True, True, '/tmp', ('yaml', 'new'), ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', (), ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',), ())
+        >>> add_remove_scripts('pre-commit', ('yaml'), False, True, '/tmp', ('yaml',), ())
     """
     if not patterns:
         abort('To add/remove you need to give some script name patterns.')
 
-    available = get_script_entry_points(hook)
     matching = containing(patterns, set(available).union(installed))
 
     if not matching:
@@ -100,18 +99,25 @@ def add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed):
 
 
 @click.command()
+@click.option('-g', '--git', type=click.Path(exists=True), default=None, help='Specify the git repo to operate on (defaults to current directory).')
 @click.option('-a/-r', '--add/--remove', default=None, help='Wether the scripts should be added or removed.')
 @click.option('-n', '--noop', is_flag=True, help='Do not really do anything. Mainly for testing purposes.')
 @click.argument('hook', type=click.Choice(sorted(hook_specs)), nargs=1)
 @click.argument('patterns', nargs=-1)
-def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
+def manage_scripts(hook=None, patterns=(), add=None, noop=None, git=None):
     """ Manage the scripts of a git hook runner. """
+
+    repo = local_repo(path=git)
+
+    scripts_dir = join(repo.git_dir, 'hooks', hook + '.d')
+    if not os.path.isdir(scripts_dir):
+        abort('Runner dir not found: %s\nYou must first install the runner for %s.' % (scripts_dir, colors.cyan(hook)))
+
+    available = get_script_entry_points(hook)
+    installed = os.listdir(scripts_dir)
 
     if add is None and patterns:
 
-        available = get_script_entry_points(hook)
-        scripts_dir = join(repo.git_dir, 'hooks', hook + '.d')
-        installed = os.listdir(scripts_dir)
         matching = containing(patterns, set(available).union(installed))
 
         if matching:
@@ -126,7 +132,7 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
         repo = local_repo()
 
     if add is not None:
-        return add_remove_scripts(hook, patterns, add, noop, scripts_dir, installed)
+        return add_remove_scripts(hook, patterns, add, noop, scripts_dir, available, installed)
 
     if installed:
         echo.white('Installed in %s:' % colors.cyan(scripts_dir))
@@ -137,9 +143,10 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, repo=None):
             else:
                 echo.white('%4d' % cnt, '+', filename)
     else:
+        cnt = 0
         echo.white('Script dir %s is empty.' % colors.cyan(scripts_dir))
 
-    installable = get_script_entry_points(hook)
+    installable = set(available).difference(installed)
 
     if installable:
         echo.white('Also available for %s:' % colors.blue(hook))

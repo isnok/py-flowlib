@@ -65,7 +65,7 @@ from flowtool_githooks.status import status as repo_status
 from flowtool_githooks.manager import hook_specs, RUNNER
 
 
-def run_githook(hook_name, noop=None):
+def run_githook(hook_name, noop=None, repo=None):
     """ Execute a git hook.
 
         >>> run_githook('pre-cxmmit', noop=True)
@@ -74,7 +74,7 @@ def run_githook(hook_name, noop=None):
         Invoking pre-commit -> True ()
     """
 
-    git_dir = local_repo().git_dir
+    git_dir = local_repo(repo).git_dir
     hook_file = os.sep.join([git_dir, 'hooks', hook_name])
 
     if not os.path.exists(hook_file):
@@ -97,24 +97,26 @@ def run_githook(hook_name, noop=None):
 
 
 @click.command()
+@click.option('-g', '--git', type=click.Path(exists=True), default=None, help='Specify the git repo to operate on. (default: current directory)')
 @click.option('-i/-r', '--install/--remove', is_flag=True, default=None, help='Install or remove the runner script.')
 @click.option('-a/-d', '--activate/--deactivate', is_flag=True, default=None, help='Manipulate executable bit of the runner script.')
 @click.option('-s', '--status', is_flag=True, help='Print the status of the git hooks in the local repo.')
 @click.option('-y', '--yes', is_flag=True, help='Automaticall answer yes to the backup question.')
 @click.option('-n', '--noop', is_flag=True, help='Do not really take any action. Mainly for testing purposes.')
 @click.argument('patterns', nargs=-1)
-def runner_command(patterns=(), status=None, install=None, activate=None, yes=None, noop=None):
+def runner_command(patterns=(), status=None, install=None, activate=None, yes=None, noop=None, git=None):
     """ Manage git hooks of the local repo. """
 
+    repo = local_repo(git)
     hooks = containing(patterns, hook_specs)
 
     if status:
-        return repo_status()
+        return repo_status(repo)
 
     if install is None and activate is None:
 
         if not hooks:
-            return repo_status()
+            return repo_status(repo)
 
         elif len(hooks) > 1:
             noop or abort(
@@ -123,7 +125,7 @@ def runner_command(patterns=(), status=None, install=None, activate=None, yes=No
             )
 
         else:
-            run_githook(hooks[0], noop=noop)
+            run_githook(hooks[0], noop=noop, repo=repo)
 
         return
 
@@ -134,17 +136,17 @@ def runner_command(patterns=(), status=None, install=None, activate=None, yes=No
         for hook in hooks:
             debug.white('install:', install, hook)
             if install is True:
-                install_runner(hook, noop=noop, yes=yes)
+                install_runner(hook, repo=repo, noop=noop, yes=yes)
             else:
-                remove_runner(hook, noop=noop, yes=yes)
+                remove_runner(hook, repo=repo, noop=noop, yes=yes)
 
     if activate is not None:
         for hook in hooks:
             debug.white('activate:', activate, hook)
             if activate is True:
-                activate_runner(hook, noop=noop)
+                activate_runner(hook, repo=repo, noop=noop)
             else:
-                deactivate_runner(hook, noop=noop)
+                deactivate_runner(hook, repo=repo, noop=noop)
 
 
 def remove_runner(hook_name, repo=None, noop=None, yes=None):
@@ -157,11 +159,9 @@ def remove_runner(hook_name, repo=None, noop=None, yes=None):
         >>> remove_runner('xxx', noop=True, yes=True)
     """
 
+    repo = local_repo(repo)
     if hook_name not in hook_specs and not noop:
         raise RuntimeError('not a supported git hook: %r' % hook_name)
-
-    if repo is None:
-        repo = local_repo()
 
     hook_file = join(repo.git_dir, 'hooks', hook_name)
     msg = ' '.join([
@@ -183,11 +183,10 @@ def install_runner(hook_name, repo=None, noop=None, yes=None):
         >>> install_runner('pre-commit', noop=True, yes=True)
     """
 
+    repo = local_repo(repo)
     if hook_name not in hook_specs and not noop:
         raise RuntimeError('not a supported git hook: %r' % hook_name)
 
-    if repo is None:
-        repo = local_repo()
 
     hook_file = join(repo.git_dir, 'hooks', hook_name)
 
@@ -266,11 +265,9 @@ def activate_runner(hook_name, repo=None, noop=None, yes=None):
         Activated pre-commit hook.
     """
 
+    repo = local_repo(repo)
     if hook_name not in hook_specs and not noop:
         raise RuntimeError('not a supported git hook: %r' % hook_name)
-
-    if repo is None:
-        repo = local_repo()
 
     hook_file = join(repo.git_dir, 'hooks', hook_name)
 
@@ -292,11 +289,9 @@ def deactivate_runner(hook_name, repo=None, noop=None, yes=None):
         Deactivated pre-commit hook.
     """
 
+    repo = local_repo(repo)
     if hook_name not in hook_specs and not noop:
         raise RuntimeError('not a supported git hook: %r' % hook_name)
-
-    if repo is None:
-        repo = local_repo()
 
     hook_file = join(repo.git_dir, 'hooks', hook_name)
 
