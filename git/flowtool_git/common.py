@@ -1,8 +1,13 @@
+import os
 import sys
 import click
 from flowtool.style import colors, echo
+from flowtool.ui import abort
 from functools import wraps
 from collections import namedtuple
+
+def check_git(path):
+    return os.path.isdir(os.path.join(path, '.git'))
 
 __contents__ = ['local_repo', 'local_git_command']
 
@@ -33,14 +38,15 @@ GitCommandError = gitpython.exc.GitCommandError
 GitCommandNotFound = gitpython.exc.GitCommandNotFound
 
 @cached
-def local_repo(or_exit=True):
+def local_repo(path=None, or_exit=True):
+    if path is None:
+        path = os.getcwd()
     try:
-        repo = gitpython.Repo(search_parent_directories=True)
+        repo = gitpython.Repo(path, search_parent_directories=True)
         return repo
     except gitpython.repo.base.InvalidGitRepositoryError as ex:
         if or_exit:
-            echo.red('The current directory is not under git version control:', ex)
-            sys.exit(1)
+            abort('The current directory is not under git version control: %s' % ex)
 
 def local_git_command(*args, **kwd):
     return local_repo(*args, **kwd).git
