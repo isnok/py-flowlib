@@ -41,6 +41,8 @@ GitCommandNotFound = gitpython.exc.GitCommandNotFound
 def local_repo(path=None, or_exit=True):
     if path is None:
         path = os.getcwd()
+    elif isinstance(path, gitpython.Repo):
+        return path
     try:
         repo = gitpython.Repo(path, search_parent_directories=True)
         return repo
