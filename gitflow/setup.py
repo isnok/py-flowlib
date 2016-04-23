@@ -38,6 +38,11 @@ setup_args.update(
     ],
 )
 
+# Test Integration
+
+from tests.setup_command import PytestCommand
+setup_args['cmdclass']['test'] = PytestCommand
+
 
 # Entry Points
 

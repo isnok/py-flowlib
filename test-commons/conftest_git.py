@@ -8,7 +8,7 @@ from git.exc import InvalidGitRepositoryError
 from functools import partial
 
 
-TEMPDIR = tempfile.mktemp(prefix='githooks-test-', suffix='-dir')
+TEMPDIR = tempfile.mktemp(prefix='flowtool-git-tests-', suffix='-dir')
 mkmytemp = partial(tempfile.mktemp, dir=TEMPDIR)
 
 os.makedirs(TEMPDIR)
