@@ -39,6 +39,8 @@ def mk_initial_commit(repo):
     with open(filename, 'w') as f:
         f.write('initial content')
     repo.git.add('initial_file')
+    repo.git.config('user.name', "Flowtool's Automated Test Suite")
+    repo.git.config('user.email', 'testing@example.com')
     repo.git.commit('-m', 'Initial Commit.')
 
 @pytest.fixture

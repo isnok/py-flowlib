@@ -1,32 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Work efficiently with feature branches.
-
-    >>> is_feature('feature/detector')
-    True
-    >>> is_feature('bugfix/foobar')
-    False
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(main, [])
-    >>> result.exit_code
-    0
-    >>> result.output.startswith('Local branches')
-    True
-    >>> result = runner.invoke(commit, [])
-    >>> result.exit_code in (-1, 1)
-    True
-
-    #>>> 'Please give a commit message' in result.output
-    #True
-
-    >>> result = runner.invoke(commit, ['my', 'message'])
-    >>> result.exit_code in (-1, 1)
-    True
-
-    #>>> 'does not look like' in result.output
-    #True
-"""
+""" Work efficiently with feature branches. """
 
 import re
 import sys
@@ -55,10 +28,13 @@ def main():
 
 
 @click.command()
+@click.option('-g', '--git', type=click.Path(exists=True), default=None, help='Specify the git repo to operate on (defaults to current directory).')
+@click.option('-n', '--noop', is_flag=True, help='Do not do anything. Mainly for testing purposes.')
 @click.argument('message', nargs=-1)
-def commit(message=()):
+def commit(message=(), git=None, noop=None):
     """ Commit on feature branches. """
-    repo = local_repo()
+
+    repo = local_repo(git)
     current_branch = repo.active_branch
     echo.white('Message:', ' '.join(message))
     echo.white('Active branch:', current_branch.name)
