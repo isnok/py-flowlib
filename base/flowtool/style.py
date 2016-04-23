@@ -30,7 +30,7 @@ def effect_function(name):
 def echo_function(style_func):
     global DEBUG_OUTPUT
     def echo(*message, **kwd):
-        click.echo(' '.join(map(style_func, map(str, message))), **kwd)
+        click.secho(' '.join(map(style_func, map(str, message))), **kwd)
     return echo
 
 def debug_function(style_func):
@@ -38,7 +38,7 @@ def debug_function(style_func):
     def echo(*message, **kwd):
         if not DEBUG_OUTPUT:
             return
-        click.echo(style_func(' '.join(map(str, message))), **kwd)
+        click.secho(style_func(' '.join(map(str, message))), **kwd)
     return echo
 
 color_functions = {name: color_function(name) for name in color_names}

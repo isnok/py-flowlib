@@ -177,3 +177,39 @@ def toggle_executable(filename):
     else:
         new = mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     os.chmod(filename, new)
+
+
+class cd:
+    """ Context manager to change the current working directory.
+
+        >>> import os
+        >>> with cd('/tmp/'):
+        ...     cwd = os.getcwd()
+        >>> cwd.startswith('/tmp')
+        True
+    """
+
+    def __init__(self, path):
+        self.path = os.path.expanduser(path)
+
+    def __enter__(self):
+        self.oldpwd = os.getcwd()
+        os.chdir(self.path)
+
+    def __exit__(self, etype, value, traceback):
+        os.chdir(self.oldpwd)
+
+
+def topdirs(path):
+    """ Generates the top directories of path.
+
+        >>> list(topdirs('/foo/bar/baz'))
+        ['/foo/bar/baz', '/foo/bar', '/foo', '/']
+    """
+
+    path = os.path.expanduser(path)
+    old_path = None
+    while path != old_path:
+        yield path
+        old_path = path
+        path = dirname(path)
