@@ -1,22 +1,6 @@
 """ Git hook configuration management.
     This file contains the main routines to configure git hooks interacitvely.
 
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-
-    >>> result = runner.invoke(manage_scripts, [])
-    >>> result.exit_code
-    2
-    >>> result = runner.invoke(manage_scripts, ['--noop', '--remove', '--yes'])
-    >>> result.exit_code
-    2
-
-    # >>> result = runner.invoke(manage_scripts, ['pre-commit'])
-    # >>> result.exit_code in (0, -1)
-    # True
-    # >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
-    # >>> result.exit_code in (0, -1)
-    # True
 """
 import os
 from os.path import join, basename, dirname

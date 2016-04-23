@@ -1,7 +1,5 @@
 """ Display the local git repositories hooks status.
 
-    #>>> from click.testing import CliRunner
-    #>>> runner = CliRunner()
 """
 import os
 import click
@@ -27,11 +25,10 @@ def status(repo=None, file_hooks=None):
         ...
     """
 
-    if repo is None:
-        repo = local_repo()
+    repo = local_repo(repo)
 
     if file_hooks is None:
-        file_hooks = gather_hooks()
+        file_hooks = gather_hooks(repo)
 
     echo.bold('git hooks status:')
     echo.white('git dir', repo.git_dir)
