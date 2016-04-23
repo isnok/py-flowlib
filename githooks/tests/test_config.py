@@ -85,6 +85,7 @@ def test_listinfo_filter(confed_repo):
             ['--git', confed_repo.git_dir, hook, 'yaml'],
         )
 
-        assert out.startswith('No matching scripts available.')
+        assert out.startswith('Matching ' + hook + ' hook scripts:')
+        assert '_flowtool_githooks.yamllint' in out
         assert exit_code == 0
         assert not err
