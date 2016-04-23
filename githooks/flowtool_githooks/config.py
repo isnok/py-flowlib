@@ -112,8 +112,7 @@ def manage_scripts(hook=None, patterns=(), add=None, noop=None, git=None):
             echo.white('No matching scripts available.')
         return
 
-    if repo is None:
-        repo = local_repo()
+    repo = local_repo(repo)
 
     if add is not None:
         return add_remove_scripts(hook, patterns, add, noop, scripts_dir, available, installed)

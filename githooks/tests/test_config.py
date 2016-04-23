@@ -113,6 +113,15 @@ def test_script_install_remove(confed_repo):
 
         exit_code, out, err = exec_click(
             flowtool_githooks.config.manage_scripts,
+            ['--git', confed_repo.git_dir, hook],
+        )
+        assert 'Installed in' in out
+        assert exit_code == 0
+        assert not err
+
+
+        exit_code, out, err = exec_click(
+            flowtool_githooks.config.manage_scripts,
             ['--git', confed_repo.git_dir, hook, 'yaml', '--remove'],
         )
 
