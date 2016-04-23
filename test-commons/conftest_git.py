@@ -34,11 +34,24 @@ def nogit():
     else:
         raise RuntimeError('cannot find a temporary non-git dir: %s' % outsidedir)
 
+def mk_initial_commit(repo):
+    filename = os.path.join(os.path.dirname(repo.git_dir), 'initial_file')
+    with open(filename, 'w') as f:
+        f.write('initial content')
+    repo.git.add('initial_file')
+    repo.git.commit('-m', 'Initial Commit.')
 
 @pytest.fixture
-def fresh_repo():
+def new_repo():
     return Repo.init(mkmytemp(prefix='repo-'))
+
+@pytest.fixture
+def fresh_repo(new_repo):
+    mk_initial_commit(new_repo)
+    return new_repo
 
 @pytest.fixture(scope='module')
 def permanent_repo():
-    return Repo.init(mkmytemp(prefix='repo-'))
+    repo = Repo.init(mkmytemp(prefix='permarepo-'))
+    mk_initial_commit(repo)
+    return repo
