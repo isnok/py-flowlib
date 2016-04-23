@@ -31,13 +31,7 @@ from flowtool_githooks.manager import hook_specs, RUNNER
 
 
 def run_githook(hook_name, noop=None, repo=None):
-    """ Execute a git hook.
-
-        >>> run_githook('pre-cxmmit', noop=True)
-        >>> install_runner('pre-commit')
-        >>> run_githook('pre-commit', noop=True)
-        Invoking pre-commit -> True ()
-    """
+    """ Execute a git hook. """
 
     git_dir = local_repo(repo).git_dir
     hook_file = os.sep.join([git_dir, 'hooks', hook_name])
