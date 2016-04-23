@@ -43,6 +43,8 @@ def local_repo(path=None, or_exit=True):
         path = os.getcwd()
     elif isinstance(path, gitpython.Repo):
         return path
+    elif path.endswith('.git'):
+        path = os.path.dirname(path)
     try:
         repo = gitpython.Repo(path, search_parent_directories=True)
         return repo
