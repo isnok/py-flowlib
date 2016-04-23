@@ -11,12 +11,12 @@
     >>> result.exit_code
     2
 
-    >>> result = runner.invoke(manage_scripts, ['pre-commit'])
-    >>> result.exit_code in (0, -1)
-    True
-    >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
-    >>> result.exit_code in (0, -1)
-    True
+    # >>> result = runner.invoke(manage_scripts, ['pre-commit'])
+    # >>> result.exit_code in (0, -1)
+    # True
+    # >>> result = runner.invoke(manage_scripts, ['pre-commit', 'yaml'])
+    # >>> result.exit_code in (0, -1)
+    # True
 """
 import os
 from os.path import join, basename, dirname
