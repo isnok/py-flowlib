@@ -521,7 +521,7 @@ class ShellCommandHook(ConfigFileHook):
                 tool_args = []
                 for arg in self.CHECK_TOOL:
                     if arg == '>managed_config<':
-                        tool_args.append(self.get_configfile())
+                        tool_args.append(self.get_configfile(do_setup=True))
                     else:
                         tool_args.append(arg)
                 args = tuple(tool_args) + args

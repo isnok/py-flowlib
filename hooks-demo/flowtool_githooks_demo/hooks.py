@@ -24,6 +24,15 @@ from flowtool.style import debug
 from flowtool_githooks.managed_hooks.shellcommands import ShellCommandHook
 from flowtool_githooks.managed_hooks.shellcommands import capture_command
 
+YAMLLINT_DEFAULT_CONFIG = '''---
+
+extends: default
+
+rules:
+    line-length: disable
+    comments: disable
+'''
+
 class YAMLLintHook(ShellCommandHook):
     """ A linter integration for yamllint.
 
@@ -43,11 +52,19 @@ class YAMLLintHook(ShellCommandHook):
     """
 
     NAME = 'yamllint_hook'
-    CHECK_TOOL = os.path.join(os.path.dirname(sys.executable), 'yamllint')
+    CHECK_TOOL = (
+        os.path.join(os.path.dirname(sys.executable), 'yamllint'),
+        '--config-file',
+        '>managed_config<',
+    )
     FILE_PATTERNS = ('*.yaml', '*.yml')
     RETURNCODE_ON_STDOUT = 1
     RETURNCODE_ON_STDERR = 2
     CONTINUES = 4
+    GITCONFIG_SECTION = 'yamllint-hook'
+    CONFIGFILE_GITCFGKEY = 'configfile'
+    CONFIGFILE = '.yamllint.yaml'
+    DEFAULT_CONFIGFILE = YAMLLINT_DEFAULT_CONFIG
 
 
 yamllint_hook = YAMLLintHook()
