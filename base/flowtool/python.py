@@ -1,5 +1,6 @@
 """ Some pythonic helper functions and general purpose cornercutting. """
 
+import os
 import sys
 import select
 
@@ -45,6 +46,8 @@ def read_stdin_nonblocking(**kwd):
             yield kwd['on_error']
         if not 'ignore_error' in kwd or not kwd['ignore_error']:
             raise
+        elif 'TEST_STDIN_VALUE' in os.environ:
+            return os.environ['TEST_STDIN_VALUE']
 
 
 
