@@ -5,7 +5,7 @@ COMPONENT_DEVELOP = $(foreach name, $(COMPONENTS), develop-$(name))
 COMPONENT_RELEASE = $(foreach name, $(COMPONENTS), release-$(name))
 COMPONENT_VERSIONING = $(foreach name, $(COMPONENTS), versioning-$(name))
 
-travis: main-command probing-hook pytest $(COMPONENT_DEVELOP) coverage
+travis: main-command probing-hook pytest coverage
 
 travis-light: main-command probing-hook pytest
 
