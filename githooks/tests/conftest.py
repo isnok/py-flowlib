@@ -35,12 +35,20 @@ def nogit():
         raise RuntimeError('cannot find a temporary non-git dir: %s' % outsidedir)
 
 
-repodir = mkmytemp(prefix='repo-')
+from click.testing import CliRunner
+import flowtool_githooks.runner
 
+confedrepodir = mkmytemp(prefix='repo-')
 
-@pytest.fixture(scope='session')
-def repo():
-    return Repo.init(repodir)
+@pytest.fixture(scope='module')
+def confed_repo():
+    repo = Repo.init(confedrepodir)
+    runner = CliRunner()
+    runner.invoke(
+        flowtool_githooks.runner.runner_command,
+        ['--git', repo.git_dir, '--install'],
+    )
+    return repo
 
 
 @pytest.fixture
