@@ -104,6 +104,14 @@ def test_script_install_remove(confed_repo):
         assert not err
 
         exit_code, out, err = exec_click(
+            flowtool_githooks.runner.runner_command,
+            ['--git', confed_repo.git_dir, '--status'],
+        )
+        assert '_flowtool_githooks.yamllint' in out
+        assert exit_code == 0
+        assert not err
+
+        exit_code, out, err = exec_click(
             flowtool_githooks.config.manage_scripts,
             ['--git', confed_repo.git_dir, hook, 'yaml', '--remove'],
         )
