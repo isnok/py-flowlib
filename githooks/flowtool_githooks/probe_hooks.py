@@ -13,22 +13,6 @@
     is console_scripts for your hook, and flowtool_githooks.{name}
     with a setup function [for configs, etc]).
 
-
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-
-    >>> result = runner.invoke(probe, [])
-    >>> result.exit_code
-    0
-    >>> result.output.startswith('probing-hook: ')
-    True
-
-    >>> result = runner.invoke(probe_fail, [])
-    >>> result.exit_code
-    -1
-    >>> result.output.startswith('failing-probe-hook: ')
-    True
 """
 import os
 import sys

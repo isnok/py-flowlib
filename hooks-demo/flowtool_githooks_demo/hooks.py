@@ -1,19 +1,6 @@
 """ Demo git hooks.
 
     The newschool stuff. :-)
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-
-    >>> githook = YAMLLintHook()
-    >>> githook.FILE_PATTERNS = ()
-    >>> result = runner.invoke(githook.click_command, [])
-    >>> result.exception
-    >>> result.exit_code
-    0
-    >>> output_lines = result.output.split('\\n')[:-1]
-    >>> output_lines
-    []
 """
 import os
 import sys

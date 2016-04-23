@@ -47,9 +47,7 @@ def read_stdin_nonblocking(**kwd):
         if not 'ignore_error' in kwd or not kwd['ignore_error']:
             raise
         elif 'TEST_STDIN_VALUE' in os.environ:
-            return os.environ['TEST_STDIN_VALUE']
-
-
+            yield os.environ['TEST_STDIN_VALUE']
 
 
 def startingwith(prefixes='', lst=()):
