@@ -15,20 +15,20 @@ before_install:
     # - sudo apt-get install -y cabal-install
     # - cabal update
     # - cabal install shellcheck
+    - pip install -U pip wheel
     - pip install -U pytest pytest-cov coveralls
     # - pip install pytest-xdist (nope... git repo locks)
-    # - pip install coveralls
 install:
-    - pip install -e ./base
-    - pip install -e ./git
-    - pip install -e ./gitflow
-    - pip install -e ./githooks
-    - pip install -e ./hooks-demo
-    - pip install -e ./pythonic
-    - pip install -e ./release
-    - pip install -e ./stages
-    - pip install -e ./versioning
-    - pip install -e ./meta
+    - cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
     # - pip install -U tox
     # - pip install -U tox pytest
 script:
