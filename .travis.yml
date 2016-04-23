@@ -16,6 +16,7 @@ before_install:
     # - cabal update
     # - cabal install shellcheck
     - pip install -U pytest pytest-cov coveralls
+    # - pip install pytest-xdist (nope... git repo locks)
     # - pip install coveralls
 install:
     - pip install -e ./base

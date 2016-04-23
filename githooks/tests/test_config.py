@@ -8,26 +8,8 @@ from flowtool_githooks.manager import hook_specs
 
 from click.testing import CliRunner
 
-class cd:
-    """ Context manager for changing the current working directory.
-        Cabable of cd'ing into a gitpython Repo object also.
-    """
-
-    def __init__(self, newPath):
-        if newPath == str(newPath):
-            self.newPath = os.path.expanduser(newPath)
-        else:
-            self.newPath = os.path.dirname(newPath.git_dir)
-
-    def __enter__(self):
-        self.savedPath = os.getcwd()
-        os.chdir(self.newPath)
-
-    def __exit__(self, etype, value, traceback):
-        os.chdir(self.savedPath)
-
-
 runner = CliRunner()
+
 def exec_click(command, args, exit_code=None, capture=None):
     """ A unified way of calling click commands for testing. """
 
