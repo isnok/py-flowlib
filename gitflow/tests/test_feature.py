@@ -1,12 +1,3 @@
-"""
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(main, [])
-    >>> result.exit_code
-    0
-    >>> result.output.startswith('Local branches')
-    True
-"""
 import pytest
 from click.testing import CliRunner
 
@@ -40,3 +31,9 @@ def test_commit(branched_repo):
         commit,
         ['--git', branched_repo.git_dir, 'A', 'message.']
     )
+
+
+def test_main(branched_repo):
+    result = runner.invoke(main, [])
+    assert not result.exit_code
+    assert result.output.startswith('Local branches')
