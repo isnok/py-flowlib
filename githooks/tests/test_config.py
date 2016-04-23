@@ -67,6 +67,15 @@ def test_listinfo(fresh_repo):
         assert not err
 
 
+@pytest.fixture(scope='module')
+def confed_repo(permanent_repo):
+    runner.invoke(
+        flowtool_githooks.runner.runner_command,
+        ['--git', permanent_repo.git_dir, '--install'],
+    )
+    return permanent_repo
+
+
 def test_listinfo_filter(confed_repo):
 
     for hook in hook_specs:

@@ -271,7 +271,7 @@ class FileSizeCheck(ShellCommandHook):
     SIZE_LIMIT = 500  # * 1024 bytes (1 KiB)
 
     def is_returncode(self, result):
-        size = int(result.result.stdout.split()[0])
+        size = int(result.result.stdout.split()[0]) if result.result.stdout.strip() else 0
         return max(0, size - self.SIZE_LIMIT)
 
 du_hook = FileSizeCheck()

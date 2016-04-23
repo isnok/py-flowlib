@@ -181,6 +181,16 @@ def test_install_activate_single(fresh_repo):
 
 
 
+@pytest.fixture(scope='module')
+def confed_repo(permanent_repo):
+    runner.invoke(
+        flowtool_githooks.runner.runner_command,
+        ['--git', permanent_repo.git_dir, '--install'],
+    )
+    return permanent_repo
+
+
+
 def test_installed(confed_repo):
 
     exit_code, out, err = exec_click(
