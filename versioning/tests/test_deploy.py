@@ -47,7 +47,16 @@ def test_no_setup(fresh_repo):
     assert result.exit_code == 1
     assert 'setup.py found: None' in result.output
 
+
 def test_deploy(test_project):
+
+    repo_root = os.path.dirname(test_project.git_dir)
+    result = runner.invoke(
+        init_versioning,
+        ['--yes', repo_root],
+        input='\ntest-project-\n',
+    )
+    assert 'beautiful day' in result.output
 
     repo_root = os.path.dirname(test_project.git_dir)
     result = runner.invoke(
