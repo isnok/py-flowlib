@@ -35,11 +35,17 @@ def test_project(permanent_repo):
     return permanent_repo
 
 
-def test_nosetup(nogit):
+def test_no_git(nogit):
 
     result = runner.invoke(init_versioning, [nogit])
     assert result.exit_code == 1
+    assert 'not under git version control' in result.output
 
+def test_no_setup(fresh_repo):
+
+    result = runner.invoke(init_versioning, [os.path.dirname(fresh_repo.git_dir)])
+    assert result.exit_code == 1
+    assert 'setup.py found: None' in result.output
 
 def test_deploy(test_project):
 

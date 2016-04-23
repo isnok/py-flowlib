@@ -1,24 +1,5 @@
 """ Versioning deployment.
     Installs the versioning into your (python) project.
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(init_versioning, ['/tmp'])
-    >>> result.exit_code
-    1
-    >>> result.output == '/tmp is not under git version control.\\n'
-    True
-    >>> result = runner.invoke(init_versioning, ['--yes', '.'])
-    >>> result.exit_code
-    1
-    >>> result.output.startswith('setup.py found: None')
-    True
-    >>> from os.path import dirname
-    >>> result = runner.invoke(init_versioning, ['--noop', '--yes', dirname(__file__)])
-    >>> result.output.startswith('setup.py found:')
-    True
-    >>> result.exit_code in (0, -1)
-    True
 """
 import os, sys
 import click
