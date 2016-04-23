@@ -27,7 +27,10 @@
     #>>> all(cmd in names for cmd in commands)
     #True
 
-    >>> __version__ > '0'
+    # >>> __version__ > '0'
+    # True
+
+    >>> True
     True
 """
 
