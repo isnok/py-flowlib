@@ -183,9 +183,12 @@ class cd:
     """ Context manager to change the current working directory.
 
         >>> import os
+        >>> oldpwd = os.getcwd()
         >>> with cd('/tmp/'):
         ...     cwd = os.getcwd()
         >>> cwd.startswith('/tmp')
+        True
+        >>> oldpwd == os.getcwd()
         True
     """
 
