@@ -89,3 +89,24 @@ def test_listinfo_filter(confed_repo):
         assert '_flowtool_githooks.yamllint' in out
         assert exit_code == 0
         assert not err
+
+
+def test_script_install_remove(confed_repo):
+
+    for hook in hook_specs:
+
+        exit_code, out, err = exec_click(
+            flowtool_githooks.config.manage_scripts,
+            ['--git', confed_repo.git_dir, hook, 'yaml', '--add'],
+        )
+
+        assert exit_code == 0
+        assert not err
+
+        exit_code, out, err = exec_click(
+            flowtool_githooks.config.manage_scripts,
+            ['--git', confed_repo.git_dir, hook, 'yaml', '--remove'],
+        )
+
+        assert exit_code == 0
+        assert not err
