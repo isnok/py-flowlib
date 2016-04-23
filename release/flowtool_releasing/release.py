@@ -1,27 +1,29 @@
 """ Automated releasing.
     This file contains the functions for the bump+release cycle.
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(do_release, ())
-    >>> result.exit_code in (1, -1)
-    True
 """
+import os
+from os.path import join
 import sys
 import click
 from flowtool.execute import run_command
 from flowtool.style import colors, echo
 from flowtool.ui import abort
+from flowtool.files import cd
 
 
-def version_or_exit():
+def version_or_exit(path):
     """ Get the current version or exit the process. """
 
-    get_version = run_command('./versioning.py')
-    if get_version.returncode:
-        abort(colors.red('versioning.py') + ' was not found in current directory.')
-    else:
-        return get_version.stdout.strip()
+    with cd(path):
+        versioning_file = join(os.curdir, 'versioning.py')
+        try:
+            get_version = run_command(versioning_file)
+            if get_version.returncode:
+                abort(colors.red('versioning.py') + ' returned an error.')
+            else:
+                return get_version.stdout.strip()
+        except OSError:
+            abort(colors.red('versioning file not found: ') + versioning_file)
 
 
 def rollback(tag):
@@ -80,32 +82,32 @@ def do_publish(tag):
     echo.bold(colors.green('New release published on PyPI.'))
 
 
-def do_release(noop=None):
-    """ An automated release process. Still experimental, but working fine so far.
-
-        >>> do_release(noop=True)
-        Tag-Version check failed: 0.1.dirty
-        Tag-Version check failed: 0.1.dirty
-        Tag-Version check passed: 0.1.dirty
-        Bumping version...
-    """
+@click.command()
+@click.option('-n', '--noop', is_flag=True, help='Do not really do anything. Mainly for testing purposes.')
+@click.argument('project_path', type=click.Path(exists=True), default=os.curdir)
+def release_command(project_path=None, noop=None):
+    """ A proposed way to release with versioning. """
 
     if not sys.version_info.major == 3:
         noop or abort(colors.bold(
             'Releases are only compatible with both Python2 and Python3 if done via Python3. Aborting since this is Python2.'
         ))
 
-    auto_version = version_or_exit() if not noop else '0.1.dirty'
+    auto_version = version_or_exit(project_path)
     dirty = 'dirty' in auto_version
+
+    if auto_version == 'no_version' or 'Format' in auto_version:
+        echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
+        abort('It looks like no (initial) version tag(s) exist(s).')
+
+    released = '.git:' not in auto_version
+    if released:
+        echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
+        abort('Are you trying to re-release the current version tag?')
 
     if dirty:
         echo.bold('Tag-Version check failed:', colors.red(auto_version))
-        noop or abort('You have to commit all changes before releasing.')
-
-    released = not ('.git:' in auto_version)
-    if released:
-        echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
-        noop or abort('You are already at a version tag.')
+        abort('You have to commit all changes before releasing.')
 
     #XXX: Check more? like branch... might move it to gitflow then
 
@@ -114,13 +116,13 @@ def do_release(noop=None):
 
     if noop: return
 
-    bump_result = run_command('./setup.py bump')
+    bump_result = run_command(join(project_path, 'setup.py bump'))
     if bump_result.returncode:
         echo.red(bump_result.stdout)
         echo.bold(colors.red(bump_result.stderr))
         sys.exit(bump_result.returncode)
 
-    auto_version = noop or version_or_exit()
+    auto_version = version_or_exit(project_path)
     echo.bold('version is now:', colors.green(auto_version))
 
     tag = noop or bump_result.stdout.split('\n')[-2].split()[-1]
@@ -129,9 +131,3 @@ def do_release(noop=None):
         do_publish(tag)
     else:
         noop or rollback(tag)
-
-@click.command()
-@click.option('-n', '--noop', is_flag=True, help='Do not really do anything. Mainly for testing purposes.')
-def release_command(noop=None):
-    """ A proposed way to release with versioning. """
-    do_release(noop=noop)

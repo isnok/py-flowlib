@@ -5,8 +5,8 @@ import os, sys
 import click
 from flowtool.style import colors, echo, debug
 from flowtool.files import find_parent_containing, find_subdirs_containing, check_file, append_to_file, make_executable
+from flowtool.files import cd
 from flowtool.ui import ask_choice, abort
-#from flowtool_git.common import local_repo
 
 import filecmp
 
@@ -52,7 +52,8 @@ def init_versioning(path=os.getcwd(), yes=None, noop=None):
             colors.yellow('file.'),
         ]))
 
-    from flowtool_versioning.dropins.version import __file__ as versionfile_source
+    with cd(path):
+        from flowtool_versioning.dropins.version import __file__ as versionfile_source
 
     if versionfile_source.endswith('.pyc'):
         versionfile_source = versionfile_source[:-1]
@@ -116,7 +117,7 @@ def init_versioning(path=os.getcwd(), yes=None, noop=None):
                 version_config = version_config.format(
                     detected_location=source_versionfile,
                     guessed_location=build_versionfile,
-                    tag_prefix=click.prompt('Use which tag prefix?')
+                    tag_prefix=click.prompt('Use which tag prefix?'),
                 )
                 noop or append_to_file(setup_cfg, version_config)
 
