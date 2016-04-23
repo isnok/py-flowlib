@@ -16,24 +16,14 @@ def install_requirement(name):
     import pip
     pip.main(['install', '-q', name])
 
+
 def setup_testenv():
     """ Install required packages for the test suite.
 
-        >>> bool(setup_testenv())
-        True
+        >>> setup_testenv()
     """
-    try:
-        import git
-    except:
-        install_requirement('gitpython')
-
-    try:
-        import pytest
-    except:
-        install_requirement('pytest')
-        import pytest
-
-    return pytest
+    install_requirement('gitpython')
+    install_requirement('pytest')
 
 
 class PytestCommand(Command):
@@ -44,9 +34,10 @@ class PytestCommand(Command):
     pytest_args = []
 
     def initialize_options(self):
-        self.pytest = setup_testenv()
+        setup_testenv()
 
     def run(self):
-        sys.exit(self.pytest.main(self.pytest_args))
+        import pytest
+        sys.exit(pytest.main(self.pytest_args))
 
     finalize_options = testable_nothing
