@@ -41,7 +41,9 @@ class YAMLLintHook(ShellCommandHook):
 
         >>> githook = yamllint_hook
         >>> result = runner.invoke(githook.click_command, [])
+
         # >>> result.exception
+
         >>> result.exit_code in (0, 2)
         True
         >>> output_lines = result.output.split('\\n')[:-1]
