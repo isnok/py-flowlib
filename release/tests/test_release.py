@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 import pytest
 from click.testing import CliRunner
@@ -7,6 +7,8 @@ from flowtool_releasing.release import release_command
 from flowtool_versioning.deploy import init_versioning
 
 runner = CliRunner()
+
+PYTHON_3 = sys.version_info.major == 3
 
 def mk_project(repo):
     repo_root = os.path.dirname(repo.git_dir)
@@ -41,7 +43,11 @@ def test_no_versioning(nogit):
 
     result = runner.invoke(release_command, [nogit])
     assert result.exit_code == 1
-    assert result.output.startswith('versioning file not found:')
+
+    if PYTHON_3:
+        assert result.output.startswith('versioning file not found:')
+    else:
+        assert 'Aborting since this is Python2.' in result.output
 
 
 def test_including_deploy(test_project):
@@ -56,6 +62,11 @@ def test_including_deploy(test_project):
     assert 'beautiful day' in result.output
 
     result = runner.invoke(release_command, [repo_root])
+
+    if not PYTHON_3:
+        assert 'Aborting since this is Python2.' in result.output
+        return
+
     assert result.output.startswith('Tag-Version check failed:')
     assert 'initial' in result.output
     assert 'exist' in result.output
@@ -90,4 +101,10 @@ def test_noop(test_project):
         release_command,
         ['--noop', repo_root],
     )
-    assert result.exit_code in (0, 1)
+    if not PYTHON_3:
+        assert 'Aborting since this is Python2.' in result.output
+        assert result.exit_code == 1
+        return
+    else:
+        assert result.exit_code == 0
+
