@@ -3,22 +3,28 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to flowtool's documentation!
-====================================
+
+.. _py-flowlib: https://github.com/isnok/py-flowlib
+
+
+py-flowblib
+===========
+
+This is the documentation index of the github project `py-flowlib`_.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   about.rst
    main_readme.rst
    component_docs/flowtool-base.rst
 
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
