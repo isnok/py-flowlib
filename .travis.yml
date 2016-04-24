@@ -23,16 +23,16 @@ before_install:
     # - pip install pytest-xdist (nope... git repo locks)
 
 install:
-    #- cd ./base       && ./setup.py develop && cd ..
-    #- cd ./git        && ./setup.py develop && cd ..
-    #- cd ./gitflow    && ./setup.py develop && cd ..
-    #- cd ./githooks   && ./setup.py develop && cd ..
-    #- cd ./hooks-demo && ./setup.py develop && cd ..
-    #- cd ./pythonic   && ./setup.py develop && cd ..
-    #- cd ./release    && ./setup.py develop && cd ..
-    #- cd ./stages     && ./setup.py develop && cd ..
-    #- cd ./versioning && ./setup.py develop && cd ..
-    #- cd ./meta       && ./setup.py develop && cd ..
+    - cd ./base       && ./setup.py develop && cd ..
+    - cd ./git        && ./setup.py develop && cd ..
+    - cd ./gitflow    && ./setup.py develop && cd ..
+    - cd ./githooks   && ./setup.py develop && cd ..
+    - cd ./hooks-demo && ./setup.py develop && cd ..
+    - cd ./pythonic   && ./setup.py develop && cd ..
+    - cd ./release    && ./setup.py develop && cd ..
+    - cd ./stages     && ./setup.py develop && cd ..
+    - cd ./versioning && ./setup.py develop && cd ..
+    - cd ./meta       && ./setup.py develop && cd ..
     #- pip install -e ./base
     #- pip install -e ./git
     #- pip install -e ./gitflow
@@ -43,16 +43,16 @@ install:
     #- pip install -e ./stages
     #- pip install -e ./versioning
     #- pip install -e ./meta
-    - cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    #- cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
     # - pip install -U tox
     # - pip install -U tox pytest
     - make clean
