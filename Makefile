@@ -49,13 +49,8 @@ shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):
 	_flowtool_githooks.shellcheck
 
-$(COMPONENT_DOCUMENTATION):
-	# (re)build the html documenation with sphinx (experimental)
-	./sphinx-install.sh $(subst -docs,,$@)
-	cd $(subst -docs,,$@) && ../autosphinx.sh
-	$(MAKE) -C $(subst -docs,,$@)/doc html
-
-documentation: $(COMPONENT_DOCUMENTATION)
+documentation:
+	$(MAKE) -C doc html
 
 dependencies:
 	# test dependencies
