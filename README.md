@@ -7,11 +7,11 @@
 
 # flowtool
 
-An extensible workflow-enhancing command line tool.
+An extensible command line tool.
 
 ## Installation
 
-You can choose your components granularly from these python packages:
+Choose your favourite components from:
 
 * [`flowtool-gitflow`](https://github.com/isnok/py-flowlib/tree/master/gitflow) - general git shortcuts and workflow helpers (still alpha featurewise, but stable).
 * [`flowtool-githooks`](https://github.com/isnok/py-flowlib/tree/master/githooks) - adds commands to install and manage hooks in your local git repositories.
@@ -83,5 +83,5 @@ your virtual environment.
 
 ### Release Plan
 
-- 0.8: code cleanups, restructuring and a "real" documentation
-- 0.9: convert (most) doctests to "real" (py-)tests
+- 0.8: convert (most) doctests to "real" (py-)tests
+- 0.9: code cleanups, restructuring and a "real" documentation
