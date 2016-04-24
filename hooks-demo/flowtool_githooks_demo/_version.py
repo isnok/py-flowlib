@@ -296,7 +296,9 @@ def vcs_versioning(version_info):
             vcs_version['dev_release'] = distance
 
         vcs_version = normalize_pep440(**vcs_version)
-    else:
+    elif vcs_version:
+        vcs_version = normalize_pep440(**vcs_version)
+    elif not vcs_version:
         vcs_version = '0'
 
     if vcs_info['dirt']:
