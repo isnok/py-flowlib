@@ -1,3 +1,2 @@
-click
-flowtool-git
-flowtool-versioning
+flowtool-git>=0.7.23
+flowtool-versioning>=0.7.58
