@@ -53,13 +53,20 @@ Installation
 
 Choose your favourite components from:
 
-- flowtool-gitflow_: general git shortcuts and workflow helpers (still alpha featurewise, but stable).
-- flowtool-githooks_: adds commands to install and manage hooks in your local git repositories.
-- flowtool-githooks-demo_: some example git hooks that you can use to validate files you commit in you git or push to your remotes (i.e. shellcheck_, pylint_, yamllint_, du_ and more).
-- flowtool-python_: some functions/commands especially useful for python programmers.
-- flowtool-versioning_: an automated versioning system.
-- flowtool-releasing_: an automated release process for python packages to PyPI_ (still as good as a shell script, but soon this shall also change).
-- flowtool-all_: meta package to install all major components in one go.
+flowtool-gitflow_
+    general git shortcuts and workflow helpers (still alpha featurewise, but stable).
+flowtool-githooks_
+    adds commands to install and manage hooks in your local git repositories.
+flowtool-githooks-demo_
+    some example git hooks that you can use to validate files you commit in you git or push to your remotes (i.e. shellcheck_, pylint_, yamllint_, du_ and more).
+flowtool-python_
+    some functions/commands especially useful for python programmers.
+flowtool-versioning_
+    an automated versioning system.
+flowtool-releasing_
+    an automated release process for python packages to PyPI_ (still as good as a shell script, but soon this shall also change).
+flowtool-all_
+    meta package to install all major components in one go.
 
 Try it out:
 
