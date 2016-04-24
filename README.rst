@@ -19,12 +19,6 @@
     :alt: Coverage Status
 
 
-flowtool
-********
-
-An extensible command line tool for various software development related tasks.
-`flowtool` is developed as a platform for universal task automatisation using the `Python Programming Language`_.
-
 .. _Python Programming Language: http://www.python.org/
 .. _PyPI: http://pypi.python.org
 .. _rst: https://en.wikipedia.org/wiki/ReStructuredText
@@ -47,6 +41,13 @@ An extensible command line tool for various software development related tasks.
 .. _flowtool-stages: https://github.com/isnok/py-flowlib/tree/master/stages
 .. _flowtool-all: https://github.com/isnok/py-flowlib/tree/master/meta
 
+
+========
+flowtool
+========
+
+An extensible command line tool for various software development related tasks.
+`flowtool` is developed as a platform for universal task automatisation using the `Python Programming Language`_.
 
 Installation
 ============
@@ -122,14 +123,24 @@ possible, but will yield ugly errors, if you try to complete outside of
 your virtual environment.
 
 
+Development
+===========
+
+The development of flowtool is currently driven by my (the Author's) personal requirement.
+My vision is to create some solutions here for things that i used to solve with small shell
+scripts. These solutions then mutated their own features, that i would then miss in another
+version of it. So, in order to keep these tiny solutions kind of "standardized", i reduce
+overhead, and solve things on a more general level. This isn't always easier, but pays off
+a lot in the long run. Like not so many people test their release-scripts, but in production.
+
 Release Plan
-============
+------------
 
 - 0.8: convert (most) doctests to "real" (py-)tests
 - 0.9: code cleanups, restructuring and a "real" documentation
 
 Todo
-----
+~~~~
 
 * Convert more READMEs to rst_, as a first initiative to start a sphinx_ documentation.
 * flowtool-versioning_ does work now, and also for a lot of scenarios, but the version meta-information is still poor.
