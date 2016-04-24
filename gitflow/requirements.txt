@@ -1,2 +1,1 @@
-click
-flowtool-git
+flowtool-git>=0.7.23
