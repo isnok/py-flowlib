@@ -11,7 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   README.rst
+   main_readme.rst
+   component_docs/flowtool-base.rst
 
 
 Indices and tables
