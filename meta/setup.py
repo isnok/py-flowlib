@@ -8,6 +8,43 @@ from versioning import get_version, get_cmdclass
 
 import os
 
+def read_file(name):
+    """ Read an arbitrary file and return its content as a string.
+
+        >>> read_file('_noftound_')
+        >>> len(read_file(__file__)) > 0
+        True
+    """
+    if os.path.isfile(name):
+
+        with open(name) as f:
+            content = f.read()
+
+        return content
+
+
+def read_requirements(name=None):
+    """ Read a reqiurements.txt file into a list of lines, that
+        are non-empty, and do not start with a `#`-character.
+
+        >>> read_requirements('_noftound_')
+        >>> len(read_requirements(__file__)) > 0
+        True
+        >>> isinstance(read_requirements(), list)
+        True
+    """
+    if name is None:
+        name = os.path.join(
+            os.path.dirname(__file__), 'requirements.txt'
+        )
+
+    if os.path.isfile(name):
+
+        with open(name, 'r') as fh:
+            lines = [l.strip() for l in fh.readlines() if l.strip()]
+
+        return [r for r in lines if not r.startswith('#')]
+
 
 # General Info
 
@@ -33,17 +70,7 @@ setup_args.update(
 # Requirements
 
 setup_args.update(
-    install_requires=[
-        'colorama',
-        'flowtool-base',
-        'flowtool-gitflow',
-        'flowtool-githooks',
-        'flowtool-githooks-demo',
-        'flowtool-python',
-        'flowtool-releasing',
-        'flowtool-stages',
-        'flowtool-versioning',
-    ],
+    install_requires=read_requirements(),
     dependency_links=(),
 )
 
@@ -52,6 +79,7 @@ setup_args.update(
 setup_args.update(
     keywords=['git','flow','commandline','workflow','python','development'],
     platforms=['Debian/GNU Linux'],
+    long_description=read_file('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         #"License :: OSI Approved :: BSD License",

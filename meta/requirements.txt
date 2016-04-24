@@ -1,11 +1,9 @@
-click
-colorama
 flowtool-base
 flowtool-git
 flowtool-gitflow
 flowtool-githooks
 flowtool-githooks-demo
 flowtool-python
-flowtool-releasing
 flowtool-stages
 flowtool-versioning
+flowtool-releasing
