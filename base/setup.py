@@ -6,36 +6,44 @@ from setuptools import find_packages
 
 import versioning
 
-from functools import partial
-
 import os
-
-abspath = partial(os.path.join, os.path.dirname(__file__))
-
 
 def read_file(name):
     """ Read an arbitrary file and return its content as a string.
 
+        >>> read_file('_noftound_')
         >>> len(read_file(__file__)) > 0
         True
     """
-    with open(abspath(name)) as f:
-        content = f.read()
-    return content
+    if os.path.isfile(name):
+
+        with open(name) as f:
+            content = f.read()
+
+        return content
 
 
-def read_requirements(name='requirements.txt'):
+def read_requirements(name=None):
     """ Read a reqiurements.txt file into a list of lines, that
         are non-empty, and do not start with a `#`-character.
 
+        >>> read_requirements('_noftound_')
         >>> len(read_requirements(__file__)) > 0
         True
+        >>> len(read_requirements())
+        3
     """
+    if name is None:
+        name = os.path.join(
+            os.path.dirname(__file__), 'requirements.txt'
+        )
 
-    with open(name, 'r') as fh:
-        lines = [l.strip() for l in fh.readlines() if l.strip()]
+    if os.path.isfile(name):
 
-    return [r for r in lines if not r.startswith('#')]
+        with open(name, 'r') as fh:
+            lines = [l.strip() for l in fh.readlines() if l.strip()]
+
+        return [r for r in lines if not r.startswith('#')]
 
 
 # General Info
