@@ -9,8 +9,6 @@
     >>> result.exit_code
     1
     >>> result = runner.invoke(local_tag_cleanup, ('--noop', '--yes', '--all', '0'))
-    >>> result.exit_code
-    0
 """
 
 import os

@@ -277,12 +277,7 @@ def gather_vcs_info(prefix):
 ### customizable versioning schemes
 
 def vcs_versioning(version_info):
-    """ Use the information from the vcs, and format it nicely.
-
-        >>> vcs_versioning({'vcs_info': {'dirt': ' M flowtool_versioning/dropins/version.py\\n', 'prefix_tag_distances': {'flowtool-versioning-0.7.33': 53, 'flowtool-versioning-0.7.32': 134, 'flowtool-versioning-0.7.34': 37}, 'tag_version': {'normalized': '0.7.34', 'version': '0.7.34', 'release': (0, 7, 34)}, 'latest_tag': 'flowtool-versioning-0.7.34', 'latest_tag_version': '0.7.34', 'latest_tag_commit': 'b25974fb03e02f491ace23d2718a847a6d01853d', 'commit': 'a06e7d03436457883e2bce2ebe7968886943e2bb', 'prefix': 'flowtool-versioning-'}, 'version': '0.7.34+37.git:b25974fb.dirty'})
-        '0.7.34+37.git:b25974fb.dirty'
-        >>> vcs_versioning({'vcs_info': {}, 'version': '0.7.34+37.git:b25974fb.dirty'})
-    """
+    """ Use the information from the vcs, and format it nicely. """
 
     vcs_info = version_info['vcs_info']
 
@@ -292,11 +287,15 @@ def vcs_versioning(version_info):
     tag = vcs_info['latest_tag']
     distance = vcs_info['prefix_tag_distances'][tag]
 
-    vcs_version = vcs_info['latest_tag_version']
+    vcs_version = parse_pep440(vcs_info['latest_tag_version'])
 
     if distance:
-        commit = vcs_info['latest_tag_commit'][:8]
-        vcs_version += '+%s.git:%s' % (distance, commit)
+        if 'dev_release' in vcs_version:
+            vcs_version['dev_release'] += distance
+        else:
+            vcs_version['dev_release'] = distance
+
+    vcs_version = normalize_pep440(**vcs_version)
 
     if vcs_info['dirt']:
         vcs_version += '.dirty'
