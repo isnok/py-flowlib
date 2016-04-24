@@ -102,7 +102,7 @@ def test_noop(test_project):
         ['--noop', repo_root],
     )
     if not PYTHON_3:
-        assert 'Aborting since this is Python2.' in result.output
+        # assert 'Aborting since this is Python2.' in result.output
         assert result.exit_code == 1
         return
     else:
