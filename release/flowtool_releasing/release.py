@@ -94,17 +94,17 @@ def release_command(project_path=None, noop=None):
         ))
 
     auto_version = version_or_exit(project_path)
-    dirty = 'dirty' in auto_version
 
     if auto_version == '0':
         echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
         abort('It looks like no (initial) version tag(s) exist(s).')
 
-    released = '.git:' not in auto_version
+    released = '.dev' not in auto_version
     if released:
         echo.bold('Tag-Version check failed:', colors.cyan(auto_version))
         abort('Are you trying to re-release the current version tag?')
 
+    dirty = 'dirty' in auto_version
     if dirty:
         echo.bold('Tag-Version check failed:', colors.red(auto_version))
         abort('You have to commit all changes before releasing.')

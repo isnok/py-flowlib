@@ -289,16 +289,15 @@ def vcs_versioning(version_info):
 
     vcs_version = parse_pep440(vcs_info['latest_tag_version'])
 
-    if not vcs_version:
-        return '0'
-
-    if distance:
+    if vcs_version and distance:
         if 'dev_release' in vcs_version:
             vcs_version['dev_release'] += distance
         else:
             vcs_version['dev_release'] = distance
 
-    vcs_version = normalize_pep440(**vcs_version)
+        vcs_version = normalize_pep440(**vcs_version)
+    else:
+        vcs_version = '0'
 
     if vcs_info['dirt']:
         vcs_version += '.dirty'

@@ -15,7 +15,7 @@ os.makedirs(TEMPDIR)
 
 import getpass
 
-if getpass.getuser() != 'travis':
+if getpass.getuser() == 'travis':
     import atexit
     atexit.register(
         partial(shutil.rmtree, TEMPDIR)
