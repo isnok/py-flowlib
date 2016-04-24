@@ -45,7 +45,7 @@ shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):
 	_flowtool_githooks.shellcheck
 
-documentation:
+documentation: documentation-dependencies
 	$(MAKE) -C doc html
 
 test-dependencies:
@@ -59,19 +59,13 @@ documentation-dependencies:
 	# experimental, but required by now
 	pip install -U recommonmark sphinx-rtd-theme
 
-dependencies: test-dependencies build-dependencies documentation-dependencies
+dependencies: test-dependencies build-dependencies
 
 travis-dependencies: dependencies
 	pip install coveralls
 
 travis-setup: travis-dependencies
-	# this used to be in travis.yml
-	sudo apt-get -qq update
-	sudo apt-get install -y file
-	#sudo apt-get install -y cabal-install
-	#cabal update
-	#cabal install shellcheck
-	#pip install pytest-xdist (nope... git repo locks)
+	# sudo part stays in .travis.yml for now
 
 travis-install:
 	cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..

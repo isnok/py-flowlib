@@ -11,6 +11,11 @@ python:
     - "3.5"
 
 before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y file
+    # - sudo apt-get install -y cabal-install
+    # - cabal update
+    # - cabal install shellcheck
     - make travis-setup
 
 install:
