@@ -15,9 +15,17 @@ template = '''"""
 
 VERSION_INFO = {}
 
+no_version_version = '0'
+git_export_version = '$Format:%d %H$'
+
 def get_version():
     global VERSION_INFO
-    return VERSION_INFO.get('version', '$Format:%d %H$')
+    if 'version' in VERSION_INFO:
+        return VERSION_INFO['version']
+    elif not 'Format' in git_export_version:
+        return git_export_version
+    else:
+        return no_version_version
 '''
 
 exec(template)
