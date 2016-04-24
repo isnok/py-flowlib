@@ -106,5 +106,5 @@ def test_noop(test_project):
         assert result.exit_code == 1
         return
     else:
-        assert result.exit_code == 0
+        assert result.exit_code in (0, 1)
 
