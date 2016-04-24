@@ -64,8 +64,8 @@ dependencies:
 	pip install -U wheel
 	# documenation build dependencies
 	pip install -U sphinx sphinxcontrib-autodoc-doxygen
-	# external tools
-	pip install -U pylint yamllint cclint coverage pymarkdownlint
+	# experimental dependencies
+	pip install -U recommonmark
 	# debian packages (require root...)
 	#command -v apt-get && apt-get install shellcheck
 

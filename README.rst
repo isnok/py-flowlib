@@ -50,8 +50,8 @@
 flowtool
 ========
 
-An extensible command line tool for various software development related tasks.
-`flowtool` is developed as a platform for universal task automatisation using the `Python Programming Language`_.
+An extensible command line tool for various software development tasks.
+`flowtool` is developed to become a platform for universal task automatisation through the power of the `Python Programming Language`_ and it's many libraries.
 
 Installation
 ============
