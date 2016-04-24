@@ -55,7 +55,8 @@ install:
     - cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
     # - pip install -U tox
     # - pip install -U tox pytest
-    #
+    - make clean
+
 script:
     - make travis
 
