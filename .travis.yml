@@ -23,16 +23,16 @@ before_install:
     # - pip install pytest-xdist (nope... git repo locks)
 
 install:
-    #- cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+    - cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
     #- pip install -e ./base
     #- pip install -e ./git
     #- pip install -e ./gitflow
