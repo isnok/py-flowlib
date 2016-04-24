@@ -122,7 +122,8 @@ def init_versioning(path=os.getcwd(), yes=None, noop=None):
                 noop or append_to_file(setup_cfg, version_config)
 
 
-    from flowtool_versioning.dropins.cmdclass import __file__ as setupextension_source
+    with cd(path):
+        from flowtool_versioning.dropins.cmdclass import __file__ as setupextension_source
 
     if setupextension_source.endswith('.pyc'):
         setupextension_source = setupextension_source[:-1]
