@@ -5,10 +5,6 @@ COMPONENT_DEVELOP = $(foreach name, $(COMPONENTS), develop-$(name))
 COMPONENT_RELEASE = $(foreach name, $(COMPONENTS), release-$(name))
 COMPONENT_VERSIONING = $(foreach name, $(COMPONENTS), versioning-$(name))
 
-travis: main-command probing-hook pytest coverage
-
-travis-light: main-command probing-hook pytest
-
 test: shellcheck tox yamllint pylint
 
 main-command: installed
@@ -52,17 +48,72 @@ shellcheck:
 documentation:
 	$(MAKE) -C doc html
 
-dependencies:
-	# test dependencies
+test-dependencies:
 	pip install -U pytest pytest-cov
-	# build/release dependencies
-	pip install -U wheel
-	# documenation build dependencies
+
+build-dependencies:
+	pip install -U pip wheel
+
+documentation-dependencies:
 	pip install -U sphinx sphinxcontrib-autodoc-doxygen
-	# experimental dependencies
-	pip install -U recommonmark
-	# debian packages (require root...)
-	#command -v apt-get && apt-get install shellcheck
+	# experimental, but required by now
+	pip install -U recommonmark sphinx-rtd-theme
+
+dependencies: test-dependencies build-dependencies documentation-dependencies
+
+travis-dependencies: dependencies
+	pip install coveralls
+
+travis-setup: travis-dependencies
+	# this used to be in travis.yml
+	sudo apt-get -qq update
+	sudo apt-get install -y file
+	#sudo apt-get install -y cabal-install
+	#cabal update
+	#cabal install shellcheck
+	#pip install pytest-xdist (nope... git repo locks)
+
+travis-install:
+	cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
+	#- pip install -e ./base
+	#- pip install -e ./git
+	#- pip install -e ./gitflow
+	#- pip install -e ./githooks
+	#- pip install -e ./hooks-demo
+	#- pip install -e ./pythonic
+	#- pip install -e ./stages
+	#- pip install -e ./versioning
+	#- pip install -e ./release
+	#- pip install -e ./meta
+	cd ./base       && ./setup.py develop && cd ..
+	cd ./git        && ./setup.py develop && cd ..
+	cd ./gitflow    && ./setup.py develop && cd ..
+	cd ./githooks   && ./setup.py develop && cd ..
+	cd ./hooks-demo && ./setup.py develop && cd ..
+	cd ./pythonic   && ./setup.py develop && cd ..
+	cd ./stages     && ./setup.py develop && cd ..
+	cd ./versioning && ./setup.py develop && cd ..
+	cd ./release    && ./setup.py develop && cd ..
+	cd ./meta       && ./setup.py develop && cd ..
+	# - pip install -U tox
+	# - pip install -U tox pytest
+
+
+travis: main-command probing-hook pytest documentation coverage
+
+travis-light: main-command probing-hook pytest
+
+travis-success:
+	coveralls
 
 install: dependencies
 	# install the tool into the current virtual environment
@@ -92,10 +143,10 @@ $(COMPONENT_VERSIONING): clean
 	cd $(subst versioning-,,$@) && ft versioning-update -y
 
 
-all: install travis test documentation
+all: install documentation
 
 .PHONY : all $(COMPONENTS)
-.PHONY : test travis travis-light
+.PHONY : test travis travis-light travis-setup travis-install travis-success
 .PHONY : pylint pytest shellcheck
 .PHONY : dependencies install uninstall installed
 .PHONY : main-command probing-hook

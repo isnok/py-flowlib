@@ -11,54 +11,14 @@ python:
     - "3.5"
 
 before_install:
-    - sudo apt-get -qq update
-    - sudo apt-get install -y file
-    # - sudo apt-get install -y pylint
-    # - sudo apt-get install -y shellcheck
-    # - sudo apt-get install -y cabal-install
-    # - cabal update
-    # - cabal install shellcheck
-    - pip install -U pip wheel
-    - pip install -U pytest pytest-cov coveralls
-    # - pip install pytest-xdist (nope... git repo locks)
+    - make travis-setup
 
 install:
-    - cd ./base       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./git        && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./gitflow    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./githooks   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./hooks-demo && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./pythonic   && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./stages     && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./versioning && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./release    && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    - cd ./meta       && ./setup.py bdist_wheel && pip install dist/flowtool*.whl && cd ..
-    #- pip install -e ./base
-    #- pip install -e ./git
-    #- pip install -e ./gitflow
-    #- pip install -e ./githooks
-    #- pip install -e ./hooks-demo
-    #- pip install -e ./pythonic
-    #- pip install -e ./stages
-    #- pip install -e ./versioning
-    #- pip install -e ./release
-    #- pip install -e ./meta
-    - cd ./base       && ./setup.py develop && cd ..
-    - cd ./git        && ./setup.py develop && cd ..
-    - cd ./gitflow    && ./setup.py develop && cd ..
-    - cd ./githooks   && ./setup.py develop && cd ..
-    - cd ./hooks-demo && ./setup.py develop && cd ..
-    - cd ./pythonic   && ./setup.py develop && cd ..
-    - cd ./stages     && ./setup.py develop && cd ..
-    - cd ./versioning && ./setup.py develop && cd ..
-    - cd ./release    && ./setup.py develop && cd ..
-    - cd ./meta       && ./setup.py develop && cd ..
-    # - pip install -U tox
-    # - pip install -U tox pytest
-    - make clean
+    - make travis-install
 
 script:
+    - make clean
     - make travis
 
 after_success:
-    - coveralls
+    - make travis-success

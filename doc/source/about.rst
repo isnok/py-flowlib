@@ -1,5 +1,5 @@
-flowtool-* why?
-===============
+why flowtool?
+=============
 
 The development of flowtool is currently driven by my (the Author's) personal requirements.
 My vision is to create some solutions here for things that i used to solve with small shell
