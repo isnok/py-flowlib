@@ -22,6 +22,7 @@ Contents:
    main_readme.rst
    component_docs/flowtool-base.rst
 
+   autodoc/index.rst
 
 Indices and Tables
 ==================

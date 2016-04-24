@@ -45,7 +45,7 @@ shellcheck:
 	# check all .sh files with shellcheck (unavailable on travis):
 	_flowtool_githooks.shellcheck
 
-documentation: documentation-dependencies
+documentation:
 	$(MAKE) -C doc html
 
 test-dependencies:
@@ -102,7 +102,7 @@ travis-install:
 	# - pip install -U tox pytest
 
 
-travis: main-command probing-hook pytest documentation coverage
+travis: main-command probing-hook pytest documentation-dependencies documentation coverage
 
 travis-light: main-command probing-hook pytest coverage
 

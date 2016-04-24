@@ -16,6 +16,12 @@
 import sys
 import os
 
+def mkpath(name):
+    path = os.path.join(os.pardir, name)
+    return os.path.abspath(path)
+
+sys.path.insert(0, mkpath('base'))
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -44,7 +50,7 @@ templates_path = ['_templates']
 
 # From the recommonmark documentation:
 
-from recommonmark.parser import CommonMarkParser
+from recommonmark.parser import CommonMarkParser # pylint: disable=E0401
 
 source_parsers = {
     '.md': CommonMarkParser,
