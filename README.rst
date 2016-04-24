@@ -63,7 +63,8 @@ Choose your favourite components from:
 
 Try it out:
 
-::
+.. code-block:: bash
+
     pip install flowtool-gitflow
     pip install flowtool-githooks
     pip install flowtool-githook-demo
@@ -82,14 +83,16 @@ The command is obviously named `flowtool` and has also a quick alias: `ft`.
 
 Freshly installed flowtool-base_ brings only one command:
 
-::
+.. code-block:: bash
+
     flowtool --help
     flowtool self-info
     ft self-info
 
 Keep it up to date via:
 
-::
+.. code-block:: bash
+
     ft self-update --help
     ft self-update -a -y
 
@@ -98,13 +101,15 @@ Completion
 
 To enable completion in your current shell session, run:
 
-::
+.. code-block:: bash
+
     eval "$(_FLOWTOOL_COMPLETE=source flowtool)"
     eval "$(_FT_COMPLETE=source ft)"
 
 You can also add the output of
 
-::
+.. code-block:: bash
+
     _FLOWTOOL_COMPLETE=source flowtool
     _FT_COMPLETE=source ft
 
