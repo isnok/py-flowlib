@@ -1,1 +1,2 @@
+flowtool-base>=0.7.56
 flowtool-git>=0.7.23

@@ -30,8 +30,8 @@ def read_requirements(name=None):
         >>> read_requirements('_noftound_')
         >>> len(read_requirements(__file__)) > 0
         True
-        >>> len(read_requirements())
-        2
+        >>> isinstance(read_requirements(), list)
+        True
     """
     if name is None:
         name = os.path.join(
