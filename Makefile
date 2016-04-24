@@ -104,7 +104,7 @@ travis-install:
 
 travis: main-command probing-hook pytest documentation coverage
 
-travis-light: main-command probing-hook pytest
+travis-light: main-command probing-hook pytest coverage
 
 travis-success:
 	coveralls
