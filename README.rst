@@ -20,7 +20,7 @@
 
 
 flowtool
-========
+********
 
 An extensible command line tool for various software development related tasks.
 `flowtool` is developed as a platform for universal task automatisation using the `Python Programming Language`_.
@@ -49,7 +49,7 @@ An extensible command line tool for various software development related tasks.
 
 
 Installation
-------------
+============
 
 Choose your favourite components from:
 
@@ -76,7 +76,7 @@ Try it out:
 
 
 Usage
------
+=====
 
 `flowtool` installs a new shell command into your (virtual) environment.
 The command is obviously named `flowtool` and has also a quick alias: `ft`.
@@ -123,7 +123,7 @@ your virtual environment.
 
 
 Release Plan
-------------
+============
 
 - 0.8: convert (most) doctests to "real" (py-)tests
 - 0.9: code cleanups, restructuring and a "real" documentation
