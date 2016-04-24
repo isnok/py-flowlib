@@ -23,7 +23,7 @@ from flowtool.python import get_configparser
 from flowtool_git.common import local_repo
 from flowtool_git.tags import local_tags, delete_local_tags
 
-pep440_regex = re.compile('((?P<epoch>[0-9]*)!)?(?P<release>[0-9][0-9]*(\.[0-9][0-9]*)*)\.?((?P<pre_stage>a|b|rc)?(?P<pre_ver>[0-9]*))((\.post(?P<post>[0-9]*)))?((\.dev(?P<dev>[0-9]*)))?')
+pep440_regex = re.compile('^((?P<epoch>[0-9]*)!)?(?P<release>[0-9][0-9]*(\.[0-9][0-9]*)*)\.?((?P<pre_stage>a|b|rc)?(?P<pre_ver>[0-9]*))((\.post(?P<post>[0-9]*)))?((\.dev(?P<dev>[0-9]*)))?$')
 
 def parse_pep440(version_string):
     """ PEP440 versions look like this:
