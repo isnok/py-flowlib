@@ -1,6 +1,5 @@
-click
-flowtool-githooks
-yamllint
-#pymarkdownlint
-#cclint
-#coverage
+flowtool-base>=0.7.56
+flowtool-git>=0.7.23
+flowtool-githooks>=0.7.43
+yamllint>=1.2.1
+pylint>=1.5.5

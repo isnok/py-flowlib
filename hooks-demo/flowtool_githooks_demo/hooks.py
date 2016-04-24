@@ -240,8 +240,11 @@ class FileContentSummary(ShellCommandHook):
         for check, outcome in results:
             summary[outcome.stdout.split(': ', 1)[-1].strip()] += 1
         echo.bold(colors.yellow('\n-- File Content Statistics --\n'))
+        idx = None
         for idx, (typ, cnt) in enumerate(summary.most_common()):
-            echo.white('{:-4d}. {:-4d}: {}'.format(1+idx, cnt, typ))
+            echo.white('{:-4d}. {:-4d}: {}'.format(1+idx, cnt, colors.cyan(typ)))
+        if summary:
+            echo.white()
 
 file_hook = FileContentSummary()
 
