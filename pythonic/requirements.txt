@@ -1,5 +1,1 @@
-click
-flowtool-base
-flowtool-githooks
-pylint
-gitpython
+flowtool-base>=0.7.56

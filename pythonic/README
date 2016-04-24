@@ -4,7 +4,7 @@
 
 # flowtool-python
 
-A collection of functions helpful for python development.
+Helpers for python devs.
 
 ## Contents
 
@@ -12,17 +12,5 @@ The `flowtool-python` package currently contains one new command for `flowtool`:
 
 * `py-clean` - recursively cleans temporary files (`*.pyc`) and directories (`__pycache__`).
 
-Secondly it brings some git hooks:
+The hooks have been moved to `flowtool-githooks-demo`
 
-* `pylint-minimal` - (pre-commit, commit-msg) - checks all python source files added to the commit with pylint and a minimalistic config
-* `pylint-commit-range` - (pre-push) - checks all python source files that differ from origin/master on push
-* `pytest-hook` - (pre-commit, commit-msg) - run pytest in all dirs containing a `pytest.ini` or `tox.ini`
-
-The hooks can be installed via the `flowtool-githooks` manager:
-
-```shell
-flowtool githooks-install
-flowtool githooks-scripts --hook pre-commit --add _flowtool_githooks.demo
-flowtool githooks-scripts --hook commit-msg --add _flowtool_githooks.demo
-flowtool githooks-scripts --hook pre-push --add _flowtool_githooks.demo
-```
