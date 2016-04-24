@@ -17,7 +17,7 @@ def install_requirement(name):
     pip.main(['install', '-q', name])
 
 
-def setup_testenv():
+def setup_testenv(self=None):
     """ Install required packages for the test suite.
 
         >>> setup_testenv()
@@ -33,8 +33,7 @@ class PytestCommand(Command):
     boolean_options = []
     pytest_args = []
 
-    def initialize_options(self):
-        setup_testenv()
+    initialize_options = setup_testenv
 
     def run(self):
         import pytest
