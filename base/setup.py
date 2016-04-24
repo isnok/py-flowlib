@@ -12,9 +12,31 @@ import os
 
 abspath = partial(os.path.join, os.path.dirname(__file__))
 
+
 def read_file(name):
+    """ Read an arbitrary file and return its content as a string.
+
+        >>> len(read_file(__file__)) > 0
+        True
+    """
     with open(abspath(name)) as f:
-        return f.read()
+        content = f.read()
+    return content
+
+
+def read_requirements(name='requirements.txt'):
+    """ Read a reqiurements.txt file into a list of lines, that
+        are non-empty, and do not start with a `#`-character.
+
+        >>> len(read_requirements(__file__)) > 0
+        True
+    """
+
+    with open(name, 'r') as fh:
+        lines = [l.strip() for l in fh.readlines() if l.strip()]
+
+    return [r for r in lines if not r.startswith('#')]
+
 
 # General Info
 
@@ -49,10 +71,7 @@ setup_args.update(
 # Requirements
 
 setup_args.update(
-    install_requires=[
-        'click',
-        'pip',
-    ],
+    install_requires=read_requirements(),
     dependency_links=[],
 )
 
