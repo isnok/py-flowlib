@@ -10,6 +10,10 @@
     :target: https://pypi.python.org/pypi/flowtool-all
     :alt: PyPI Distribution Format
 
+.. image:: http://readthedocs.org/projects/py-flowlib/badge/?version=latest
+    :target: http://py-flowlib.readthedocs.org/
+    :alt: ReadTheDocs Documentation
+
 .. image:: https://travis-ci.org/isnok/py-flowlib.svg?branch=master
     :target: https://travis-ci.org/isnok/py-flowlib
     :alt: build-status
@@ -140,7 +144,7 @@ Release Plan
 - 0.9: code cleanups, restructuring and a "real" documentation
 
 Todo
-~~~~
+----
 
 * Convert more READMEs to rst_, as a first initiative to start a sphinx_ documentation.
 * flowtool-versioning_ does work now, and also for a lot of scenarios, but the version meta-information is still poor.
