@@ -289,6 +289,9 @@ def vcs_versioning(version_info):
 
     vcs_version = parse_pep440(vcs_info['latest_tag_version'])
 
+    if not vcs_version:
+        return '0'
+
     if distance:
         if 'dev_release' in vcs_version:
             vcs_version['dev_release'] += distance
