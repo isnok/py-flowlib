@@ -10,3 +10,4 @@ flowtool.main
     :inherited-members:
     :show-inheritance:
 
+    .. autofunction:: flowtool.main.flowtool_main_group(debug, **kwd)
