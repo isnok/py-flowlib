@@ -11,4 +11,4 @@ Contents:
    :maxdepth: 2
 
    base/main.rst
-   base/info.rst
+   base/rest.rst

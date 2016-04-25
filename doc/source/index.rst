@@ -19,9 +19,7 @@ Contents:
 
    about.rst
 
-   main_readme.rst
-
-   dist_readmes/index.rst
+   readmes/index.rst
 
    autodoc/index.rst
 

@@ -46,9 +46,9 @@
 .. _flowtool-all: https://github.com/isnok/py-flowlib/tree/master/meta
 
 
-===================
-flowtool Quickstart
-===================
+========
+flowtool
+========
 
 An extensible command line tool for various software development tasks.
 `flowtool` is developed to become a platform for universal task automatisation through the power of the `Python Programming Language`_ and it's many libraries.

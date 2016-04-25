@@ -1,6 +1,6 @@
 
-flowtool.*
-==========
+flowtool.info
+=============
 
 .. automodule:: flowtool.info
     :members:
@@ -8,12 +8,19 @@ flowtool.*
     :inherited-members:
     :show-inheritance:
 
+
+flowtool.update
+===============
+
 .. automodule:: flowtool.update
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
 
+
+flowtool.*
+==========
 
 .. automodule:: flowtool.style
     :members:
