@@ -10,3 +10,14 @@ Contents:
 
    github-readme.rst
    flowtool-base.rst
+
+   flowtool-git.md
+   flowtool-gitflow.md
+   flowtool-githooks.md
+   flowtool-githooks-demo.md
+   flowtool-python.md
+   flowtool-stages.md
+   flowtool-versioning.md
+   flowtool-releasing.md
+
+   flowtool-all.rst
