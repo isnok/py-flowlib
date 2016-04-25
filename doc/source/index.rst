@@ -20,9 +20,11 @@ Contents:
    about.rst
 
    main_readme.rst
-   component_docs/flowtool-base.rst
+
+   dist_readmes/index.rst
 
    autodoc/index.rst
+
 
 Indices and Tables
 ==================
