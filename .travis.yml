@@ -23,10 +23,14 @@ install:
 
 script:
     - make clean
+
     # the full build and test chain
-    - make travis
-    # light version excludes the documentation (saves ~1:30m on dependency lxml)
-    # - make travis-light
+    # - make travis
+
+    # light version excludes the documentation
+    # (this saves ~1:30m on dependency lxml)
+    # and the documentation has it's own badge
+    - make travis-light
 
 after_success:
     - make travis-success
