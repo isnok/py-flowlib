@@ -17,8 +17,9 @@ import sys
 import os
 
 def mkpath(name):
-    path = os.path.join(os.pardir, name)
-    return os.path.abspath(path)
+    dn = os.path.dirname
+    project_root = dn(dn(dn(__file__)))
+    return os.path.join(project_root, name)
 
 sys.path.insert(0, mkpath('base'))
 
