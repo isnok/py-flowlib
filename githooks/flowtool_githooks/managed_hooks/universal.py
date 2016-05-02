@@ -99,8 +99,11 @@ class UniversalGithook(object):
         0
 
     """
+    NAME = None
 
     FILE_PATTERNS = '*'
+
+    CHECK_FUNC = None
 
     EXCEPTION_RETURNCODE = -2
     CONTINUES = 0
@@ -196,10 +199,6 @@ class UniversalGithook(object):
             'standalone'
             >>> tst.run_mode = 'something'
         """
-
-        if not hasattr(self, 'args'):
-            self.args = args
-
         info = self.RuntimeInfo(self.arg0, self.args, self.stdin, self.run_mode)
         return info
 
@@ -252,7 +251,7 @@ class UniversalGithook(object):
             >>> tst.make_check().func
             'test'
         """
-        check_func = self.check_func if hasattr(self, 'check_func') else dummy_check
+        check_func = self.CHECK_FUNC if self.CHECK_FUNC is not None else dummy_check
         return make_check(check_func, *args, **kwd)
 
     def generate_checks(self):
@@ -305,7 +304,7 @@ class UniversalGithook(object):
         return ErroredCheck(check, exc_info, self.EXCEPTION_RETURNCODE)
 
     def _msg_hook_startup(self, checks=(), **kwd):
-        msg = ('==', colors.yellow(self.NAME),) if hasattr(self, 'NAME') else ('==',)
+        msg = ('==', colors.yellow(self.NAME),) if self.NAME else ('==',)
         if hasattr(checks, '__len__'):
             if len(checks) > 1:
                 msg += ('will run', colors.green(str(len(checks))), 'checks.')
