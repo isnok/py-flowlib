@@ -356,6 +356,8 @@ class UniversalGithook(object):
                     return self.game_over(results, fails=fails)
 
         returncode = self.summarize(results, verbose=False)
+        if returncode is None:
+            returncode = 0
         return returncode
 
     def execute_progressbar(self, checks=None, continues=None, **kwd):
@@ -393,6 +395,8 @@ class UniversalGithook(object):
                         return self.game_over(results, fails=fails)
 
         returncode = self.summarize(results, verbose=False)
+        if returncode is None:
+            returncode = 0
         return returncode
 
     def execute_generator(self, checks=(), continues=None, **kwd):
@@ -430,6 +434,8 @@ class UniversalGithook(object):
                     return self.game_over(results, fails=fails, verbose=True)
         echo.white('')
         returncode = self.summarize(results, verbose=True)
+        if returncode is None:
+            returncode = 0
         return returncode
 
     def adaptive_execution(self, args=None, checks=None, **kwd):
@@ -470,7 +476,9 @@ class UniversalGithook(object):
         returncode = self.is_returncode(results[-1])
         echo.white('== Game Over:', 'continues_used=%s' % fails, 'returncode=%s' % returncode)
         if verbose:
-            return self.summarize(results, verbose=verbose)
+            returncode = self.summarize(results, verbose=verbose)
+        if returncode is None:
+            returncode = 0
         return returncode
 
     def summarize(self, results=(), verbose=None):
