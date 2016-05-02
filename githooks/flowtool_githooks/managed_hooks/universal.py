@@ -247,7 +247,7 @@ class UniversalGithook(object):
         """ Make a check (combine function and args).
 
             >>> tst = UniversalGithook()
-            >>> tst.check_func = 'test'
+            >>> tst.CHECK_FUNC = 'test'
             >>> tst.make_check().func
             'test'
         """

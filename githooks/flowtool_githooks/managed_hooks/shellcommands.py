@@ -203,7 +203,10 @@ class ConfiguredGithook(UniversalGithook):
         config = self.get_gitconfig()
         if self.GITCONFIG_DEFAULT and config:
             for key, value in config.items():
-                if key in self.GITCONFIG_DEFAULT and self.GITCONFIG_DEFAULT[key] == value:
+                if (
+                    key in self.GITCONFIG_DEFAULT # pylint: disable=E1135
+                    and self.GITCONFIG_DEFAULT[key] == value  # pylint: disable=E1136
+                ):
                     self.del_gitconfig(key)
 
     def hook_setup(self, cmd=None):
@@ -342,7 +345,7 @@ class ConfigFileHook(ConfiguredGithook):
             if str(default_config) == default_config:
                 content = default_config
             else:
-                content = default_config()
+                content = default_config()  # pylint: disable=E1102
             with open(filename, 'w') as fh:
                 fh.write(content)
             debug.cyan(
@@ -439,7 +442,7 @@ class ShellCommandHook(ConfigFileHook):
 
 
     def _msg_hook_startup(self, checks=(), **kwd):
-        msg = ('==', colors.cyan(self.NAME),) if hasattr(self, 'NAME') else ('==',)
+        msg = ('==', colors.cyan(self.NAME),) if self.NAME else ('==',)
         if hasattr(checks, '__len__'):
             if len(checks) > 1:
                 msg += ('will check', colors.yellow(str(len(checks))), 'files.')
@@ -519,7 +522,7 @@ class ShellCommandHook(ConfigFileHook):
         if self.CHECK_TOOL is not None:
             if isinstance(self.CHECK_TOOL, (tuple, list)):
                 tool_args = []
-                for arg in self.CHECK_TOOL:
+                for arg in self.CHECK_TOOL: # pylint: disable=E1133
                     if arg == '>managed_config<':
                         tool_args.append(self.get_configfile(do_setup=True))
                     else:
