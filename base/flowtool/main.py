@@ -35,12 +35,12 @@ extension_handlers = {}
 @click.group()
 @click.option('-d', '--debug/--no-debug', is_flag=True, help="enable flowtool debug output.")
 def flowtool_main_group(debug, **kwd):
-    """ flowtool - a{t,dd} your service.
+    """ flowtool - a pythonic screwdriver
 
         This is the main command group of flowtool.
         It's subcommands all come from compatible modules,
-        that provide click commands via the flowtool_commands
-        entrypoint group.
+        that provide click commands via the setuptools
+        entrypoints system.
     """
     style.DEBUG_OUTPUT = debug
 

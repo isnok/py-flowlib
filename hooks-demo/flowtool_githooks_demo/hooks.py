@@ -262,7 +262,7 @@ class FileSizeCheck(ShellCommandHook):
         0
         >>> output_lines = result.output.split('\\n')[:-1]
         >>> len(output_lines)
-        3
+        4
         >>> 'will check' in output_lines[0]
         True
     """
@@ -276,5 +276,13 @@ class FileSizeCheck(ShellCommandHook):
     def is_returncode(self, result):
         size = int(result.result.stdout.split()[0]) if result.result.stdout.strip() else 0
         return max(0, size - self.SIZE_LIMIT)
+
+    def summarize(self, results, verbose=True):
+        size_sum = 0
+        for check, outcome in results:
+            if outcome.stdout.strip():
+                size_sum += int(outcome.stdout.split()[0])
+        echo.bold(colors.yellow('du (Block) Size Sum: %s' % size_sum))
+        return 0
 
 du_hook = FileSizeCheck()
