@@ -55,7 +55,10 @@ def pformat_completed(result):
         ==> Finished command: ['true']
         Exit code: 0
         stdout:
-        ...
+        <BLANKLINE>
+        stderr:
+        <BLANKLINE>
+
     """
     pretty = '\n'.join([
         '==> Finished command: {0.command}',
