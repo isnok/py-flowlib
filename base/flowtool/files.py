@@ -121,18 +121,21 @@ def is_executable(filename):
 
 
 def make_executable(filename):
+    """ Make a file executable (for the owner). """
     mode = os.stat(filename).st_mode
     all_exec = stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
     os.chmod(filename, mode | all_exec)
 
 
 def make_not_executable(filename):
+    """ Make a file not executable (for the owner). """
     mode = os.stat(filename).st_mode
     not_exec = ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
     os.chmod(filename, mode & not_exec)
 
 
 def toggle_executable(filename):
+    """ Toggle the executable bit of a file (for the owner). """
     mode = os.stat(filename).st_mode
     if bool(mode & stat.S_IXUSR):
         new = mode & ~stat.S_IXUSR & ~stat.S_IXGRP & ~stat.S_IXOTH
@@ -142,7 +145,7 @@ def toggle_executable(filename):
 
 
 class cd:
-    """ Context manager to change the current working directory. """
+    """ A context manager to change the current working directory. """
 
     def __init__(self, path):
         self.path = os.path.expanduser(path)

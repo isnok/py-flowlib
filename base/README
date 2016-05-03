@@ -76,3 +76,15 @@ In :ref:`src.flowtool.ui` you will find some console user interaction helpers.
 :ref:`src.flowtool.execute` contains functions used to invoke/execute (shell)
 commands from python, and retrieve the (std-) output(s) as well as exit code
 of the invoked command.
+
+General functions for handling files, (i.e. searching for them, or manipulating)
+are located in :ref:`src.flowtool.files`. Most of these are based on functions
+from the stdlib module `os`, but some still common tasks require the use of
+`stat` and other.
+
+Last but not least, the module :ref:`src.flowtool.python` contains functions,
+that are mostly "pure python", and can help out in many cases.
+Many of these do string matching and iterable filtering, but some also do solve
+some Python 2/3 comaptibility issues. There are probably better ways to solve
+these, that will be implemented as soon as they get known to an author of
+`flowtool`.
