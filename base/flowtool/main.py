@@ -79,7 +79,7 @@ def add_commands(names=()):
                 style.debug.yellow('Unistalled component? - %r' % entry_point.name)
 
 
-def main():
+def init_main_group():
     """ Main module execution flow.
 
         Add options and commands to the main group,
@@ -87,7 +87,8 @@ def main():
     """
     add_main_group_options(OPTION_GROUPS)
     add_commands(COMMAND_GROUPS)
-    return flowtool_main_group()
+
+init_main_group()
 
 
-main() if __name__ == '__main__' else 'Bye!'
+flowtool_main_group() if __name__ == '__main__' else 'Bye!'
