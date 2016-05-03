@@ -27,20 +27,22 @@ that make up `flowtool`'s functionality)  this package brings two commands:
 
 These two commands do what you would expect them to do:
 
-- `self-info` displays some information about `flowtool`, it's installed
-  subcommands and the python environment it is running in. This is currently
-  mostly helpful for debugging things while developing flowtool.
+`self-info`
+    displays some information about `flowtool`, it's installed
+    subcommands and the python environment it is running in. This is currently
+    mostly helpful for debugging things while developing flowtool.
 
-.. _pip: https://pypi.python.org/pypi/pip
-
-- `self-update` uses pip_ to update flowtool components, that are installed.
-  It has some command line options:
+`self-update`
+    uses pip_ to update flowtool components, that are installed.
+    It has some command line options:
 
     - `--yes` (short: `-y`) update without asking
     - `--noop` (short: `-n`) don't actually update, just show what would be updated
     - The command accepts an arbitrary number of `pattern` arguments, that can
       be used to specify which packages should be updated. A `pattern` matches every
       package that contains `pattern` as a substring.
+
+.. _pip: https://pypi.python.org/pypi/pip
 
 Some example invocations of the `self-update` command:
 
