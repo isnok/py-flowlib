@@ -1,3 +1,6 @@
+""" This module contains some functions for command line user interaction,
+    that reach beyond the offerings of click (click.prompt, click.confirm).
+"""
 import click
 import sys
 from flowtool.style import echo, colors
@@ -5,12 +8,8 @@ from collections import namedtuple
 
 
 def abort(message, returncode=1):
-    """ Abort the program as requested. By default a nonzero exit status is returned.
-
-        >>> abort('Bye.')
-        Traceback (most recent call last):
-        ...
-        SystemExit: 1
+    """ Abort the program, returning returncode as requested.
+        By default the nonzero exit status 1 is returned.
     """
     output = echo.yellow if returncode else echo.white
     output(message)
@@ -19,11 +18,8 @@ def abort(message, returncode=1):
 
 ChoiceItem = namedtuple('ChoiceItem', ['name', 'args'])
 def make_item(name, *values):
-    """ Make a ChoiceItem. Currently only internal use. may come in use to customize
-        the choice menu item later.
-
-        >>> make_item('Point', 1, 2, 3)
-        ChoiceItem(name='Point', args=('Point', 1, 2, 3))
+    """ Make a ChoiceItem. Currently only internal use.
+        May come in use to customize the choice menu item later.
     """
     if isinstance(name, tuple):
         values = name[1:] + values

@@ -14,4 +14,7 @@ Contents:
    base/info.rst
    base/update.rst
    base/style.rst
-   base/rest.rst
+   base/ui.rst
+   base/files.rst
+   base/python.rst
+   base/execute.rst

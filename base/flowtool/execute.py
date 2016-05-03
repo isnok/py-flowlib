@@ -2,13 +2,6 @@
 
     Developed for python3, but it looks (?)
     as if they work just as good with python2.
-
-    >>> type(CompletedCommand) == type
-    True
-    >>> print_all_executions
-    False
-    >>> run_command('date').returncode
-    0
 '''
 
 print_all_executions = False
@@ -88,6 +81,4 @@ def main():
         result = run_command(cmd, debug=True)
         print(pformat_completed(result))
 
-if __name__ == '__main__':
-    import click
-    click.command()(main)()
+if __name__ == '__main__': main()

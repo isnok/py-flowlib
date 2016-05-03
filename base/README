@@ -35,6 +35,7 @@ These two commands do what you would expect them to do:
 
 - `self-update` uses pip_ to update flowtool components, that are installed.
   It has some command line options:
+
     - `--yes` (short: `-y`) update without asking
     - `--noop` (short: `-n`) don't actually update, just show what would be updated
     - The command accepts an arbitrary number of `pattern` arguments, that can
@@ -69,3 +70,9 @@ It can be used to conveniently keep flowtool and it's subcomponents up to date.
 
 The module :ref:`src.flowtool.style` contains functions to produce colored
 console output.
+
+In :ref:`src.flowtool.ui` you will find some console user interaction helpers.
+
+:ref:`src.flowtool.execute` contains functions used to invoke/execute (shell)
+commands from python, and retrieve the (std-) output(s) as well as exit code
+of the invoked command.
