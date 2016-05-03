@@ -1,13 +1,5 @@
-""" Flowtool console output wrappers.
+""" Flowtool console output wrappers.  """
 
-    >>> echo.green('Some', 'message.')
-    Some message.
-    >>> debug.blue('Another', 'message.')
-    >>> colors.green('A message.')
-    '\\x1b[32mA message.\\x1b[0m'
-    >>> colors.bold('Loud message.')
-    '\\x1b[1mLoud message.\\x1b[0m'
-"""
 import click
 
 from collections import namedtuple

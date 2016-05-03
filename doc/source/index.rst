@@ -7,8 +7,8 @@
 .. _py-flowlib: https://github.com/isnok/py-flowlib
 
 
-py-flowblib
-===========
+py-flowlib
+==========
 
 This is the documentation index of the github project `py-flowlib`_.
 
