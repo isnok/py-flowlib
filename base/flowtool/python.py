@@ -8,16 +8,10 @@ def read_stdin_nonblocking(**kwd):
     """ If there's input ready, do something, else do something
         else. Note timeout is zero so select won't block at all.
 
-        >>> list(read_stdin_nonblocking())
-        Traceback (most recent call last):
-        ...
-        ValueError: redirected Stdin is pseudofile, has no fileno()
-        >>> list(read_stdin_nonblocking(ignore_error=True))
-        []
-        >>> list(read_stdin_nonblocking(on_error=True))
-        [True]
-        >>> list(read_stdin_nonblocking(on_error='Whoopsie...', ignore_error=True))
-        ['Whoopsie...']
+        For test cases it will return the (to be deprecated)
+        environment variable TEST_STDIN_VALUE. But it turns out,
+        that monkey patching sys.stdin works a lot better in this
+        scenario, and thus will be migrated to in the future.
     """
     try:
         while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
