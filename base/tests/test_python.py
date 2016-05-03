@@ -47,6 +47,12 @@ def test_read_stdin_nonblocking():
         sys.stdin = fake
         result = list(python.read_stdin_nonblocking())
         sys.stdin = _stdin
-
     assert len(result) == 3
     assert result[1:] == ['Enjoy.\n', 'Bye!\n']
+
+    with open('/dev/null') as fake:
+        _stdin = sys.stdin
+        sys.stdin = fake
+        result = list(python.read_stdin_nonblocking())
+        sys.stdin = _stdin
+    assert result == []
