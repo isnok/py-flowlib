@@ -12,20 +12,10 @@ def read_stdin_nonblocking(**kwd):
         Traceback (most recent call last):
         ...
         ValueError: redirected Stdin is pseudofile, has no fileno()
-        >>> list(read_stdin_nonblocking(on_nothing=True))
-        Traceback (most recent call last):
-        ...
-        ValueError: redirected Stdin is pseudofile, has no fileno()
-        >>> list(read_stdin_nonblocking(on_error='Whoopsie...'))
-        Traceback (most recent call last):
-        ...
-        ValueError: redirected Stdin is pseudofile, has no fileno()
-        >>> list(read_stdin_nonblocking(ignore_error=0))
-        Traceback (most recent call last):
-        ...
-        ValueError: redirected Stdin is pseudofile, has no fileno()
         >>> list(read_stdin_nonblocking(ignore_error=True))
         []
+        >>> list(read_stdin_nonblocking(on_error=True))
+        [True]
         >>> list(read_stdin_nonblocking(on_error='Whoopsie...', ignore_error=True))
         ['Whoopsie...']
     """
@@ -44,7 +34,7 @@ def read_stdin_nonblocking(**kwd):
     except (ValueError, TypeError) as ex:
         if 'on_error' in kwd:
             yield kwd['on_error']
-        if not 'ignore_error' in kwd or not kwd['ignore_error']:
+        elif not 'ignore_error' in kwd or not kwd['ignore_error']:
             raise
         elif 'TEST_STDIN_VALUE' in os.environ:
             yield os.environ['TEST_STDIN_VALUE']
