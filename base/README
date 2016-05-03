@@ -16,3 +16,16 @@ flowtool-base
 
 The core package of `flowtool`.
 It contains the actual `console_script` and some library functions.
+
+Source Links
+------------
+
+The main executable (i.e. the `flowtool` and `ft` command) is implemented
+in the module :ref:`src.flowtool.main`.
+
+The module :ref:`src.flowtool.info` contains the source code of the `self-info`
+command. It can be used to retrieve some runtime/environment information, that
+can be helpful for debugging `flowtool`.
+
+The command `self-update` is implemented in the module :ref:`src.flowtool.update`.
+It can be used to conveniently keep flowtool and it's subcomponents up to date.

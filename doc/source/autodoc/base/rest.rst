@@ -1,24 +1,4 @@
 
-flowtool.info
-=============
-
-.. automodule:: flowtool.info
-    :members:
-    :undoc-members:
-    :inherited-members:
-    :show-inheritance:
-
-
-flowtool.update
-===============
-
-.. automodule:: flowtool.update
-    :members:
-    :undoc-members:
-    :inherited-members:
-    :show-inheritance:
-
-
 flowtool.*
 ==========
 

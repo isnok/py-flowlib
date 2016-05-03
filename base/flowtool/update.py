@@ -1,17 +1,6 @@
 """ Self-update mechanism of flowtool.
     Basically runs pip and saves you typing that over and over.
     May be extended to upgrade the whole virtualenv some day...
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(update_installed, ['--yes', '--noop'])
-    >>> result.exit_code
-    0
-    >>> result.output.startswith('pip --no-cache-dir install --upgrade flowtool-')
-    True
-    >>> result = runner.invoke(update_installed, ['--yes', '--noop', 'git'])
-    >>> result.exit_code in (0, 1)
-    True
 """
 import click
 import pip
@@ -22,19 +11,8 @@ from flowtool.style import echo, colors
 from flowtool.info import get_extensions
 from flowtool.python import contains_any_filter
 
-@click.command()
-@click.option(
-    '-y', '--yes', is_flag=True, default=False,
-    help="Update all components without asking."
-)
-@click.option(
-    '-r', '--reinstall', is_flag=True, default=False,
-    help="Also uninstall before reinstalling. (Defunct.)"
-)
-@click.option('-n', '--noop', is_flag=True, help="Do not install packages, just show the commands.")
-@click.argument('identifiers', nargs=-1)
-def update_installed(yes=None, reinstall=None, noop=None, identifiers=()):
-    """ Update all installed flowtool components. """
+def determine_upgrade(identifiers, yes):
+    """ Determine which installed packages are to be upgraded. """
 
     if identifiers:
         all_installed = [d.project_name for d in get_extensions()]
@@ -60,6 +38,25 @@ def update_installed(yes=None, reinstall=None, noop=None, identifiers=()):
                 colors.white('to update?')
             ]), default=True):
                 to_upgrade.append(dist.project_name)
+
+    return to_upgrade
+
+
+@click.command()
+@click.option(
+    '-y', '--yes', is_flag=True, default=False,
+    help="Update all components without asking."
+)
+# @click.option(
+    # '-r', '--reinstall', is_flag=True, default=False,
+    # help="Also uninstall before reinstalling. (Defunct.)"
+# )
+@click.option('-n', '--noop', is_flag=True, help="Do not install packages, just show the commands.")
+@click.argument('identifiers', nargs=-1)
+def update_installed(yes=None, reinstall=None, noop=None, identifiers=()):
+    """ Update all installed flowtool components. """
+
+    to_upgrade = determine_upgrade(identifiers, yes)
 
     if not to_upgrade:
         echo.cyan('Nothing to upgrade.')

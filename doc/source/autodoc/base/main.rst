@@ -1,6 +1,9 @@
 .. toctree::
    :maxdepth: 2
 
+
+.. _src.flowtool.main:
+
 flowtool.main
 =============
 

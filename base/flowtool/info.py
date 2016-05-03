@@ -1,13 +1,6 @@
 """ Self-Info command for flowtool.
     May be helpful in debugging version conflicts sometimes.
 
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(show_info, ())
-    >>> result.exit_code
-    0
-    >>> result.output.startswith(' - flowtool information dump -')
-    True
 """
 import sys
 import pip
@@ -39,12 +32,8 @@ def get_commands():
 
 @click.command()
 def show_info():
-    """ Gather and show general info.
+    """ Gather and show runtime/environment info. """
 
-        >>> show_info()
-         - flowtool information dump -
-        ...
-    """
     echo.bold(' - flowtool information dump -')
     echo.bold()
     echo.bold(colors.cyan('python executable:'), (sys.executable))
