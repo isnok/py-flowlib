@@ -17,12 +17,10 @@ def test_read_stdin_nonblocking():
 
     with pytest.raises(ValueError) as exc_info:
         result = next(python.read_stdin_nonblocking())
-        assert not result
     assert exc_info.value.args == ('redirected Stdin is pseudofile, has no fileno()',)
 
     with pytest.raises(ValueError) as exc_info:
         result = next(python.read_stdin_nonblocking(ignore_error=False))
-        assert not result
     assert exc_info.value.args == ('redirected Stdin is pseudofile, has no fileno()',)
 
     result = list(python.read_stdin_nonblocking(ignore_error=True))
