@@ -12,20 +12,20 @@ def test_noargs():
     assert 'self-update' in result.output
 
 def test_info():
-    result = runner.invoke(flowtool_main_group, ('self-info'))
-    assert result.exit_code in (0, 2)
+    result = runner.invoke(flowtool_main_group, ('self-info',))
+    assert result.exit_code == 0
     assert 'flowtool' in result.output
 
 def test_debug():
     result = runner.invoke(flowtool_main_group, ('--debug', 'self-info'))
-    assert result.exit_code in (0, 2)
+    assert result.exit_code == 0
     assert 'Options:' in result.output
 
     # After this, debug stay enabled during the test session,
     # in the doctests if we don't disable it again:
 
     result = runner.invoke(flowtool_main_group, ('--no-debug', 'self-info'))
-    assert result.exit_code in (0, 2)
+    assert result.exit_code == 0
     assert 'Options:' not in result.output
 
 
