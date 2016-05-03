@@ -13,4 +13,5 @@ Contents:
    base/main.rst
    base/info.rst
    base/update.rst
+   base/style.rst
    base/rest.rst

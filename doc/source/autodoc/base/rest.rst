@@ -1,12 +1,6 @@
 
-flowtool.*
-==========
-
-.. automodule:: flowtool.style
-    :members:
-    :undoc-members:
-    :inherited-members:
-    :show-inheritance:
+flowtool.ui
+===========
 
 .. automodule:: flowtool.ui
     :members:
@@ -14,11 +8,19 @@ flowtool.*
     :inherited-members:
     :show-inheritance:
 
+
+flowtool.files
+==============
+
 .. automodule:: flowtool.files
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
+
+
+flowtool.python
+===============
 
 .. automodule:: flowtool.python
     :members:
@@ -26,9 +28,12 @@ flowtool.*
     :inherited-members:
     :show-inheritance:
 
+
+flowtool.execute
+================
+
 .. automodule:: flowtool.execute
     :members:
     :undoc-members:
     :inherited-members:
     :show-inheritance:
-
