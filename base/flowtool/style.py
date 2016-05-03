@@ -11,7 +11,7 @@ color_names = [
     'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white',
 ]
 
-term_effects = ['dim', 'bold', 'blink', 'undeline', 'reverse']
+term_effects = ['dim', 'bold', 'blink', 'underline', 'reverse']
 
 def color_function(name):
     """ Creates a function that decorates a string with
