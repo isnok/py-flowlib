@@ -1,0 +1,3 @@
+This is fake stdin for testing the read_stdin_nonblocking function from the flowtool.python module.
+Enjoy.
+Bye!

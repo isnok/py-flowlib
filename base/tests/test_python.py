@@ -1,7 +1,12 @@
-import os
+import os, sys
 import pytest
 
 from flowtool import python
+
+fake_stdin_file = os.path.join(
+    os.path.dirname(__file__),
+    'python_stdin_mock.txt'
+)
 
 def test_read_stdin_nonblocking():
 
@@ -39,7 +44,11 @@ def test_read_stdin_nonblocking():
 
     del os.environ['TEST_STDIN_VALUE']
 
-    with pytest.raises(ValueError) as exc_info:
-        result = next(python.read_stdin_nonblocking())
-        assert not result
-    assert exc_info.value.args == ('redirected Stdin is pseudofile, has no fileno()',)
+    with open(fake_stdin_file) as fake:
+        _stdin = sys.stdin
+        sys.stdin = fake
+        result = list(python.read_stdin_nonblocking())
+        sys.stdin = _stdin
+
+    assert len(result) == 3
+    assert result[1:] == ['Enjoy.\n', 'Bye!\n']

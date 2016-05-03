@@ -34,7 +34,7 @@ def read_stdin_nonblocking(**kwd):
     except (ValueError, TypeError) as ex:
         if 'on_error' in kwd:
             yield kwd['on_error']
-        elif not 'ignore_error' in kwd or not kwd['ignore_error']:
+        elif 'ignore_error' not in kwd or not kwd['ignore_error']:
             raise
         elif 'TEST_STDIN_VALUE' in os.environ:
             yield os.environ['TEST_STDIN_VALUE']
@@ -145,8 +145,9 @@ def import_file(name, path):
     except:
         pass
 
-    try: # py2
+    # try: # py2
+    if True:
         import imp
         return imp.load_source(name, path)
-    except:
-        pass
+    # except:
+        # pass
