@@ -30,3 +30,9 @@ def test_debug(capsys):
 def test_colors():
     assert style.colors.green('A message.') == '\x1b[32mA message.\x1b[0m'
     assert style.colors.bold('Loud message.') == '\x1b[1mLoud message.\x1b[0m'
+
+    for func in style.colors:
+        colored = func('string')
+        assert 'string' in colored
+        assert not colored.startswith('string')
+        assert not colored.endswith('string')
