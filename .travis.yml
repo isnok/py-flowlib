@@ -16,6 +16,7 @@ before_install:
     # - sudo apt-get install -y cabal-install
     # - cabal update
     # - cabal install shellcheck
+    - git pull
     - make travis-setup
 
 install:
