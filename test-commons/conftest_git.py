@@ -1,5 +1,6 @@
 import tempfile
 import pytest
+import sys
 import os
 import shutil
 
@@ -15,7 +16,7 @@ os.makedirs(TEMPDIR)
 
 import getpass
 
-if getpass.getuser() == 'travis':
+if '-v' not in sys.argv:
     import atexit
     atexit.register(
         partial(shutil.rmtree, TEMPDIR)

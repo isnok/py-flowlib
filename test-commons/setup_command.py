@@ -25,6 +25,14 @@ def setup_testenv(self=None):
     install_requirement('gitpython')
     install_requirement('pytest')
 
+def run_testchain(self=None):
+    """ Run the tests.
+
+        >>> run_testchain()
+    """
+    import pytest
+    self and sys.exit(pytest.main(self.pytest_args))
+
 
 class PytestCommand(Command):
 
@@ -34,9 +42,5 @@ class PytestCommand(Command):
     pytest_args = []
 
     initialize_options = setup_testenv
-
-    def run(self):
-        import pytest
-        sys.exit(pytest.main(self.pytest_args))
-
+    run = run_testchain
     finalize_options = testable_nothing
