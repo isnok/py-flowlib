@@ -37,7 +37,7 @@ def test_badopt():
     # containing 'unhandled option:' as in the uncovered section
     # of flowtool.main.flowtool_main_group.
     # But that requires probably a lot of setup... coverage juhay!!
-    assert result.output.startingwith('Usage:')
+    assert result.output.startswith('Usage:')
 
 from flowtool.main import add_main_group_options, add_commands
 
