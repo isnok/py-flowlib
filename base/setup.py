@@ -89,8 +89,8 @@ setup_args.update(
 setup_args.update(
     entry_points={
         'console_scripts': [
-            'flowtool = flowtool.main:main',
-            'ft = flowtool.main:main',
+            'flowtool = flowtool.main:flowtool_main_group',
+            'ft = flowtool.main:flowtool_main_group',
         ],
         'flowtool_commands': [
             'self-info = flowtool.info:show_info',
