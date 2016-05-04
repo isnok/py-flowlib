@@ -1,13 +1,4 @@
-""" Clean up python temporary files command.
-
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(clean, ['--yes'])
-    >>> result.exit_code
-    0
-    >>> result.output.startswith('='*30) and result.output.endswith('Done.\\n')
-    True
-"""
+""" Clean up python temporary files command. """
 import os
 import fnmatch
 import click
