@@ -55,7 +55,7 @@ def local_repo(path=None, or_exit=True):
         if or_exit:
             abort('The current directory is not under git version control: %s' % ex)
 
-def local_git_command(*args, path=None, **kwd):
+def local_git_command(path=None, *args, **kwd):
     """ Return the GitPython git command wrapper for a local git repository.
     """
     return local_repo(path=path, *args, **kwd).git
@@ -66,7 +66,7 @@ ParsedGitStatusLine = namedtuple(
     ['on_index', 'untracked', 'filename'],
 )
 
-def short_status(*args, path=None):
+def short_status(path=None, *args):
     """ Return a parsed representation of the short status of the local git.
 
         Right now the parsing is very simple, but required extensions have been

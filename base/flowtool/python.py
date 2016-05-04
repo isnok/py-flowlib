@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Some pythonic helper functions and general purpose cornercutting. """
 
 import os
