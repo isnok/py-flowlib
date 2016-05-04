@@ -39,6 +39,9 @@ GitCommandNotFound = gitpython.exc.GitCommandNotFound
 
 @cached
 def local_repo(path=None, or_exit=True):
+    """ Return a GitPython GitRepository for a git repository
+        accessible from the local hosts file system.
+    """
     if path is None:
         path = os.getcwd()
     elif isinstance(path, gitpython.Repo):
@@ -52,15 +55,26 @@ def local_repo(path=None, or_exit=True):
         if or_exit:
             abort('The current directory is not under git version control: %s' % ex)
 
-def local_git_command(*args, **kwd):
-    return local_repo(*args, **kwd).git
+def local_git_command(*args, path=None, **kwd):
+    """ Return the GitPython git command wrapper for a local git repository.
+    """
+    return local_repo(path=path, *args, **kwd).git
 
 
-ParsedGitStatusLine = namedtuple('ParsedGitStatusLine', ['on_index', 'untracked', 'filename'])
+ParsedGitStatusLine = namedtuple(
+    'ParsedGitStatusLine',
+    ['on_index', 'untracked', 'filename'],
+)
 
-def short_status(*args):
-    '--untracked-files=no'
-    short_listing = local_git_command().status('--short', *args)
+def short_status(*args, path=None):
+    """ Return a parsed representation of the short status of the local git.
+
+        Right now the parsing is very simple, but required extensions have been
+        spotted already. (Detect moved files [badly parsed by now] and deleted
+        for example, add flags to filter).
+    """
+
+    short_listing = local_git_command(path=path).status('--short', *args)
     result = []
     for line in short_listing.split('\n'):
         if line:

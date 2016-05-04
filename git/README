@@ -1,9 +1,57 @@
-[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/flowtool-git.svg)](https://pypi.python.org/pypi/flowtool-git)
-[![PyPI Latest Version](https://img.shields.io/pypi/v/flowtool-git.svg)](https://pypi.python.org/pypi/flowtool-git)
-[![PyPI Distribution Format](https://img.shields.io/pypi/format/flowtool-git.svg)](https://pypi.python.org/pypi/flowtool-git)
+.. image:: https://img.shields.io/pypi/pyversions/flowtool-git.svg
+    :target: https://pypi.python.org/pypi/flowtool-git
+    :alt: PyPI Python Versions
 
-# flowtool-git
+.. image:: https://img.shields.io/pypi/v/flowtool-git.svg
+    :target: https://pypi.python.org/pypi/flowtool-git
+    :alt: PyPI Latest Version
 
-GitPython wrappers.
+.. image:: https://img.shields.io/pypi/format/flowtool-git.svg
+    :target: https://pypi.python.org/pypi/flowtool-git
+    :alt: PyPI Distribution Format
 
-The libary of commons for git-related flowtool extensions.
+
+.. _git: https://git-scm.com/
+.. _flowtool-versioning: https://github.com/isnok/py-flowlib/tree/master/versioning
+.. _flowtool-gitflow: https://github.com/isnok/py-flowlib/tree/master/gitflow
+
+
+.. _flowtool-git-doc:
+
+flowtool-git
+============
+
+The practical git interface for almost all flowtool components.
+
+Practical meaning in this case, that whereever possible GitPython is used
+to interact with git repositories. But since GitPython does not yet support
+all the features used in flowtool's components, some features currently can
+only be "handmade" by utilizing the git shell command. This is possible
+trough GitPython already in a convenient manner, and is used whereever
+git interaction is required.
+
+The exception of 'all git interaction goes through here' are the drop-in
+files of `flowtool-versioning`_.  Since these should be free of dependencies
+as much as possible (only stdlib by now) they call the `git`_ command directly.
+
+This module also contains a libary of convenience functions for git tasks.
+It has still a very small set of functions, like filtering tags for a certain
+prefix, or pre-parsing the output of `git status -s`.
+
+
+Source Links
+------------
+
+The biggest module by now is :ref:`src.flowtool-git.common`.
+It's main attraction is a cached git repository retrieval mechanism
+(check out the `@cached` function `local_repo`).
+
+:ref:`src.flowtool-git.config` contains two functions to retrieve the
+local repos git configuration as a two layer deep dict.
+
+The code to manage git tags
+(two functions at the time of this being written).
+is contained in :ref:`src.flowtool-git.tags`.
+
+All of these library files should receive bumps in the future, when the
+`flowtool-gitflow`_ components will be shaped out.

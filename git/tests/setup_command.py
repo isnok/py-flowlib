@@ -1,0 +1,1 @@
+../../test-commons/setup_command.py

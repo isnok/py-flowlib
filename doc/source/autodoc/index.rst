@@ -18,3 +18,7 @@ Contents:
    base/files.rst
    base/python.rst
    base/execute.rst
+
+   git/common.rst
+   git/config.rst
+   git/tags.rst

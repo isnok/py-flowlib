@@ -16,12 +16,26 @@
 import sys
 import os
 
+autodoced_components = (
+    'base',
+    'git',
+    # 'gitflow',
+    # 'githooks',
+    # 'hooks-demo',
+    # 'pythonic',
+    # 'versioning',
+    # 'releasing',
+    # 'stages',
+    # 'meta',
+)
+
 def mkpath(name):
     dn = os.path.dirname
     project_root = dn(dn(dn(__file__)))
     return os.path.join(project_root, name)
 
-sys.path.insert(0, mkpath('base'))
+for dir_name in autodoced_components:
+    sys.path.insert(0, mkpath(dir_name))
 
 autodoc_member_order = 'bysource'
 
