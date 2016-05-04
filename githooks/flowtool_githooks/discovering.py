@@ -76,7 +76,7 @@ def find_added_file_patterns(patterns=(), untracked_files=False, repo=None):
 
     untracked = 'yes' if untracked_files else 'no'
     added = []
-    for line in short_status('--untracked-files=%s' % untracked, path=repo):
+    for line in short_status(repo, '--untracked-files=%s' % untracked):
         if line.on_index not in ' D':
             added.append(line.filename)
 
