@@ -12,12 +12,25 @@ runner = CliRunner()
 
 def test_clean():
 
+    result = runner.invoke(clean.clean, ['--no'])
+    assert result.exit_code == 0
+    assert 'Delete these files / directories?' not in result.output
+    assert result.output.endswith('Done.\n')
+
+    result = runner.invoke(clean.clean, [], input='n\n')
+    assert 'Delete these files / directories?' in result.output
+    assert result.exit_code == 1
+    assert result.output.endswith('Aborted!\n')
+
     result = runner.invoke(clean.clean, ['--yes'])
     assert result.exit_code == 0
+    assert 'Delete these files / directories?' not in result.output
     assert result.output.endswith('Done.\n')
 
     result = runner.invoke(clean.clean, ['--yes'])
     assert result.exit_code == 0
+    assert 'Nothing that would require cleaning was found.' in result.output
+    assert 'Delete these files / directories?' not in result.output
     assert result.output.endswith('Done.\n')
 
 

@@ -3,7 +3,7 @@ import os
 import fnmatch
 import click
 import shutil
-from flowtool.style import echo, colors
+from flowtool.style import echo, colors, debug
 
 # from flowtool.style import debug
 
@@ -79,6 +79,8 @@ def confirm_clean(files_to_delete, dirs_to_remove, answer=None):
         for dirname in dirs_to_remove:
             echo.white(dirname)
 
+    debug.white(answer)
+
     confirmed = click.confirm(
         colors.bold('\nDelete these files / directories?'),
         default=True,
@@ -90,8 +92,8 @@ def confirm_clean(files_to_delete, dirs_to_remove, answer=None):
 @click.command()
 @click.argument('directory', type=click.Path(exists=True), default=os.getcwd())
 @click.option(
-    '-y', '--yes', is_flag=True,
-    help="Clean up without asking for confirmation."
+    '-y/-n', '--yes/--no', is_flag=True, default=None,
+    help="Clean up (or not) without asking for confirmation."
 )
 def clean(directory=os.getcwd(), yes=None):
     """ Recursively clean python temporary files. """
