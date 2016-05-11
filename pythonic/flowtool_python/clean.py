@@ -90,7 +90,7 @@ def confirm_clean(files_to_delete, dirs_to_remove, answer=None):
 @click.command()
 @click.argument('directory', type=click.Path(exists=True), default=os.getcwd())
 @click.option(
-    '-y', '--yes', is_flag=True, default=False,
+    '-y', '--yes', is_flag=True,
     help="Clean up without asking for confirmation."
 )
 def clean(directory=os.getcwd(), yes=None):
