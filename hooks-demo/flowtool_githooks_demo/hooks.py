@@ -21,26 +21,7 @@ rules:
 '''
 
 class YAMLLintHook(ShellCommandHook):
-    """ A linter integration for yamllint.
-
-        >>> from click.testing import CliRunner
-        >>> runner = CliRunner()
-
-        >>> githook = yamllint_hook
-        >>> result = runner.invoke(githook.click_command, [])
-
-        # >>> result.exception
-
-        >>> result.exit_code in (0, 2)
-        True
-        >>> output_lines = result.output.split('\\n')[:-1]
-
-        # >>> len(output_lines)
-        # 3
-
-        >>> 'will check' in output_lines[0]
-        True
-    """
+    """ A linter integration for yamllint. """
 
     NAME = 'yamllint_hook'
     CHECK_TOOL = (
@@ -62,16 +43,7 @@ yamllint_hook = YAMLLintHook()
 
 
 class ShellCheckHook(ShellCommandHook):
-    """ An integration for shellcheck.
-
-        >>> from click.testing import CliRunner
-        >>> runner = CliRunner()
-        >>> githook = ShellCheckHook()
-
-        >>> result = runner.invoke(githook.click_command, [])
-        >>> githook.NAME in result.output
-        True
-    """
+    """ An integration for shellcheck. """
 
     NAME = 'shellcheck_hook'
     CHECK_TOOL = 'shellcheck'
@@ -132,12 +104,8 @@ minimal_pylint_checks = [
 PYLINT = os.path.join(os.path.dirname(sys.executable), 'pylint')
 
 def make_pylint_cfg(self=None):
-    """ Produce the content for a minimal pylint config as a string.
+    """ Produce a pylint config as a string. """
 
-        >>> cfg = make_pylint_cfg()
-        >>> cfg == str(cfg)
-        True
-    """
     config_content = capture_command(
         PYLINT,
         '--enable=%s' % ','.join(minimal_pylint_checks),
@@ -148,13 +116,7 @@ def make_pylint_cfg(self=None):
     return config_content
 
 class PylintHook(ShellCommandHook):
-    """ An integration for pylint.
-
-        >>> from click.testing import CliRunner
-        >>> runner = CliRunner()
-        >>> githook = PylintHook()
-
-    """
+    """ An integration for pylint. """
 
     NAME = 'pylint_hook'
     CHECK_TOOL = (
